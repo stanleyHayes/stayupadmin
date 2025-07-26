@@ -11,7 +11,7 @@ const lightTheme = createTheme({
         }
     },
     typography: {
-        fontFamily: "TTSquares, EuclidCircularA, EuclidCircularB, Outfit, Eudoxus Sans, GoogleSans, Urbanist, Gilroy, Manrope"
+        fontFamily: "EuclidCircularA, EuclidCircularB, Outfit, Eudoxus Sans, GoogleSans, Urbanist, Gilroy, Manrope"
     },
     palette: {
         primary: {
@@ -154,7 +154,7 @@ const darkTheme = createTheme({
         }
     },
     typography: {
-        fontFamily: "TTSquares, EuclidCircularA, EuclidCircularB, Outfit, Eudoxus Sans, GoogleSans, Urbanist, Gilroy, Manrope"
+        fontFamily: "EuclidCircularA, EuclidCircularB, Outfit, Eudoxus Sans, GoogleSans, Urbanist, Gilroy, Manrope"
     },
     palette: {
         primary: {
