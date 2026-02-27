@@ -16,8 +16,8 @@ const Category = ({category, index}) => {
         <React.Fragment>
             <TableRow>
                 <TableCell>
-                    <Tooltip title={`Detailed view of order ${category.name}`}>
-                        <Link to={`/categories/${category._id}`} style={{textDecoration: "none"}}>
+                    <Tooltip title={`Detailed view of order ${category?.name}`}>
+                        <Link to={`/categories/${category?._id}`} style={{textDecoration: "none"}}>
                             <Typography variant="body2" component="span" sx={{color: "text.secondary"}}>
                                 {index + 1}
                             </Typography>
@@ -25,15 +25,15 @@ const Category = ({category, index}) => {
                     </Tooltip>
                 </TableCell>
                 <TableCell>
-                    <Tooltip title={`Quick view category ${category.name}`}>
-                        <Link to={`/categorys/${category._id}`} style={{textDecoration: "none"}}>
+                    <Tooltip title={`Quick view category? ${category?.name}`}>
+                        <Link to={`/categories/${category?._id}`} style={{textDecoration: "none"}}>
                             <Stack direction="row" spacing={1} alignItems="center">
                                 <Typography
                                     sx={{color: "text.primary"}}
                                     variant="body2">
                                     {category?.name}
                                 </Typography>
-                                {category.is_verified && (
+                                {category?.is_verified && (
                                     <Verified
                                         sx={{
                                             fontSize: 12,
@@ -48,28 +48,28 @@ const Category = ({category, index}) => {
                 </TableCell>
 
                 <TableCell>
-                    <Tooltip title={`Call ${category.name}`}>
-                        <MUILink href={`tel:${category.phone}`}>
+                    <Tooltip title={`Call ${category?.name}`}>
+                        <MUILink href={`tel:${category?.phone}`}>
                             <Typography
                                 sx={{color: "text.primary"}}
                                 variant="body2">
-                                {category.phone}
+                                {category?.phone}
                             </Typography>
                         </MUILink>
                     </Tooltip>
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2" sx={{color: "text.secondary"}}>
-                        @{category.username.toLowerCase()}
+                        @{category?.username?.toLowerCase()}
                     </Typography>
                 </TableCell>
                 <TableCell align="center">
-                    <Tooltip title={`Email ${category.name}`}>
-                        <MUILink href={`mailto:${category.email}`}>
+                    <Tooltip title={`Email ${category?.name}`}>
+                        <MUILink href={`mailto:${category?.email}`}>
                             <Typography
                                 sx={{color: "text.primary"}}
                                 variant="body2">
-                                {category.email}
+                                {category?.email}
                             </Typography>
                         </MUILink>
                     </Tooltip>
@@ -80,7 +80,7 @@ const Category = ({category, index}) => {
                         justifyContent="flex-start"
                         spacing={1}
                         alignItems="center">
-                        <Tooltip title={`Quick view order ${category.name}`}>
+                        <Tooltip title={`Quick view order ${category?.name}`}>
                             <VisibilityOutlined
                                 sx={{
                                     padding: 0.4,
@@ -95,8 +95,8 @@ const Category = ({category, index}) => {
                                 }}
                             />
                         </Tooltip>
-                        <Tooltip title={`Update category ${category.name}`}>
-                            <Link to={`/categorys/${category._id}/update`} style={{textDecoration: "none"}}>
+                        <Tooltip title={`Update category? ${category?.name}`}>
+                            <Link to={`/category?s/${category?._id}/update`} style={{textDecoration: "none"}}>
                                 <EditOutlined
                                     sx={{
                                         padding: 0.4,
@@ -112,7 +112,7 @@ const Category = ({category, index}) => {
                                 />
                             </Link>
                         </Tooltip>
-                        <Tooltip title={`Delete order ${category.name}`}>
+                        <Tooltip title={`Delete order ${category?.name}`}>
                             <DeleteForeverOutlined
                                 onClick={handleDeleteClick}
                                 sx={{
@@ -136,7 +136,7 @@ const Category = ({category, index}) => {
                 <ConfirmDialog
                     open={openConfirmDialog}
                     handleClose={() => setOpenConfirmDialog(false)}
-                    message={`Are you sure you want to delete category ${category.name}?`}
+                    message={`Are you sure you want to delete category ${category?.name}?`}
                     handleDelete={handleDeleteClick}
                 />
             )}

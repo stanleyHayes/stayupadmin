@@ -73,6 +73,8 @@ const CreateCategoryPage = lazy(() => import("./pages/categories/create-category
 const CategoriesPage = lazy(() => import("./pages/categories/categories-page.jsx"));
 const CategoryDetailPage = lazy(() => import("./pages/categories/category-detail-page.jsx"));
 
+const TagsPage = lazy(() => import("./pages/tags/tags-page.jsx"));
+
 
 function App() {
     const {theme} = useSelector(selectUI);
@@ -88,10 +90,10 @@ function App() {
                 <Route path="/categores/:categoryID/update"
                        element={<Suspense fallback={<Splash/>}><UpdateCategoryPage/></Suspense>}/>
                 <Route path="/category/new" element={<Suspense fallback={<Splash/>}><CreateCategoryPage/></Suspense>}/>
-                <Route path="/coupons" element={<Suspense fallback={<Splash/>}><CouponsPage/></Suspense>}/>
-                <Route path="/coupons/:couponID"
+                <Route path="/attributes" element={<Suspense fallback={<Splash/>}><CouponsPage/></Suspense>}/>
+                <Route path="/attributes/:couponID"
                        element={<Suspense fallback={<Splash/>}><CouponDetailPage/></Suspense>}/>
-                <Route path="/coupons/:couponID/update"
+                <Route path="/attributes/:couponID/update"
                        element={<Suspense fallback={<Splash/>}><UpdateCouponPage/></Suspense>}/>
                 <Route path="/coupon/new" element={<Suspense fallback={<Splash/>}><CreateCouponPage/></Suspense>}/>
                 <Route path="/users" element={<Suspense fallback={<Splash/>}><UsersPage/></Suspense>}/>
@@ -121,6 +123,7 @@ function App() {
                 <Route path="/profile/update" element={<Suspense fallback={<Splash/>}><UpdateProfilePage/></Suspense>}/>
                 <Route path="/admins/:adminID" element={<Suspense fallback={<Splash/>}><AdminDetailPage/></Suspense>}/>
                 <Route path="/admin/new" element={<Suspense fallback={<Splash/>}><CreateAdminPage/></Suspense>}/>
+                <Route path="/tags" element={<Suspense fallback={<Splash/>}><TagsPage/></Suspense>}/>
                 <Route path="/admins/:adminID/update"
                        element={<Suspense fallback={<Splash/>}><UpdateAdminPage/></Suspense>}/>
                 <Route path="/auth/forgot-password"

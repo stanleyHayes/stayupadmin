@@ -237,7 +237,7 @@ const CouponsPage = () => {
                                     </Box>
                                 }
                                 title="Coupons"
-                                message="No coupons available"
+                                message="No attributes available"
                                 button={
                                     <Link to="/coupon/new" style={{textDecoration: "none"}}>
                                         <Button
