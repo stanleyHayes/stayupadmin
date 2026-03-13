@@ -4,6 +4,7 @@ import {
     DialogContent,
     Divider,
     Grid,
+    IconButton,
     Paper,
     Stack,
     Table,
@@ -25,71 +26,46 @@ const OrderQuickView = ({order, open, handleClose}) => {
     return (
         <Dialog maxWidth="md" open={open} onClose={handleClose}>
             <DialogContent>
-                <Grid container={true} spacing={4} alignItems="center">
-                    <Grid item={true} xs={12} md={3}>
+                <Grid container spacing={4} alignItems="center">
+                    <Grid size={{ xs: 12, md: 3 }}>
                         <Typography variant="body2" sx={{color: "text.primary", fontWeight: 600}}>
                             Order {order.number}
                         </Typography>
                     </Grid>
-                    <Grid item={true} xs={12} md={9}>
-                        <Box>
-                            <Stack
-                                divider={
-                                    <Divider
-                                        light={true}
-                                        orientation="vertical"
-                                        flexItem={true}
-                                        variant="fullWidth"
-                                    />
-                                }
-                                alignItems="center"
-                                direction="row"
-                                spacing={1}>
-                                <Link to={`/orders/${order._id}/update`} style={{textDecoration: "none"}}>
-                                    <Button
-                                        sx={{
-                                            textTransform: "capitalize",
-                                            borderWidth: 2,
-                                        }}
-                                        size="small"
-                                        color="secondary"
-                                        variant="outlined"
-                                        fullWidth={true}>Edit</Button>
-                                </Link>
+                    <Grid size={{ xs: 12, md: 9 }}>
+                        <Stack
+                            divider={
+                                <Divider
+                                    orientation="vertical"
+                                    flexItem
+                                    variant="fullWidth"
+                                />
+                            }
+                            alignItems="center"
+                            direction="row"
+                            spacing={1}>
+                            <Link to={`/orders/${order._id}/update`} style={{textDecoration: "none"}}>
+                                <Button
+                                    size="small"
+                                    color="secondary"
+                                    variant="outlined"
+                                    fullWidth={true}>Edit</Button>
+                            </Link>
 
-                                <Status status={order.status}/>
+                            <Status status={order.status}/>
 
-                                <Box component={motion.div} exit={{}}>
-                                    <Close
-                                        onClick={handleClose}
-                                        sx={{
-                                            padding: 1,
-                                            fontSize: 36,
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '30%',
-                                            borderColor: "light.secondary",
-                                            color: "secondary.main",
-                                            backgroundColor: "light.secondary",
-                                            cursor: "pointer"
-                                        }}
-                                    />
-                                </Box>
-                            </Stack>
-                        </Box>
+                            <Box component={motion.div} exit={{}}>
+                                <IconButton onClick={handleClose} size="small">
+                                    <Close fontSize="small" />
+                                </IconButton>
+                            </Box>
+                        </Stack>
                     </Grid>
                 </Grid>
 
-                <Divider variant="fullWidth" light={true} sx={{py: 1}}/>
+                <Divider variant="fullWidth" sx={{py: 1}}/>
 
-                <Box sx={{mb: 4}}>
-                    <Grid container={true} spacing={4}>
-                        <Grid item={true} xs={12} md={6}></Grid>
-                        <Grid item={true} xs={12} md={6}></Grid>
-                    </Grid>
-                </Box>
-
-                <TableContainer component={Paper} variant="elevation" elevtion={0}>
+                <TableContainer component={Paper} elevation={0}>
                     <Table>
                         <TableHead>
                             <TableRow>

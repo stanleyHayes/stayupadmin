@@ -52,7 +52,7 @@ const ProductsPage = () => {
             {productLoading && <LinearProgress variant="query" color="secondary" />}
             <Box sx={{ pt: 4, pb: 6 }}>
                 {productError && (
-                    <Alert severity="error" variant="standard">
+                    <Alert severity="error" sx={{mb: 2}}>
                         <AlertTitle>{productError}</AlertTitle>
                     </Alert>
                 )}
@@ -68,7 +68,7 @@ const ProductsPage = () => {
                                 </Grid>
                                 <Grid item={true} size={{ xs: 12, md: "auto" }}>
                                     <Link to="/product/new" style={{ textDecoration: "none", width: "100%", display: "block" }}>
-                                        <Button sx={{ textTransform: "capitalize", borderWidth: 2 }} size="large" color="secondary" variant="outlined" fullWidth>
+                                        <Button size="small" color="secondary" variant="outlined" fullWidth>
                                             Add Product
                                         </Button>
                                     </Link>
@@ -94,14 +94,14 @@ const ProductsPage = () => {
                                             variant="standard"
                                             type="text"
                                             placeholder="Search products..."
-                                            InputProps={{ disableUnderline: true }}
+                                            slotProps={{ input: { disableUnderline: true } }}
                                         />
                                         <SearchOutlined onClick={handleSearch} sx={{ color: "background.icon" }} color="secondary" />
                                     </Stack>
                                 </Grid>
 
                                 <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                                    <Button sx={{ textTransform: "capitalize", borderWidth: 2 }} size="large" color="secondary" variant="outlined" fullWidth>
+                                    <Button size="small" color="secondary" variant="outlined" fullWidth>
                                         Search Products
                                     </Button>
                                 </Grid>
@@ -114,7 +114,7 @@ const ProductsPage = () => {
                     <Grid container={true} spacing={2} alignItems="center">
                         <Grid item={true} size={{ xs: 12, md: "auto" }}>
                             <DatePicker
-                                slotProps={{ textField: { size: "medium", fullWidth: true } }}
+                                slotProps={{ textField: { size: "small", fullWidth: true } }}
                                 value={startDate}
                                 onChange={date => setStartDate(date)}
                                 disableFuture
@@ -124,7 +124,7 @@ const ProductsPage = () => {
 
                         <Grid item={true} size={{ xs: 12, md: "auto" }}>
                             <DatePicker
-                                slotProps={{ textField: { size: "medium", fullWidth: true } }}
+                                slotProps={{ textField: { size: "small", fullWidth: true } }}
                                 value={endDate}
                                 onChange={date => setEndDate(date)}
                                 disableFuture
@@ -136,7 +136,7 @@ const ProductsPage = () => {
                             <Box>
                                 <FormControl fullWidth variant="outlined">
                                     <InputLabel>Category</InputLabel>
-                                    <Select onChange={event => setSelectedCategory(event.target.value)} value={selectedCategory} fullWidth size="medium" label="Category" variant="outlined">
+                                    <Select onChange={event => setSelectedCategory(event.target.value)} value={selectedCategory} fullWidth size="small" label="Category" variant="outlined">
                                         <MenuItem value="all">All</MenuItem>
                                         <MenuItem value="featured">Featured</MenuItem>
                                         <MenuItem value="low_stock">Low stock</MenuItem>
@@ -149,7 +149,7 @@ const ProductsPage = () => {
                         <Grid item={true} size={{ xs: 12, md: "auto" }}>
                             <Grid alignItems="center" container={true} spacing={2}>
                                 <Grid item={true} xs={12}>
-                                    <Button sx={{ textTransform: "capitalize", borderWidth: 2, py: 1.5 }} size="large" color="secondary" variant="outlined" fullWidth>
+                                    <Button size="small" color="secondary" variant="outlined" fullWidth>
                                         Filter
                                     </Button>
                                 </Grid>
@@ -159,7 +159,7 @@ const ProductsPage = () => {
 
                     <Divider variant="fullWidth" sx={{ my: 4 }} />
 
-                    <TableContainer component={Paper} elevation={0} variant="elevation">
+                    <TableContainer component={Paper} elevation={0}>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -187,7 +187,7 @@ const ProductsPage = () => {
                                 message="No products available"
                                 button={
                                     <Link to="/product/new" style={{ textDecoration: "none" }}>
-                                        <Button sx={{ textTransform: "capitalize", borderWidth: 2 }} size="small" color="secondary" variant="outlined" fullWidth>
+                                        <Button size="small" color="secondary" variant="outlined" fullWidth>
                                             Create Product
                                         </Button>
                                     </Link>
@@ -195,7 +195,7 @@ const ProductsPage = () => {
                             />
                         </Box>
                     ) : (
-                        <TableContainer component={Paper} elevation={0} variant="outlined">
+                        <TableContainer component={Paper} elevation={0}>
                             <Table>
                                 <TableBody>
                                     {products.map((product, index) => (

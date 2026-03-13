@@ -148,8 +148,8 @@ const ProductSchema = Yup.object().shape({
 const UpdateProductPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { id } = useParams(); // product id or sku
-    const { product, productLoading } = useSelector(selectProducts);
+    const { productID } = useParams();
+    const { product, products, productLoading } = useSelector(selectProducts);
     const [localCategories, setLocalCategories] = useState([
         { id: "clothing", name: "Clothing" },
         { id: "shoes", name: "Shoes" },
@@ -157,14 +157,17 @@ const UpdateProductPage = () => {
     ]);
     const [catDialogOpen, setCatDialogOpen] = useState(false);
 
-    // fetch product when id changes
+    // fetch product when productID changes
     useEffect(() => {
-        if (id) dispatch(fetchProduct(id));
-    }, [dispatch, id]);
+        if (productID) dispatch(fetchProduct(productID));
+    }, [dispatch, productID]);
 
     // when product changes, map into Formik initial structure
     const initialValues = React.useMemo(() => {
-        const p = product || {};
+        // fall back to the already-loaded list item when there is no live API
+        const p = product ||
+            (Array.isArray(products) ? products.find(x => String(x._id) === String(productID)) : null) ||
+            {};
         return {
             sku: p.sku ?? p.id ?? "",
             title: p.title ?? "",
@@ -184,11 +187,23 @@ const UpdateProductPage = () => {
             status: p.status ?? "PUBLISHED",
             visibility: p.visibility ?? "PUBLIC",
             featured: p.featured ?? false,
-            weight: { unit: p.weight?.unit ?? "g", amount: p.weight?.amount ?? "" },
+            weight: {
+                unit: (typeof p.weight === "object" ? p.weight?.unit : null) ?? "g",
+                amount: (typeof p.weight === "object" ? p.weight?.amount : p.weight) ?? ""
+            },
             dimensions: {
-                length: { unit: p.dimensions?.length?.unit ?? "cm", amount: p.dimensions?.length?.amount ?? "" },
-                width: { unit: p.dimensions?.width?.unit ?? "cm", amount: p.dimensions?.width?.amount ?? "" },
-                height: { unit: p.dimensions?.height?.unit ?? "cm", amount: p.dimensions?.height?.amount ?? "" }
+                length: {
+                    unit: (typeof p.dimensions?.length === "object" ? p.dimensions.length.unit : null) ?? "cm",
+                    amount: (typeof p.dimensions?.length === "object" ? p.dimensions.length.amount : p.dimensions?.length) ?? ""
+                },
+                width: {
+                    unit: (typeof p.dimensions?.width === "object" ? p.dimensions.width.unit : null) ?? "cm",
+                    amount: (typeof p.dimensions?.width === "object" ? p.dimensions.width.amount : p.dimensions?.width) ?? ""
+                },
+                height: {
+                    unit: (typeof p.dimensions?.height === "object" ? p.dimensions.height.unit : null) ?? "cm",
+                    amount: (typeof p.dimensions?.height === "object" ? p.dimensions.height.amount : p.dimensions?.height) ?? ""
+                }
             },
             categories: p.categories ?? [],
             tags: p.tags ?? [],
@@ -206,7 +221,7 @@ const UpdateProductPage = () => {
             images: (p.images || []).map((img) => ({ secure_url: img.secure_url ?? img.preview })),
             gallery: (p.gallery || []).map((g) => ({ secure_url: g.secure_url ?? g.preview }))
         };
-    }, [product]);
+    }, [product, products, productID]);
 
     // add category handler
     const handleCreateCategory = (cat) => {
@@ -314,39 +329,39 @@ const UpdateProductPage = () => {
                             <Form>
                                 <Grid container spacing={2}>
                                     {/* Left Column */}
-                                    <Grid item size={{ xs: 12, md: 8 }}>
+                                    <Grid size={{ xs: 12, md: 8 }}>
                                         <Stack spacing={2}>
                                             {/* General */}
                                             <Paper elevation={0} sx={{ p: 2 }}>
                                                 <Typography variant="subtitle1">General</Typography>
                                                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Product title" name="title" fullWidth value={values.title} onChange={handleChange} error={Boolean(touched.title && errors.title)} helperText={touched.title && errors.title ? errors.title : ""} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="SKU" name="sku" fullWidth value={values.sku} onChange={handleChange} error={Boolean(touched.sku && errors.sku)} helperText={touched.sku && errors.sku ? errors.sku : ""} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Regular price" name="price.amount" type="number" fullWidth value={values.price.amount} onChange={(e) => setFieldValue("price.amount", e.target.value)} error={Boolean(touched.price?.amount && errors.price?.amount)} helperText={touched.price?.amount && errors.price?.amount ? errors.price.amount : ""} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Sale price" name="sale.price.amount" type="number" fullWidth value={values.sale.price.amount} onChange={(e) => setFieldValue("sale.price.amount", e.target.value)} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <FormControlLabel control={<Switch checked={values.sale.status} onChange={(e) => setFieldValue("sale.status", e.target.checked)} />} label={values.sale.status ? "On sale" : "Not on sale"} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <LocalizationProvider dateAdapter={AdapterMoment}>
                                                             <DatePicker label="Sale start" value={values.sale.start_date ? moment(values.sale.start_date) : null} onChange={(d) => setFieldValue("sale.start_date", d)} slotProps={{ textField: { size: "small", fullWidth: true } }} />
                                                         </LocalizationProvider>
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <LocalizationProvider dateAdapter={AdapterMoment}>
                                                             <DatePicker label="Sale end" value={values.sale.end_date ? moment(values.sale.end_date) : null} onChange={(d) => setFieldValue("sale.end_date", d)} slotProps={{ textField: { size: "small", fullWidth: true } }} />
                                                         </LocalizationProvider>
@@ -358,11 +373,11 @@ const UpdateProductPage = () => {
                                             <Paper elevation={0} sx={{ p: 2 }}>
                                                 <Typography variant="subtitle1">Descriptions</Typography>
                                                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                                                    <Grid item size={{ xs: 12 }}>
+                                                    <Grid size={{ xs: 12 }}>
                                                         <TextField label="Short description" size="small" fullWidth multiline rows={3} name="short_description" value={values.short_description} onChange={handleChange} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12 }}>
+                                                    <Grid size={{ xs: 12 }}>
                                                         <TextField label="Product description" size="small" fullWidth multiline rows={8} name="description" value={values.description} onChange={handleChange} />
                                                     </Grid>
                                                 </Grid>
@@ -372,12 +387,12 @@ const UpdateProductPage = () => {
                                             <Paper elevation={0} sx={{ p: 2 }}>
                                                 <Typography variant="subtitle1">Linked products</Typography>
                                                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                                                    <Grid item size={{ xs: 12 }}>
-                                                        <Autocomplete multiple freeSolo options={[]} value={values.upsells} onChange={(e, v) => setFieldValue("upsells", v)} renderTags={(value, getTagProps) => value.map((option, index) => <Chip key={index} size="small" variant="outlined" label={option} {...getTagProps({ index })} />)} renderInput={(params) => <TextField {...params} size="small" placeholder="Add upsell SKUs" />} />
+                                                    <Grid size={{ xs: 12 }}>
+                                                        <Autocomplete multiple freeSolo options={[]} value={values.upsells} onChange={(e, v) => setFieldValue("upsells", v)} renderTags={(value, getTagProps) => value.map((option, index) => { const { key, ...tagProps } = getTagProps({ index }); return <Chip key={key ?? index} size="small" variant="outlined" label={option?.name ?? option} {...tagProps} />; })} renderInput={(params) => <TextField {...params} size="small" placeholder="Add upsell SKUs" />} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12 }}>
-                                                        <Autocomplete multiple freeSolo options={[]} value={values.cross_sells} onChange={(e, v) => setFieldValue("cross_sells", v)} renderTags={(value, getTagProps) => value.map((option, index) => <Chip key={index} size="small" variant="outlined" label={option} {...getTagProps({ index })} />)} renderInput={(params) => <TextField {...params} size="small" placeholder="Add cross-sell SKUs" />} />
+                                                    <Grid size={{ xs: 12 }}>
+                                                        <Autocomplete multiple freeSolo options={[]} value={values.cross_sells} onChange={(e, v) => setFieldValue("cross_sells", v)} renderTags={(value, getTagProps) => value.map((option, index) => { const { key, ...tagProps } = getTagProps({ index }); return <Chip key={key ?? index} size="small" variant="outlined" label={option?.name ?? option} {...tagProps} />; })} renderInput={(params) => <TextField {...params} size="small" placeholder="Add cross-sell SKUs" />} />
                                                     </Grid>
                                                 </Grid>
                                             </Paper>
@@ -385,17 +400,17 @@ const UpdateProductPage = () => {
                                     </Grid>
 
                                     {/* Right Column */}
-                                    <Grid item size={{ xs: 12, md: 4 }}>
+                                    <Grid size={{ xs: 12, md: 4 }}>
                                         <Stack spacing={2}>
                                             {/* Inventory */}
                                             <Paper elevation={0} sx={{ p: 2 }}>
                                                 <Typography variant="subtitle1">Inventory</Typography>
                                                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Stock quantity" name="stock_quantity" type="number" fullWidth value={values.stock_quantity} onChange={handleChange} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <FormControl fullWidth size="small">
                                                             <InputLabel>Backorders</InputLabel>
                                                             <Select variant="outlined" label="Backorders" value={values.allow_back_orders ? "yes" : "no"} onChange={(e) => setFieldValue("allow_back_orders", e.target.value === "yes")}>
@@ -406,11 +421,11 @@ const UpdateProductPage = () => {
                                                         </FormControl>
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <FormControlLabel control={<Checkbox checked={values.sold_individually} onChange={(e) => setFieldValue("sold_individually", e.target.checked)} />} label="Sold individually" />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Low stock threshold" type="number" fullWidth name="low_stock_threshold" value={values.low_stock_threshold} onChange={handleChange} />
                                                     </Grid>
                                                 </Grid>
@@ -420,19 +435,19 @@ const UpdateProductPage = () => {
                                             <Paper elevation={0} sx={{ p: 2 }}>
                                                 <Typography variant="subtitle1">Shipping</Typography>
                                                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Weight (g)" type="number" fullWidth value={values.weight.amount} onChange={(e) => setFieldValue("weight.amount", e.target.value)} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Length (cm)" type="number" fullWidth value={values.dimensions.length.amount} onChange={(e) => setFieldValue("dimensions.length.amount", e.target.value)} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Width (cm)" type="number" fullWidth value={values.dimensions.width.amount} onChange={(e) => setFieldValue("dimensions.width.amount", e.target.value)} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                         <TextField size="small" label="Height (cm)" type="number" fullWidth value={values.dimensions.height.amount} onChange={(e) => setFieldValue("dimensions.height.amount", e.target.value)} />
                                                     </Grid>
                                                 </Grid>
@@ -445,10 +460,10 @@ const UpdateProductPage = () => {
                                                     {({ push }) => (
                                                         <Box>
                                                             <Grid container spacing={2} alignItems="center">
-                                                                <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                <Grid size={{ xs: 12, md: "auto" }}>
                                                                     <Button size="small" onClick={() => push({ name: "", values: [""] })}>+ Add attribute</Button>
                                                                 </Grid>
-                                                                <Grid item size={{ xs: 12 }}>
+                                                                <Grid size={{ xs: 12 }}>
                                                                     <Typography variant="caption" color="text.secondary">Add attribute name & values, then generate variations (preserves existing variation info where attribute combos match).</Typography>
                                                                 </Grid>
                                                             </Grid>
@@ -458,7 +473,7 @@ const UpdateProductPage = () => {
                                                                 {values.attributes && values.attributes.map((attr, idx) => (
                                                                     <Paper key={idx} elevation={0} sx={{ p: 1 }}>
                                                                         <Grid container spacing={1} alignItems="center">
-                                                                            <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                            <Grid size={{ xs: 12, md: "auto" }}>
                                                                                 <TextField size="small" label="Name" value={attr.name} onChange={(e) => {
                                                                                     const next = [...values.attributes];
                                                                                     next[idx].name = e.target.value;
@@ -466,15 +481,15 @@ const UpdateProductPage = () => {
                                                                                 }} />
                                                                             </Grid>
 
-                                                                            <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                            <Grid size={{ xs: 12, md: "auto" }}>
                                                                                 <Autocomplete multiple freeSolo options={[]} value={attr.values} onChange={(e, v) => {
                                                                                     const next = [...values.attributes];
                                                                                     next[idx].values = v;
                                                                                     setFieldValue("attributes", next);
-                                                                                }} renderTags={(value, getTagProps) => value.map((option, index) => <Chip key={index} size="small" variant="outlined" label={option} {...getTagProps({ index })} />)} renderInput={(params) => <TextField {...params} size="small" placeholder="Values" />} />
+                                                                                }} renderTags={(value, getTagProps) => value.map((option, index) => { const { key, ...tagProps } = getTagProps({ index }); return <Chip key={key ?? index} size="small" variant="outlined" label={option?.name ?? option} {...tagProps} />; })} renderInput={(params) => <TextField {...params} size="small" placeholder="Values" />} />
                                                                             </Grid>
 
-                                                                            <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                            <Grid size={{ xs: 12, md: "auto" }}>
                                                                                 <Button size="small" color="error" onClick={() => {
                                                                                     const next = [...values.attributes];
                                                                                     next.splice(idx, 1);
@@ -512,11 +527,11 @@ const UpdateProductPage = () => {
                                                                         {values.variations.map((v, vi) => (
                                                                             <Paper key={v.id || vi} elevation={0} sx={{ p: 1 }}>
                                                                                 <Grid container spacing={1} alignItems="center">
-                                                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                                                         <Typography variant="body2">{v.attributes.map(a => `${a.name}:${a.value}`).join(" / ")}</Typography>
                                                                                     </Grid>
 
-                                                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                                                         <TextField size="small" placeholder="SKU" value={v.sku} onChange={(e) => {
                                                                                             const next = [...values.variations];
                                                                                             next[vi].sku = e.target.value;
@@ -524,7 +539,7 @@ const UpdateProductPage = () => {
                                                                                         }} />
                                                                                     </Grid>
 
-                                                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                                                         <TextField size="small" placeholder="Price" type="number" value={v.price} onChange={(e) => {
                                                                                             const next = [...values.variations];
                                                                                             next[vi].price = e.target.value;
@@ -532,7 +547,7 @@ const UpdateProductPage = () => {
                                                                                         }} />
                                                                                     </Grid>
 
-                                                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                                                         <TextField size="small" placeholder="Stock" type="number" value={v.stock_quantity} onChange={(e) => {
                                                                                             const next = [...values.variations];
                                                                                             next[vi].stock_quantity = e.target.value;
@@ -540,7 +555,7 @@ const UpdateProductPage = () => {
                                                                                         }} />
                                                                                     </Grid>
 
-                                                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                                                         <input id={`var-img-${vi}`} type="file" accept="image/*" style={{ display: "none" }} onChange={async (e) => {
                                                                                             const file = e.target.files?.[0];
                                                                                             if (!file) return;
@@ -556,7 +571,7 @@ const UpdateProductPage = () => {
                                                                                         {v.image?.secure_url && !v.image.preview && <Avatar src={v.image.secure_url} sx={{ width: 36, height: 36, ml: 1 }} />}
                                                                                     </Grid>
 
-                                                                                    <Grid item size={{ xs: 12, md: "auto" }}>
+                                                                                    <Grid size={{ xs: 12, md: "auto" }}>
                                                                                         <Button size="small" color="error" onClick={() => {
                                                                                             const next = [...values.variations];
                                                                                             next.splice(vi, 1);
@@ -578,7 +593,7 @@ const UpdateProductPage = () => {
                                             <Paper elevation={0} sx={{ p: 2 }}>
                                                 <Typography variant="subtitle1">Images</Typography>
                                                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                                                    <Grid item size={{ xs: 12 }}>
+                                                    <Grid size={{ xs: 12 }}>
                                                         <input id="primary-image-file" type="file" accept="image/*" style={{ display: "none" }} onChange={async (e) => {
                                                             const file = e.target.files?.[0];
                                                             if (!file) return;
@@ -607,7 +622,7 @@ const UpdateProductPage = () => {
                                                         </Stack>
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12 }}>
+                                                    <Grid size={{ xs: 12 }}>
                                                         <input id="gallery-file" type="file" accept="image/*" style={{ display: "none" }} multiple onChange={async (e) => {
                                                             const files = Array.from(e.target.files || []);
                                                             const next = [...(values.gallery || [])];
@@ -643,18 +658,18 @@ const UpdateProductPage = () => {
                                             <Paper elevation={0} sx={{ p: 2 }}>
                                                 <Typography variant="subtitle1">Categories & Tags</Typography>
                                                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                                                    <Grid item size={{ xs: 12 }}>
+                                                    <Grid size={{ xs: 12 }}>
                                                         <Stack direction="row" spacing={1} alignItems="center">
-                                                            <Autocomplete multiple options={localCategories} getOptionLabel={(opt) => opt.name} value={values.categories} onChange={(e, v) => setFieldValue("categories", v)} renderTags={(value, getTagProps) => value.map((option, index) => <Chip key={option.id} label={option.name} {...getTagProps({ index })} />)} renderInput={(params) => <TextField {...params} size="small" placeholder="Select categories" />} />
+                                                            <Autocomplete multiple options={localCategories} getOptionLabel={(opt) => opt.name} value={values.categories} onChange={(e, v) => setFieldValue("categories", v)} renderTags={(value, getTagProps) => value.map((option, index) => { const { key, ...tagProps } = getTagProps({ index }); return <Chip key={key ?? option.id} label={option.name} {...tagProps} />; })} renderInput={(params) => <TextField {...params} size="small" placeholder="Select categories" />} />
                                                             <Button size="small" onClick={() => setCatDialogOpen(true)}>+ New</Button>
                                                         </Stack>
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12 }}>
-                                                        <Autocomplete multiple freeSolo options={[]} value={values.tags} onChange={(e, v) => setFieldValue("tags", v)} renderTags={(value, getTagProps) => value.map((option, index) => <Chip key={index} size="small" label={option} {...getTagProps({ index })} />)} renderInput={(params) => <TextField {...params} size="small" placeholder="Tags" />} />
+                                                    <Grid size={{ xs: 12 }}>
+                                                        <Autocomplete multiple freeSolo options={[]} value={values.tags} onChange={(e, v) => setFieldValue("tags", v)} renderTags={(value, getTagProps) => value.map((option, index) => { const { key, ...tagProps } = getTagProps({ index }); return <Chip key={key ?? index} size="small" label={option?.name ?? option} {...tagProps} />; })} renderInput={(params) => <TextField {...params} size="small" placeholder="Tags" />} />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12 }}>
+                                                    <Grid size={{ xs: 12 }}>
                                                         <FormControl fullWidth size="small">
                                                             <InputLabel>Visibility</InputLabel>
                                                             <Select variant="outlined" value={values.visibility} label="Visibility" onChange={(e) => setFieldValue("visibility", e.target.value)}>
@@ -665,11 +680,11 @@ const UpdateProductPage = () => {
                                                         </FormControl>
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12 }}>
+                                                    <Grid size={{ xs: 12 }}>
                                                         <FormControlLabel control={<Checkbox checked={values.featured} onChange={(e) => setFieldValue("featured", e.target.checked)} />} label="Featured" />
                                                     </Grid>
 
-                                                    <Grid item size={{ xs: 12 }}>
+                                                    <Grid size={{ xs: 12 }}>
                                                         <Stack direction="row" spacing={1}>
                                                             <Button variant="outlined" onClick={() => {
                                                                 // reset a few fields

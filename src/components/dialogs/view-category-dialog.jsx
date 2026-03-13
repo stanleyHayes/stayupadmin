@@ -1,15 +1,23 @@
 import React from "react";
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Grid,
     Button,
-    Typography,
-    Chip
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Stack,
+    Typography
 } from "@mui/material";
 import moment from "moment";
+
+const Row = ({ label, children }) => (
+    <Stack spacing={0.5} sx={{ mb: 1 }}>
+        <Typography variant="caption" color="text.secondary">{label}</Typography>
+        <Typography variant="body2">{children ?? "—"}</Typography>
+    </Stack>
+);
 
 /**
  * Props:
@@ -19,8 +27,8 @@ import moment from "moment";
  */
 const ViewCategoryDialog = ({ open, category, onClose }) => {
     const renderMeta = (meta) => {
-        if (!meta) return <Typography variant="body2" color="text.secondary">—</Typography>;
-        return Object.keys(meta).map((k) => <Chip key={k} size="small" label={`${k}: ${String(meta[k])}`} sx={{ mr: .5, mb: .5 }} />);
+        if (!meta) return "—";
+        return Object.keys(meta).map((k) => <Chip key={k} size="small" label={`${k}: ${String(meta[k])}`} sx={{ mr: 0.5, mb: 0.5 }} />);
     };
 
     return (
@@ -28,49 +36,32 @@ const ViewCategoryDialog = ({ open, category, onClose }) => {
             <DialogTitle>Category Details</DialogTitle>
             <DialogContent dividers>
                 {category ? (
-                    <Grid container spacing={2}>
-                        <Grid item size={{ xs: 12, md: "auto" }}>
-                            <Typography variant="subtitle2">Name</Typography>
-                            <Typography>{category.name}</Typography>
-                        </Grid>
+                    <>
+                        <Row label="Name">{category.name}</Row>
+                        <Row label="Slug">{category.slug ?? "—"}</Row>
+                        <Row label="Parent">{category.parent ?? "—"}</Row>
 
-                        <Grid item size={{ xs: 12, md: "auto" }}>
-                            <Typography variant="subtitle2">Slug</Typography>
-                            <Typography>{category.slug ?? "—"}</Typography>
-                        </Grid>
+                        <Divider sx={{ my: 1.5 }} />
 
-                        <Grid item size={{ xs: 12, md: "auto" }}>
-                            <Typography variant="subtitle2">Parent</Typography>
-                            <Typography>{category.parent ?? "—"}</Typography>
-                        </Grid>
+                        <Row label="Status">{category.status ?? "—"}</Row>
+                        <Row label="Published">{category.published ? "Yes" : "No"}</Row>
+                        <Row label="Visible From">{category.visible_from ? moment(category.visible_from).format("LLL") : "—"}</Row>
 
-                        <Grid item size={{ xs: 12, md: "auto" }}>
-                            <Typography variant="subtitle2">Status</Typography>
-                            <Typography>{category.status ?? "—"}</Typography>
-                        </Grid>
+                        <Divider sx={{ my: 1.5 }} />
 
-                        <Grid item size={{ xs: 12, md: "auto" }}>
-                            <Typography variant="subtitle2">Published</Typography>
-                            <Typography>{category.published ? "Yes" : "No"}</Typography>
-                        </Grid>
+                        <Row label="Description">
+                            <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                                {category.description || "—"}
+                            </Typography>
+                        </Row>
 
-                        <Grid item size={{ xs: 12, md: "auto" }}>
-                            <Typography variant="subtitle2">Visible From</Typography>
-                            <Typography>{category.visible_from ? moment(category.visible_from).format("YYYY-MM-DD") : "—"}</Typography>
-                        </Grid>
-
-                        <Grid item size={{ xs: 12 }}>
-                            <Typography variant="subtitle2">Description</Typography>
-                            <Typography style={{ whiteSpace: "pre-wrap" }}>{category.description || "—"}</Typography>
-                        </Grid>
-
-                        <Grid item size={{ xs: 12 }}>
-                            <Typography variant="subtitle2">Meta</Typography>
-                            {renderMeta(category.meta)}
-                        </Grid>
-                    </Grid>
+                        <Stack spacing={0.5} sx={{ mb: 1 }}>
+                            <Typography variant="caption" color="text.secondary">Meta</Typography>
+                            <Stack direction="row" flexWrap="wrap">{renderMeta(category.meta)}</Stack>
+                        </Stack>
+                    </>
                 ) : (
-                    <Typography>No category selected</Typography>
+                    <Typography variant="body2">No category selected</Typography>
                 )}
             </DialogContent>
 

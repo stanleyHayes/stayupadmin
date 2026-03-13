@@ -1,131 +1,105 @@
-import {Link as MUILink, Stack, TableCell, TableRow, Tooltip, Typography} from "@mui/material";
-import React, {useState} from "react";
-import {DeleteForeverOutlined, EditOutlined, Verified, VisibilityOutlined} from "@mui/icons-material";
-import {Link} from "react-router-dom";
+import { Chip, Stack, TableCell, TableRow, Tooltip, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { DeleteForeverOutlined, EditOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { Link } from "react-router-dom";
 import ConfirmDialog from "./confirm-dialog.jsx";
 
-const Category = ({category, index}) => {
+const actionIcon = (colorKey, bgKey) => ({
+    padding: 0.4,
+    fontSize: 28,
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderRadius: "25%",
+    borderColor: bgKey,
+    color: colorKey,
+    backgroundColor: bgKey,
+    cursor: "pointer",
+});
 
+const statusColor = (status) => {
+    switch ((status || "").toUpperCase()) {
+        case "ACTIVE":    return { color: "text.active",    bg: "light.active" };
+        case "PENDING":   return { color: "text.pending",   bg: "light.pending" };
+        case "SUSPENDED": return { color: "text.suspended", bg: "light.failed" };
+        case "DELETED":   return { color: "text.red",       bg: "light.red" };
+        default:          return { color: "text.secondary", bg: "light.grey" };
+    }
+};
+
+const Category = ({ category, index, categories = [], onView, onEdit, onDelete }) => {
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
-    const handleDeleteClick = () => {
-        setOpenConfirmDialog(true);
-    }
+    const parentName = category?.parent
+        ? (categories.find(c => c._id === category.parent || c.id === category.parent)?.name ?? category.parent)
+        : "—";
+
+    const sc = statusColor(category?.status);
 
     return (
         <React.Fragment>
             <TableRow>
                 <TableCell>
-                    <Tooltip title={`Detailed view of order ${category?.name}`}>
-                        <Link to={`/categories/${category?._id}`} style={{textDecoration: "none"}}>
-                            <Typography variant="body2" component="span" sx={{color: "text.secondary"}}>
-                                {index + 1}
-                            </Typography>
-                        </Link>
-                    </Tooltip>
-                </TableCell>
-                <TableCell>
-                    <Tooltip title={`Quick view category? ${category?.name}`}>
-                        <Link to={`/categories/${category?._id}`} style={{textDecoration: "none"}}>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                                <Typography
-                                    sx={{color: "text.primary"}}
-                                    variant="body2">
-                                    {category?.name}
-                                </Typography>
-                                {category?.is_verified && (
-                                    <Verified
-                                        sx={{
-                                            fontSize: 12,
-                                            color: "secondary.main",
-                                            cursor: "pointer"
-                                        }}
-                                    />
-                                )}
-                            </Stack>
-                        </Link>
-                    </Tooltip>
+                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                        {index + 1}
+                    </Typography>
                 </TableCell>
 
                 <TableCell>
-                    <Tooltip title={`Call ${category?.name}`}>
-                        <MUILink href={`tel:${category?.phone}`}>
-                            <Typography
-                                sx={{color: "text.primary"}}
-                                variant="body2">
-                                {category?.phone}
-                            </Typography>
-                        </MUILink>
-                    </Tooltip>
+                    <Link to={`/categories/${category?._id}`} style={{ textDecoration: "none" }}>
+                        <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 500 }}>
+                            {category?.name}
+                        </Typography>
+                    </Link>
                 </TableCell>
+
                 <TableCell>
-                    <Typography variant="body2" sx={{color: "text.secondary"}}>
-                        @{category?.username?.toLowerCase()}
+                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                        {category?.slug || "—"}
                     </Typography>
                 </TableCell>
-                <TableCell align="center">
-                    <Tooltip title={`Email ${category?.name}`}>
-                        <MUILink href={`mailto:${category?.email}`}>
-                            <Typography
-                                sx={{color: "text.primary"}}
-                                variant="body2">
-                                {category?.email}
-                            </Typography>
-                        </MUILink>
-                    </Tooltip>
-                </TableCell>
+
                 <TableCell>
-                    <Stack
-                        direction="row"
-                        justifyContent="flex-start"
-                        spacing={1}
-                        alignItems="center">
-                        <Tooltip title={`Quick view order ${category?.name}`}>
+                    <Chip
+                        size="small"
+                        label={(category?.status || "ACTIVE").toLowerCase()}
+                        sx={{
+                            color: sc.color,
+                            backgroundColor: sc.bg,
+                            fontWeight: 500,
+                            fontSize: "0.75rem",
+                        }}
+                    />
+                </TableCell>
+
+                <TableCell>
+                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                        {parentName}
+                    </Typography>
+                </TableCell>
+
+                <TableCell>
+                    <Typography variant="body2" sx={{ color: "text.primary" }}>
+                        {category?.product_count ?? 0}
+                    </Typography>
+                </TableCell>
+
+                <TableCell>
+                    <Stack direction="row" justifyContent="flex-start" spacing={1} alignItems="center">
+                        <Tooltip title={`View ${category?.name}`}>
                             <VisibilityOutlined
-                                sx={{
-                                    padding: 0.4,
-                                    fontSize: 28,
-                                    borderWidth: 1,
-                                    borderStyle: "solid",
-                                    borderRadius: '30%',
-                                    borderColor: "light.green",
-                                    color: "text.green",
-                                    backgroundColor: "light.green",
-                                    cursor: "pointer"
-                                }}
+                                onClick={onView}
+                                sx={actionIcon("text.green", "light.green")}
                             />
                         </Tooltip>
-                        <Tooltip title={`Update category? ${category?.name}`}>
-                            <Link to={`/category?s/${category?._id}/update`} style={{textDecoration: "none"}}>
-                                <EditOutlined
-                                    sx={{
-                                        padding: 0.4,
-                                        fontSize: 28,
-                                        borderWidth: 1,
-                                        borderStyle: "solid",
-                                        borderRadius: '30%',
-                                        borderColor: "light.secondary",
-                                        color: "secondary.main",
-                                        backgroundColor: "light.secondary",
-                                        cursor: "pointer"
-                                    }}
-                                />
+                        <Tooltip title={`Edit ${category?.name}`}>
+                            <Link to={`/categories/${category?._id}/update`} style={{ textDecoration: "none", display: "flex" }}>
+                                <EditOutlined sx={actionIcon("secondary.main", "light.secondary")} />
                             </Link>
                         </Tooltip>
-                        <Tooltip title={`Delete order ${category?.name}`}>
+                        <Tooltip title={`Delete ${category?.name}`}>
                             <DeleteForeverOutlined
-                                onClick={handleDeleteClick}
-                                sx={{
-                                    padding: 0.4,
-                                    fontSize: 28,
-                                    borderWidth: 1,
-                                    borderStyle: "solid",
-                                    borderRadius: '30%',
-                                    borderColor: "light.red",
-                                    color: "text.red",
-                                    backgroundColor: "light.red",
-                                    cursor: "pointer"
-                                }}
+                                onClick={() => setOpenConfirmDialog(true)}
+                                sx={actionIcon("text.red", "light.red")}
                             />
                         </Tooltip>
                     </Stack>
@@ -136,12 +110,12 @@ const Category = ({category, index}) => {
                 <ConfirmDialog
                     open={openConfirmDialog}
                     handleClose={() => setOpenConfirmDialog(false)}
-                    message={`Are you sure you want to delete category ${category?.name}?`}
-                    handleDelete={handleDeleteClick}
+                    message={`Are you sure you want to delete "${category?.name}"?`}
+                    handleDelete={() => onDelete?.(category)}
                 />
             )}
         </React.Fragment>
-    )
-}
+    );
+};
 
 export default Category;

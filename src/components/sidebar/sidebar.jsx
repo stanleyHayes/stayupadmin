@@ -9,27 +9,26 @@ import { useLocation } from "react-router-dom";
 import {
     Dashboard,
     DashboardOutlined,
-    Analytics,
+    BarChart,
+    BarChartOutlined,
     Category,
     CategoryOutlined,
     LocalOffer,
     LocalOfferOutlined,
     People,
     PeopleOutline,
-    Inventory,
-    Inventory2Outlined,
     Settings,
     SettingsOutlined,
     LocalShipping,
     LocalShippingOutlined,
     ReceiptLong,
     ReceiptLongOutlined,
+    Receipt,
+    ReceiptOutlined,
     SupportAgent,
     SupportAgentOutlined,
     Tag,
     TagOutlined,
-    Widgets,
-    WidgetsOutlined,
     MonetizationOn,
     MonetizationOnOutlined,
     Storefront,
@@ -38,10 +37,10 @@ import {
     AccountTreeOutlined,
     AutoStories,
     AutoStoriesOutlined,
-    Campaign,
-    CampaignOutlined,
-    Help,
-    HelpOutline,
+    AdminPanelSettings,
+    AdminPanelSettingsOutlined,
+    Link,
+    LinkOutlined,
     LogoutOutlined
 } from "@mui/icons-material";
 
@@ -115,7 +114,7 @@ const Sidebar = () => {
 
             <Container sx={{ py: 6 }}>
                 <Stack component={motion.div} variants={container} sx={{ px: { xs: 0, lg: sidebarExpanded ? 8 : 0 } }} direction="column" spacing={4}>
-                    {/* Primary / core admin items */}
+                    {/* Dashboard & Analytics */}
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
@@ -128,27 +127,19 @@ const Sidebar = () => {
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
-                            label="Overview"
-                            path="/overview"
-                            icon={isActive("/overview") ? <Analytics sx={activeStyle} /> : <Analytics sx={defaultStyle} />}
+                            label="Analytics"
+                            path="/analytics"
+                            icon={isActive("/analytics") ? <BarChart sx={activeStyle} /> : <BarChartOutlined sx={defaultStyle} />}
                         />
                     </Box>
 
+                    {/* Orders */}
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
                             label="Orders"
                             path="/orders"
                             icon={isActive("/orders") ? <ReceiptLong sx={activeStyle} /> : <ReceiptLongOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Order Actions"
-                            path="/order-actions"
-                            icon={isActive("/order-actions") ? <Widgets sx={activeStyle} /> : <WidgetsOutlined sx={defaultStyle} />}
                         />
                     </Box>
 
@@ -170,21 +161,13 @@ const Sidebar = () => {
                         />
                     </Box>
 
+                    {/* Products */}
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
                             label="Products"
                             path="/products"
                             icon={isActive("/products") ? <Storefront sx={activeStyle} /> : <StorefrontOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Variations"
-                            path="/variations"
-                            icon={isActive("/variations") ? <AutoStories sx={activeStyle} /> : <AutoStoriesOutlined sx={defaultStyle} />}
                         />
                     </Box>
 
@@ -215,15 +198,26 @@ const Sidebar = () => {
                         />
                     </Box>
 
+                    {/* Sales & Marketing */}
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
                             label="Coupons"
-                            path="/attributes"
-                            icon={isActive("/attributes") ? <LocalOffer sx={activeStyle} /> : <LocalOfferOutlined sx={defaultStyle} />}
+                            path="/coupons"
+                            icon={isActive("/coupons") ? <LocalOffer sx={activeStyle} /> : <LocalOfferOutlined sx={defaultStyle} />}
                         />
                     </Box>
 
+                    <Box component={motion.div} variants={item}>
+                        <SidebarLink
+                            hasBadge={false}
+                            label="Reviews"
+                            path="/reviews"
+                            icon={isActive("/reviews") ? <SupportAgent sx={activeStyle} /> : <SupportAgentOutlined sx={defaultStyle} />}
+                        />
+                    </Box>
+
+                    {/* People */}
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
@@ -238,37 +232,39 @@ const Sidebar = () => {
                             hasBadge={false}
                             label="Invitations"
                             path="/invitations"
-                            icon={isActive("/invitations") ? <Campaign sx={activeStyle} /> : <CampaignOutlined sx={defaultStyle} />}
+                            icon={isActive("/invitations") ? <MonetizationOn sx={activeStyle} /> : <MonetizationOnOutlined sx={defaultStyle} />}
                         />
                     </Box>
 
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Reviews"
-                            path="/reviews"
-                            icon={isActive("/reviews") ? <SupportAgent sx={activeStyle} /> : <SupportAgentOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Sales"
-                            path="/sales"
-                            icon={isActive("/sales") ? <MonetizationOn sx={activeStyle} /> : <MonetizationOnOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
+                    {/* Finance */}
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
                             label="Payment Gateways"
                             path="/payment-gateways"
-                            icon={isActive("/payment-gateways") ? <LocalOffer sx={activeStyle} /> : <LocalOfferOutlined sx={defaultStyle} />}
+                            icon={isActive("/payment-gateways") ? <MonetizationOn sx={activeStyle} /> : <MonetizationOnOutlined sx={defaultStyle} />}
                         />
                     </Box>
 
+                    <Box component={motion.div} variants={item}>
+                        <SidebarLink
+                            hasBadge={false}
+                            label="Tax Rates"
+                            path="/tax-rates"
+                            icon={isActive("/tax-rates") ? <Receipt sx={activeStyle} /> : <ReceiptOutlined sx={defaultStyle} />}
+                        />
+                    </Box>
+
+                    <Box component={motion.div} variants={item}>
+                        <SidebarLink
+                            hasBadge={false}
+                            label="Tax Classes"
+                            path="/tax-classes"
+                            icon={isActive("/tax-classes") ? <Receipt sx={activeStyle} /> : <ReceiptOutlined sx={defaultStyle} />}
+                        />
+                    </Box>
+
+                    {/* Shipping */}
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
@@ -286,33 +282,6 @@ const Sidebar = () => {
                             icon={isActive("/shipping-methods") ? <LocalShipping sx={activeStyle} /> : <LocalShippingOutlined sx={defaultStyle} />}
                         />
                     </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Shipping Zone Methods"
-                            path="/shipping-zone-methods"
-                            icon={isActive("/shipping-zone-methods") ? <LocalShipping sx={activeStyle} /> : <LocalShippingOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Stocks"
-                            path="/stocks"
-                            icon={isActive("/stocks") ? <Inventory sx={activeStyle} /> : <Inventory2Outlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Payment Overview"
-                            path="/overview/payment"
-                            icon={isActive("/overview/payment") ? <MonetizationOn sx={activeStyle} /> : <MonetizationOnOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
                 </Stack>
             </Container>
 
@@ -320,31 +289,13 @@ const Sidebar = () => {
 
             <Container sx={{ py: 6 }}>
                 <Stack component={motion.div} variants={container} sx={{ px: { xs: 0, lg: sidebarExpanded ? 8 : 0 } }} direction="column" spacing={4}>
-                    {/* Settings / System */}
+                    {/* People & System */}
                     <Box component={motion.div} variants={item}>
                         <SidebarLink
                             hasBadge={false}
-                            label="Settings"
-                            path="/settings"
-                            icon={isActive("/settings") ? <Settings sx={activeStyle} /> : <SettingsOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Authentication"
-                            path="/authentication"
-                            icon={isActive("/authentication") ? <AccountTree sx={activeStyle} /> : <AccountTreeOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <SidebarLink
-                            hasBadge={false}
-                            label="Support"
-                            path="/support"
-                            icon={isActive("/support") ? <Help sx={activeStyle} /> : <HelpOutline sx={defaultStyle} />}
+                            label="Admins"
+                            path="/admins"
+                            icon={isActive("/admins") ? <AdminPanelSettings sx={activeStyle} /> : <AdminPanelSettingsOutlined sx={defaultStyle} />}
                         />
                     </Box>
 
@@ -356,6 +307,25 @@ const Sidebar = () => {
                             icon={isActive("/users") ? <People sx={activeStyle} /> : <PeopleOutline sx={defaultStyle} />}
                         />
                     </Box>
+
+                    <Box component={motion.div} variants={item}>
+                        <SidebarLink
+                            hasBadge={false}
+                            label="Webhooks"
+                            path="/webhooks"
+                            icon={isActive("/webhooks") ? <Link sx={activeStyle} /> : <LinkOutlined sx={defaultStyle} />}
+                        />
+                    </Box>
+
+                    <Box component={motion.div} variants={item}>
+                        <SidebarLink
+                            hasBadge={false}
+                            label="Settings"
+                            path="/settings"
+                            icon={isActive("/settings") ? <Settings sx={activeStyle} /> : <SettingsOutlined sx={defaultStyle} />}
+                        />
+                    </Box>
+
                 </Stack>
             </Container>
 

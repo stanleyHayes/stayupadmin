@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react";
 import Layout from "../../components/shared/layout.jsx";
 import {
     Box, Button, Container, Divider, Grid, LinearProgress, Paper, Stack,
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, IconButton
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAttributes, selectAttributes, deleteAttribute, fetchAttribute } from "../../redux/features/attributes/attributes-slice";
 
-import { SearchOutlined, Visibility, Edit, Delete } from "@mui/icons-material";
+import { SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined } from "@mui/icons-material";
 import CreateAttributeDialog from "../../components/dialogs/create-attribute-dialog.jsx";
 import ViewAttributeDialog from "../../components/dialogs/view-attribute-dialog.jsx";
 import UpdateAttributeDialog from "../../components/dialogs/update-attribute-dialog.jsx";
@@ -48,7 +48,7 @@ const AttributesPage = () => {
     return (
         <Layout>
             {loading && <LinearProgress variant="query" color="secondary" />}
-            <Box sx={{ pt: 4, pb: 8 }}>
+            <Box sx={{ pt: 4, pb: 6 }}>
                 <Container>
                     <Grid spacing={4} container={true} alignItems="center" justifyContent="space-between">
                         <Grid item={true} size={{ xs: 12, md: "auto" }}>
@@ -66,7 +66,7 @@ const AttributesPage = () => {
                             <Grid container={true} spacing={2} alignItems="center">
                                 <Grid item={true} size={{ xs: 12, md: 8 }}>
                                     <Stack direction="row" spacing={1} sx={{ backgroundColor: "background.paper", p: 1, borderRadius: 2 }}>
-                                        <TextField value={query} size="small" placeholder="Search attributes..." onChange={(e) => setQuery(e.target.value)} variant="standard" InputProps={{ disableUnderline: true }} fullWidth />
+                                        <TextField value={query} size="small" placeholder="Search attributes..." onChange={(e) => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth />
                                         <SearchOutlined onClick={handleSearch} sx={{ cursor: "pointer", alignSelf: "center" }} />
                                     </Stack>
                                 </Grid>
@@ -111,10 +111,25 @@ const AttributesPage = () => {
                                             <TableCell>{a.has_archives ? "Yes" : "No"}</TableCell>
                                             <TableCell>{a.terms_count ?? 0}</TableCell>
                                             <TableCell>
-                                                <Stack direction="row" spacing={1}>
-                                                    <IconButton size="small" onClick={() => openView(a)}><Visibility fontSize="small" /></IconButton>
-                                                    <IconButton size="small" onClick={() => openEdit(a)}><Edit fontSize="small" /></IconButton>
-                                                    <IconButton size="small" onClick={() => handleDelete(a)}><Delete fontSize="small" /></IconButton>
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Tooltip title="View Attribute">
+                                                        <VisibilityOutlined
+                                                            onClick={() => openView(a)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip title="Edit Attribute">
+                                                        <EditOutlined
+                                                            onClick={() => openEdit(a)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip title="Delete Attribute">
+                                                        <DeleteForeverOutlined
+                                                            onClick={() => handleDelete(a)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
                                                 </Stack>
                                             </TableCell>
                                         </TableRow>

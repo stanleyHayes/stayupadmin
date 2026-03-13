@@ -89,7 +89,7 @@ const MobileBottomNavigation = () => {
                             sx={{
                                 borderWidth: 1,
                                 borderStyle: "solid",
-                                borderRadius: '30%',
+                                borderRadius: '25%',
                                 borderColor: "light.secondary",
                                 padding: 0.5,
                                 fontSize: 32,

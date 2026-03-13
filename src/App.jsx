@@ -1,6 +1,6 @@
 import {useSelector} from "react-redux";
 import {selectUI} from "./redux/features/ui/ui-slice";
-import {CssBaseline, ThemeProvider} from "@mui/material";
+import {CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
 import {THEMES} from "./utils/themes";
 import {Route, Routes} from "react-router";
 import {lazy, Suspense} from "react";
@@ -15,7 +15,6 @@ const FAQPage = lazy(() => import("./pages/others/faq-page.jsx"));
 const HelpPage = lazy(() => import("./pages/others/help-page.jsx"));
 const PrivacyPage = lazy(() => import("./pages/others/privacy-page.jsx"));
 const SettingsPage = lazy(() => import("./pages/others/settings-page.jsx"));
-const SupportPage = lazy(() => import("./pages/others/support-page.jsx"));
 const TermsPage = lazy(() => import("./pages/others/terms-page.jsx"));
 
 const CreateUserPage = lazy(() => import("./pages/users/create-user-page.jsx"));
@@ -28,6 +27,7 @@ const ChangePasswordPage = lazy(() => import("./pages/account/change-password-pa
 const ProfilePage = lazy(() => import("./pages/account/profile-page.jsx"));
 const UpdateProfilePage = lazy(() => import("./pages/account/update-profile-page.jsx"));
 
+const AdminsPage = lazy(() => import("./pages/admins/admins-page.jsx"));
 const AdminDetailPage = lazy(() => import("./pages/admins/admin-detail-page.jsx"));
 const CreateAdminPage = lazy(() => import("./pages/admins/create-admin-page.jsx"));
 const UpdateAdminPage = lazy(() => import("./pages/admins/update-admin-page.jsx"));
@@ -38,10 +38,6 @@ const RegisterPage = lazy(() => import("./pages/authentication/register-page.jsx
 const ResetPasswordPage = lazy(() => import("./pages/authentication/reset-password-page.jsx"));
 const VerifyAccountPage = lazy(() => import("./pages/authentication/verify-account-page.jsx"));
 const VerifyOTPPage = lazy(() => import("./pages/authentication/verify-otp-page.jsx"));
-
-const CampaignDetailPage = lazy(() => import("./pages/sales/campaign-detail-page.jsx"));
-const CampaignsPage = lazy(() => import("./pages/sales/campaigns-page.jsx"));
-const MyCampaignsPage = lazy(() => import("./pages/sales/my-campaigns-page.jsx"));
 
 const CreateProductPage = lazy(() => import("./pages/products/create-product-page.jsx"));
 const ProductDetailPage = lazy(() => import("./pages/products/product-detail-page.jsx"));
@@ -74,99 +70,172 @@ const CategoriesPage = lazy(() => import("./pages/categories/categories-page.jsx
 const CategoryDetailPage = lazy(() => import("./pages/categories/category-detail-page.jsx"));
 
 const TagsPage = lazy(() => import("./pages/tags/tags-page.jsx"));
+const AttributesPage = lazy(() => import("./pages/attributes/attributes-page.jsx"));
+const AnalyticsPage = lazy(() => import("./pages/analytics/analytics-page.jsx"));
 
+// Order sub-resources
+const OrderNotesPage = lazy(() => import("./pages/order-notes/order-notes-page.jsx"));
+const OrderNoteDetailPage = lazy(() => import("./pages/order-notes/order-note-detail-page.jsx"));
+const CreateOrderNotePage = lazy(() => import("./pages/order-notes/create-order-note-page.jsx"));
+const OrderRefundsPage = lazy(() => import("./pages/order-refunds/order-refunds-page.jsx"));
+const OrderRefundDetailPage = lazy(() => import("./pages/order-refunds/order-refund-detail-page.jsx"));
+const CreateOrderRefundPage = lazy(() => import("./pages/order-refunds/create-order-refund-page.jsx"));
+
+// Reviews
+const ReviewsPage = lazy(() => import("./pages/reviews/reviews-page.jsx"));
+const ReviewDetailPage = lazy(() => import("./pages/reviews/review-detail-page.jsx"));
+
+// Tax
+const TaxRatesPage = lazy(() => import("./pages/tax-rates/tax-rates-page.jsx"));
+const TaxRateDetailPage = lazy(() => import("./pages/tax-rates/tax-rate-detail-page.jsx"));
+const CreateTaxRatePage = lazy(() => import("./pages/tax-rates/create-tax-rate-page.jsx"));
+const UpdateTaxRatePage = lazy(() => import("./pages/tax-rates/update-tax-rate-page.jsx"));
+const TaxClassesPage = lazy(() => import("./pages/tax-classes/tax-classes-page.jsx"));
+
+// Payment & Shipping
+const PaymentGatewaysPage = lazy(() => import("./pages/payment-gateways/payment-gateways-page.jsx"));
+const PaymentGatewayDetailPage = lazy(() => import("./pages/payment-gateways/payment-gateway-detail-page.jsx"));
+const ShippingClassesPage = lazy(() => import("./pages/shipping-classes/shipping-classes-page.jsx"));
+const ShippingMethodsPage = lazy(() => import("./pages/shipping-methods/shipping-methods-page.jsx"));
+
+// Webhooks
+const WebhooksPage = lazy(() => import("./pages/webhooks/webhooks-page.jsx"));
+const WebhookDetailPage = lazy(() => import("./pages/webhooks/webhook-detail-page.jsx"));
+const CreateWebhookPage = lazy(() => import("./pages/webhooks/create-webhook-page.jsx"));
+const UpdateWebhookPage = lazy(() => import("./pages/webhooks/update-webhook-page.jsx"));
+
+
+const wrap = (Component) => (
+    <Suspense fallback={<Splash/>}><Component/></Suspense>
+);
 
 function App() {
     const {theme} = useSelector(selectUI);
     return (
         <ThemeProvider theme={theme === 'dark' ? THEMES.darkTheme : THEMES.lightTheme}>
             <CssBaseline enableColorScheme={true}/>
+            <GlobalStyles styles={{"*": {transition: "background-color 0.25s ease, border-color 0.25s ease, color 0.15s ease"}}}/>
             <Routes>
-                <Route path="/" element={<Suspense fallback={<Splash/>}><OverviewPage/></Suspense>}/>
-                <Route path="/overview" element={<Suspense fallback={<Splash/>}><OverviewPage/></Suspense>}/>
-                <Route path="/categories" element={<Suspense fallback={<Splash/>}><CategoriesPage/></Suspense>}/>
-                <Route path="/categores/:categoryID"
-                       element={<Suspense fallback={<Splash/>}><CategoryDetailPage/></Suspense>}/>
-                <Route path="/categores/:categoryID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateCategoryPage/></Suspense>}/>
-                <Route path="/category/new" element={<Suspense fallback={<Splash/>}><CreateCategoryPage/></Suspense>}/>
-                <Route path="/attributes" element={<Suspense fallback={<Splash/>}><CouponsPage/></Suspense>}/>
-                <Route path="/attributes/:couponID"
-                       element={<Suspense fallback={<Splash/>}><CouponDetailPage/></Suspense>}/>
-                <Route path="/attributes/:couponID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateCouponPage/></Suspense>}/>
-                <Route path="/coupon/new" element={<Suspense fallback={<Splash/>}><CreateCouponPage/></Suspense>}/>
-                <Route path="/users" element={<Suspense fallback={<Splash/>}><UsersPage/></Suspense>}/>
-                <Route path="/users/:userID" element={<Suspense fallback={<Splash/>}><UserDetailPage/></Suspense>}/>
-                <Route path="/users/:userID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateUserPage/></Suspense>}/>
-                <Route path="/user/new" element={<Suspense fallback={<Splash/>}><CreateUserPage/></Suspense>}/>
-                <Route path="/terms" element={<Suspense fallback={<Splash/>}><TermsPage/></Suspense>}/>
-                <Route path="/support" element={<Suspense fallback={<Splash/>}><SupportPage/></Suspense>}/>
-                <Route path="/settings" element={<Suspense fallback={<Splash/>}><SettingsPage/></Suspense>}/>
-                <Route path="/privacy" element={<Suspense fallback={<Splash/>}><PrivacyPage/></Suspense>}/>
-                <Route path="/help" element={<Suspense fallback={<Splash/>}><HelpPage/></Suspense>}/>
-                <Route path="/faq" element={<Suspense fallback={<Splash/>}><FAQPage/></Suspense>}/>
-                <Route path="/contact" element={<Suspense fallback={<Splash/>}><ContactPage/></Suspense>}/>
-                <Route path="/us" element={<Suspense fallback={<Splash/>}><AboutUsPage/></Suspense>}/>
-                <Route path="/invitations" element={<Suspense fallback={<Splash/>}><InvitationsPage/></Suspense>}/>
-                <Route path="/invitations/:invitationID"
-                       element={<Suspense fallback={<Splash/>}><InvitationDetailPage/></Suspense>}/>
-                <Route path="/invitations/:invitationID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateInvitationPage/></Suspense>}/>
-                <Route path="/invitation/new"
-                       element={<Suspense fallback={<Splash/>}><CreateInvitationPage/></Suspense>}/>
-                <Route path="/account" element={<Suspense fallback={<Splash/>}><AccountPage/></Suspense>}/>
-                <Route path="/change-password"
-                       element={<Suspense fallback={<Splash/>}><ChangePasswordPage/></Suspense>}/>
-                <Route path="/profile" element={<Suspense fallback={<Splash/>}><ProfilePage/></Suspense>}/>
-                <Route path="/profile/update" element={<Suspense fallback={<Splash/>}><UpdateProfilePage/></Suspense>}/>
-                <Route path="/admins/:adminID" element={<Suspense fallback={<Splash/>}><AdminDetailPage/></Suspense>}/>
-                <Route path="/admin/new" element={<Suspense fallback={<Splash/>}><CreateAdminPage/></Suspense>}/>
-                <Route path="/tags" element={<Suspense fallback={<Splash/>}><TagsPage/></Suspense>}/>
-                <Route path="/admins/:adminID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateAdminPage/></Suspense>}/>
-                <Route path="/auth/forgot-password"
-                       element={<Suspense fallback={<Splash/>}><ForgotPasswordPage/></Suspense>}/>
-                <Route path="/auth/login" element={<Suspense fallback={<Splash/>}><LoginPage/></Suspense>}/>
-                <Route path="/auth/register" element={<Suspense fallback={<Splash/>}><RegisterPage/></Suspense>}/>
-                <Route path="/auth/reset-password"
-                       element={<Suspense fallback={<Splash/>}><ResetPasswordPage/></Suspense>}/>
-                <Route path="/auth/verify/:token"
-                       element={<Suspense fallback={<Splash/>}><VerifyAccountPage/></Suspense>}/>
-                <Route path="/auth/otp" element={<Suspense fallback={<Splash/>}><VerifyOTPPage/></Suspense>}/>
-                <Route path="/campaigns/:campaignID"
-                       element={<Suspense fallback={<Splash/>}><CampaignDetailPage/></Suspense>}/>
-                <Route path="/campaigns" element={<Suspense fallback={<Splash/>}><CampaignsPage/></Suspense>}/>
-                <Route path="/campaign/me" element={<Suspense fallback={<Splash/>}><MyCampaignsPage/></Suspense>}/>
-                <Route path="/product/new" element={<Suspense fallback={<Splash/>}><CreateProductPage/></Suspense>}/>
-                <Route path="/products/:productID"
-                       element={<Suspense fallback={<Splash/>}><ProductDetailPage/></Suspense>}/>
-                <Route path="/products/:productID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateProductPage/></Suspense>}/>
-                <Route path="/products" element={<Suspense fallback={<Splash/>}><ProductsPage/></Suspense>}/>
-                <Route path="/coupon/new" element={<Suspense fallback={<Splash/>}><CreateCouponPage/></Suspense>}/>
-                <Route path="/categories/:couponID"
-                       element={<Suspense fallback={<Splash/>}><CouponDetailPage/></Suspense>}/>
-                <Route path="/categories/:couponID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateCouponPage/></Suspense>}/>
-                <Route path="/categories" element={<Suspense fallback={<Splash/>}><CouponsPage/></Suspense>}/>
-                <Route path="/customer/new" element={<Suspense fallback={<Splash/>}><CreateCustomerPage/></Suspense>}/>
-                <Route path="/customers/:customerID"
-                       element={<Suspense fallback={<Splash/>}><CustomerDetailPage/></Suspense>}/>
-                <Route path="/customers/:customerID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateCustomerPage/></Suspense>}/>
-                <Route path="/customers" element={<Suspense fallback={<Splash/>}><CustomersPage/></Suspense>}/>
-                <Route path="/order/new" element={<Suspense fallback={<Splash/>}><CreateOrderPage/></Suspense>}/>
-                <Route path="/orders/:customerID"
-                       element={<Suspense fallback={<Splash/>}><OrderDetailPage/></Suspense>}/>
-                <Route path="/orders/:orderID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateOrderPage/></Suspense>}/>
-                <Route path="/orders" element={<Suspense fallback={<Splash/>}><OrdersPage/></Suspense>}/>
-                <Route path="/more" element={<Suspense fallback={<Splash/>}><MorePage/></Suspense>}/>
-                <Route path="/elections/:electionID/update"
-                       element={<Suspense fallback={<Splash/>}><UpdateProductPage/></Suspense>}/>
-                <Route path="*" element={<Suspense fallback={<Splash/>}><NotFoundPage/></Suspense>}/>
+                <Route path="/" element={wrap(OverviewPage)}/>
+                <Route path="/overview" element={wrap(OverviewPage)}/>
+
+                {/* Analytics */}
+                <Route path="/analytics" element={wrap(AnalyticsPage)}/>
+
+                {/* Products */}
+                <Route path="/products" element={wrap(ProductsPage)}/>
+                <Route path="/products/:productID" element={wrap(ProductDetailPage)}/>
+                <Route path="/products/:productID/update" element={wrap(UpdateProductPage)}/>
+                <Route path="/product/new" element={wrap(CreateProductPage)}/>
+
+                {/* Orders */}
+                <Route path="/orders" element={wrap(OrdersPage)}/>
+                <Route path="/orders/:orderID" element={wrap(OrderDetailPage)}/>
+                <Route path="/orders/:orderID/update" element={wrap(UpdateOrderPage)}/>
+                <Route path="/order/new" element={wrap(CreateOrderPage)}/>
+
+                {/* Order Notes */}
+                <Route path="/order-notes" element={wrap(OrderNotesPage)}/>
+                <Route path="/order-notes/:noteID" element={wrap(OrderNoteDetailPage)}/>
+                <Route path="/order-note/new" element={wrap(CreateOrderNotePage)}/>
+
+                {/* Order Refunds */}
+                <Route path="/order-refunds" element={wrap(OrderRefundsPage)}/>
+                <Route path="/order-refunds/:refundID" element={wrap(OrderRefundDetailPage)}/>
+                <Route path="/order-refund/new" element={wrap(CreateOrderRefundPage)}/>
+
+                {/* Customers */}
+                <Route path="/customers" element={wrap(CustomersPage)}/>
+                <Route path="/customers/:customerID" element={wrap(CustomerDetailPage)}/>
+                <Route path="/customers/:customerID/update" element={wrap(UpdateCustomerPage)}/>
+                <Route path="/customer/new" element={wrap(CreateCustomerPage)}/>
+
+                {/* Categories */}
+                <Route path="/categories" element={wrap(CategoriesPage)}/>
+                <Route path="/categories/:categoryID" element={wrap(CategoryDetailPage)}/>
+                <Route path="/categories/:categoryID/update" element={wrap(UpdateCategoryPage)}/>
+                <Route path="/category/new" element={wrap(CreateCategoryPage)}/>
+
+                {/* Coupons */}
+                <Route path="/coupons" element={wrap(CouponsPage)}/>
+                <Route path="/coupons/:couponID" element={wrap(CouponDetailPage)}/>
+                <Route path="/coupons/:couponID/update" element={wrap(UpdateCouponPage)}/>
+                <Route path="/coupon/new" element={wrap(CreateCouponPage)}/>
+
+                {/* Tags */}
+                <Route path="/tags" element={wrap(TagsPage)}/>
+
+                {/* Attributes */}
+                <Route path="/attributes" element={wrap(AttributesPage)}/>
+
+                {/* Reviews */}
+                <Route path="/reviews" element={wrap(ReviewsPage)}/>
+                <Route path="/reviews/:reviewID" element={wrap(ReviewDetailPage)}/>
+
+                {/* Tax */}
+                <Route path="/tax-rates" element={wrap(TaxRatesPage)}/>
+                <Route path="/tax-rates/:taxRateID" element={wrap(TaxRateDetailPage)}/>
+                <Route path="/tax-rates/:taxRateID/update" element={wrap(UpdateTaxRatePage)}/>
+                <Route path="/tax-rate/new" element={wrap(CreateTaxRatePage)}/>
+                <Route path="/tax-classes" element={wrap(TaxClassesPage)}/>
+
+                {/* Payment Gateways */}
+                <Route path="/payment-gateways" element={wrap(PaymentGatewaysPage)}/>
+                <Route path="/payment-gateways/:gatewayID" element={wrap(PaymentGatewayDetailPage)}/>
+
+                {/* Shipping */}
+                <Route path="/shipping-classes" element={wrap(ShippingClassesPage)}/>
+                <Route path="/shipping-methods" element={wrap(ShippingMethodsPage)}/>
+
+                {/* Webhooks */}
+                <Route path="/webhooks" element={wrap(WebhooksPage)}/>
+                <Route path="/webhooks/:webhookID" element={wrap(WebhookDetailPage)}/>
+                <Route path="/webhooks/:webhookID/update" element={wrap(UpdateWebhookPage)}/>
+                <Route path="/webhook/new" element={wrap(CreateWebhookPage)}/>
+
+                {/* Admins */}
+                <Route path="/admins" element={wrap(AdminsPage)}/>
+                <Route path="/admins/:adminID" element={wrap(AdminDetailPage)}/>
+                <Route path="/admins/:adminID/update" element={wrap(UpdateAdminPage)}/>
+                <Route path="/admin/new" element={wrap(CreateAdminPage)}/>
+
+                {/* Users */}
+                <Route path="/users" element={wrap(UsersPage)}/>
+                <Route path="/users/:userID" element={wrap(UserDetailPage)}/>
+                <Route path="/users/:userID/update" element={wrap(UpdateUserPage)}/>
+                <Route path="/user/new" element={wrap(CreateUserPage)}/>
+
+                {/* Invitations */}
+                <Route path="/invitations" element={wrap(InvitationsPage)}/>
+                <Route path="/invitations/:invitationID" element={wrap(InvitationDetailPage)}/>
+                <Route path="/invitations/:invitationID/update" element={wrap(UpdateInvitationPage)}/>
+                <Route path="/invitation/new" element={wrap(CreateInvitationPage)}/>
+
+                {/* Account */}
+                <Route path="/account" element={wrap(AccountPage)}/>
+                <Route path="/profile" element={wrap(ProfilePage)}/>
+                <Route path="/profile/update" element={wrap(UpdateProfilePage)}/>
+                <Route path="/change-password" element={wrap(ChangePasswordPage)}/>
+
+                {/* Auth */}
+                <Route path="/auth/login" element={wrap(LoginPage)}/>
+                <Route path="/auth/register" element={wrap(RegisterPage)}/>
+                <Route path="/auth/forgot-password" element={wrap(ForgotPasswordPage)}/>
+                <Route path="/auth/reset-password" element={wrap(ResetPasswordPage)}/>
+                <Route path="/auth/verify/:token" element={wrap(VerifyAccountPage)}/>
+                <Route path="/auth/otp" element={wrap(VerifyOTPPage)}/>
+
+                {/* Info pages */}
+                <Route path="/terms" element={wrap(TermsPage)}/>
+                <Route path="/settings" element={wrap(SettingsPage)}/>
+                <Route path="/privacy" element={wrap(PrivacyPage)}/>
+                <Route path="/help" element={wrap(HelpPage)}/>
+                <Route path="/faq" element={wrap(FAQPage)}/>
+                <Route path="/contact" element={wrap(ContactPage)}/>
+                <Route path="/us" element={wrap(AboutUsPage)}/>
+                <Route path="/more" element={wrap(MorePage)}/>
+
+                <Route path="*" element={wrap(NotFoundPage)}/>
             </Routes>
         </ThemeProvider>
     );

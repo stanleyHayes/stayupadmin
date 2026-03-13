@@ -17,12 +17,12 @@ import {
     TableHead,
     TableRow,
     TextField,
-    Typography,
-    IconButton
+    Tooltip,
+    Typography
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTags, selectTags, deleteTag, fetchTag } from "../../redux/features/tags/tags-slice";
-import { SearchOutlined, Visibility, Edit, Delete } from "@mui/icons-material";
+import { SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined } from "@mui/icons-material";
 import CreateTagDialog from "../../components/dialogs/create-tag-dialog.jsx";
 import ViewTagDialog from "../../components/dialogs/view-tag-dialog.jsx";
 import UpdateTagDialog from "../../components/dialogs/update-tag-dialog.jsx";
@@ -65,7 +65,7 @@ const TagsPage = () => {
     return (
         <Layout>
             {loading && <LinearProgress variant="query" color="secondary" />}
-            <Box sx={{ pt: 4, pb: 8 }}>
+            <Box sx={{ pt: 4, pb: 6 }}>
                 <Container>
                     <Grid spacing={4} container={true} alignItems="center" justifyContent="space-between">
                         <Grid item={true} size={{ xs: 12, md: "auto" }}>
@@ -83,7 +83,7 @@ const TagsPage = () => {
                             <Grid container={true} spacing={2} alignItems="center">
                                 <Grid item={true} size={{ xs: 12, md: 8 }}>
                                     <Stack direction="row" spacing={1} sx={{ backgroundColor: "background.paper", p: 1, borderRadius: 2 }}>
-                                        <TextField value={query} size="small" placeholder="Search tags..." onChange={(e) => setQuery(e.target.value)} variant="standard" InputProps={{ disableUnderline: true }} fullWidth />
+                                        <TextField value={query} size="small" placeholder="Search tags..." onChange={(e) => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth />
                                         <SearchOutlined onClick={handleSearch} sx={{ cursor: "pointer", alignSelf: "center" }} />
                                     </Stack>
                                 </Grid>
@@ -127,10 +127,25 @@ const TagsPage = () => {
                                             <TableCell>{t.count ?? 0}</TableCell>
                                             <TableCell style={{ maxWidth: 320, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.description}</TableCell>
                                             <TableCell>
-                                                <Stack direction="row" spacing={1}>
-                                                    <IconButton size="small" onClick={() => openView(t)}><Visibility fontSize="small"/></IconButton>
-                                                    <IconButton size="small" onClick={() => openEdit(t)}><Edit fontSize="small"/></IconButton>
-                                                    <IconButton size="small" onClick={() => handleDelete(t)}><Delete fontSize="small"/></IconButton>
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Tooltip title="View Tag">
+                                                        <VisibilityOutlined
+                                                            onClick={() => openView(t)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip title="Edit Tag">
+                                                        <EditOutlined
+                                                            onClick={() => openEdit(t)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip title="Delete Tag">
+                                                        <DeleteForeverOutlined
+                                                            onClick={() => handleDelete(t)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
                                                 </Stack>
                                             </TableCell>
                                         </TableRow>

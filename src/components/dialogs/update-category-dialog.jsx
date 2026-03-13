@@ -91,7 +91,7 @@ const UpdateCategoryDialog = ({ open, category, onClose, onUpdate }) => {
             <DialogTitle>Update Category</DialogTitle>
             <DialogContent dividers>
                 <Grid container spacing={2}>
-                    <Grid item size={{ xs: 12, md: "auto" }}>
+                    <Grid size={{ xs: 12, md: "auto" }}>
                         <TextField
                             label="Name"
                             fullWidth
@@ -103,7 +103,7 @@ const UpdateCategoryDialog = ({ open, category, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item size={{ xs: 12, md: "auto" }}>
+                    <Grid size={{ xs: 12, md: "auto" }}>
                         <TextField
                             label="Slug"
                             fullWidth
@@ -115,7 +115,7 @@ const UpdateCategoryDialog = ({ open, category, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item size={{ xs: 12, md: "auto" }}>
+                    <Grid size={{ xs: 12, md: "auto" }}>
                         <TextField
                             label="Parent Category ID"
                             fullWidth
@@ -125,7 +125,7 @@ const UpdateCategoryDialog = ({ open, category, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item size={{ xs: 12, md: "auto" }}>
+                    <Grid size={{ xs: 12, md: "auto" }}>
                         <FormControl fullWidth size="small">
                             <InputLabel>Status</InputLabel>
                             <Select value={form.status} label="Status" onChange={e => setForm({ ...form, status: e.target.value })}>
@@ -137,7 +137,7 @@ const UpdateCategoryDialog = ({ open, category, onClose, onUpdate }) => {
                         </FormControl>
                     </Grid>
 
-                    <Grid item size={{ xs: 12, md: "auto" }}>
+                    <Grid size={{ xs: 12, md: "auto" }}>
                         <LocalizationProvider dateAdapter={AdapterMoment}>
                             <DatePicker
                                 label="Visible From (optional)"
@@ -148,7 +148,7 @@ const UpdateCategoryDialog = ({ open, category, onClose, onUpdate }) => {
                         </LocalizationProvider>
                     </Grid>
 
-                    <Grid item size={{ xs: 12, md: "auto" }}>
+                    <Grid size={{ xs: 12, md: "auto" }}>
                         <TextField
                             label="Description"
                             fullWidth
@@ -160,7 +160,7 @@ const UpdateCategoryDialog = ({ open, category, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item size={{ xs: 12, md: "auto" }}>
+                    <Grid size={{ xs: 12, md: "auto" }}>
                         <FormControlLabel
                             control={<Switch checked={form.published} onChange={e => setForm({ ...form, published: e.target.checked })} />}
                             label="Published"

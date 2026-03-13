@@ -52,7 +52,7 @@ const CustomersPage = () => {
             {customerLoading && <LinearProgress variant="query" color="secondary"/>}
             <Box sx={{pt: 4, pb: 6}}>
                 {customerError && (
-                    <Alert severity="error" variant="standard">
+                    <Alert severity="error" sx={{mb: 2}}>
                         <AlertTitle>
                             {customerError}
                         </AlertTitle>
@@ -70,10 +70,6 @@ const CustomersPage = () => {
                                         to="/customer/new"
                                         style={{textDecoration: "none", width: "100%", display: "block"}}>
                                         <Button
-                                            sx={{
-                                                textTransform: "capitalize",
-                                                borderWidth: 2
-                                            }}
                                             size="small"
                                             color="secondary"
                                             variant="outlined"
@@ -84,7 +80,7 @@ const CustomersPage = () => {
                         </Grid>
                         <Grid size={{xs: 12, md: 'auto'}}>
                             <Grid container={true} spacing={2} alignItems="center">
-                                <Grid xs={12} md={8}>
+                                <Grid size={{xs: 12, md: 8}}>
                                     <Stack
                                         divider={
                                             <Divider
@@ -111,7 +107,7 @@ const CustomersPage = () => {
                                             variant="standard"
                                             type="text"
                                             placeholder="Search orders..."
-                                            InputProps={{disableUnderline: true}}
+                                            slotProps={{ input: { disableUnderline: true } }}
                                         />
                                         <SearchOutlined
                                             onClick={handleSearch}
@@ -120,12 +116,8 @@ const CustomersPage = () => {
                                         />
                                     </Stack>
                                 </Grid>
-                                <Grid xs={12} md={4}>
+                                <Grid size={{xs: 12, md: 4}}>
                                     <Button
-                                        sx={{
-                                            textTransform: "capitalize",
-                                            borderWidth: 2
-                                        }}
                                         size="small"
                                         color="secondary"
                                         variant="outlined"
@@ -188,10 +180,6 @@ const CustomersPage = () => {
                         </Grid>
                         <Grid size={{xs: 12, md: 3}}>
                             <Button
-                                sx={{
-                                    textTransform: "capitalize",
-                                    borderWidth: 2
-                                }}
                                 size="small"
                                 color="secondary"
                                 variant="outlined"
@@ -201,7 +189,7 @@ const CustomersPage = () => {
 
                     <Divider variant="fullWidth" sx={{my: 4}}/>
 
-                    <TableContainer component={Paper} elevation={0} variant="elevation">
+                    <TableContainer component={Paper} elevation={0}>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -241,10 +229,6 @@ const CustomersPage = () => {
                                 button={
                                     <Link to="/customer/new" style={{textDecoration: "none"}}>
                                         <Button
-                                            sx={{
-                                                textTransform: "capitalize",
-                                                borderWidth: 2
-                                            }}
                                             size="small"
                                             color="secondary"
                                             variant="outlined"
@@ -254,7 +238,7 @@ const CustomersPage = () => {
                             />
                         </Box>
                     ) : (
-                        <TableContainer component={Paper} elevation={0} variant="elevation">
+                        <TableContainer component={Paper} elevation={0}>
                             <Table>
                                 <TableBody>
                                     {customers.map((customer, index) => {

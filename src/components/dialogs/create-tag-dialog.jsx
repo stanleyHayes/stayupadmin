@@ -42,7 +42,7 @@ const CreateTagDialog = ({ open, onClose }) => {
                     <Form>
                         <DialogContent>
                             <Grid container spacing={2}>
-                                <Grid item size={{ xs: 12}}>
+                                <Grid size={{ xs: 12}}>
                                     <Stack spacing={1}>
                                         <TextField size="small" label="Name" name="name" value={values.name} onChange={handleChange}
                                                    error={Boolean(touched.name && errors.name)} helperText={touched.name && errors.name ? errors.name : ""} fullWidth />

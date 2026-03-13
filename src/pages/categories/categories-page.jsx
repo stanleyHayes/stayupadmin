@@ -25,15 +25,12 @@ import {
     Typography,
     Grid,
 } from "@mui/material";
-import {Link} from "react-router-dom";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
-import {motion} from "framer-motion";
-import {Close, SearchOutlined, Visibility, Edit, Delete} from "@mui/icons-material";
+import {SearchOutlined} from "@mui/icons-material";
 import {useDispatch, useSelector} from "react-redux";
-import Empty from "../../components/shared/empty.jsx";
 import Category from "../../components/shared/category.jsx";
 
 // Redux slice (place your thunks and selector in this file)
@@ -57,8 +54,8 @@ const CategoriesPage = () => {
     // UI filters
     const [query, setQuery] = useState("");
     const [status, setStatus] = useState("all");
-    const [startDate, setStartDate] = useState(moment().startOf("day"));
-    const [endDate, setEndDate] = useState(moment().endOf("day"));
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
 
     // Dialog state
     const [openCreate, setOpenCreate] = useState(false);
@@ -139,14 +136,12 @@ const CategoriesPage = () => {
         dispatch(deleteCategory(category._id ?? category.id ?? category.slug));
     };
 
-    console.log(categories)
-
     return (
         <Layout>
             {categoryLoading && <LinearProgress variant="query" color="secondary"/>}
-            <Box sx={{pt: 4, pb: 8}}>
+            <Box sx={{pt: 4, pb: 6}}>
                 {categoryError && (
-                    <Alert severity="error" variant="standard">
+                    <Alert severity="error" sx={{mb: 2}}>
                         <AlertTitle>{categoryError}</AlertTitle>
                     </Alert>
                 )}
@@ -159,8 +154,7 @@ const CategoriesPage = () => {
                                     <Typography variant="h4" sx={{color: "text.secondary"}}>Categories</Typography>
                                 </Grid>
                                 <Grid size={{xs: 12, md: "auto"}}>
-                                    <Button onClick={handleOpenCreate}
-                                            sx={{textTransform: "capitalize", borderWidth: 2}} size="small"
+                                    <Button onClick={handleOpenCreate} size="small"
                                             color="secondary" variant="outlined" fullWidth>
                                         Add Category
                                     </Button>
@@ -188,13 +182,13 @@ const CategoriesPage = () => {
                                             variant="standard"
                                             type="text"
                                             placeholder="Search categories..."
-                                            InputProps={{disableUnderline: true}}
+                                            slotProps={{ input: { disableUnderline: true } }}
                                         />
                                         <SearchOutlined sx={{color: "background.icon"}} color="secondary"/>
                                     </Stack>
                                 </Grid>
                                 <Grid size={{xs: 12, md: 6}}>
-                                    <Button sx={{textTransform: "capitalize", borderWidth: 2}} size="small"
+                                    <Button size="small"
                                             color="secondary" variant="outlined" fullWidth>
                                         Search Category
                                     </Button>
@@ -245,7 +239,7 @@ const CategoriesPage = () => {
                         </Grid>
 
                         <Grid size={{xs: 12, md: 3}}>
-                            <Button sx={{textTransform: "capitalize", borderWidth: 2}} size="small" color="secondary"
+                            <Button size="small" color="secondary"
                                     variant="outlined" fullWidth>
                                 Filter
                             </Button>
@@ -254,71 +248,40 @@ const CategoriesPage = () => {
 
                     <Divider variant="fullWidth" sx={{my: 4}}/>
 
-                    <TableContainer component={Paper} elevation={0} variant="elevation">
+                    <TableContainer component={Paper} elevation={0}>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>#</TableCell>
                                     <TableCell>Name</TableCell>
                                     <TableCell>Slug</TableCell>
+                                    <TableCell>Status</TableCell>
                                     <TableCell>Parent</TableCell>
                                     <TableCell>Products</TableCell>
                                     <TableCell>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
+                            <TableBody>
+                                {filteredCategories.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={7}>
+                                            <Typography variant="body2" color="text.secondary" align="center">No categories found</Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : filteredCategories.map((category, index) => (
+                                    <React.Fragment key={category._id ?? category.id ?? index}>
+                                        <Category
+                                            index={index}
+                                            category={category}
+                                            categories={categories}
+                                            onView={() => handleOpenView(category)}
+                                            onEdit={() => handleOpenEdit(category)}
+                                            onDelete={() => handleDelete(category)}/>
+                                    </React.Fragment>
+                                ))}
+                            </TableBody>
                         </Table>
                     </TableContainer>
-
-                    {Array.isArray(categories) && categories.length === 0 ? (
-                        <Box>
-                            <Empty
-                                icon={
-                                    <Box component={motion.div} exit={{}}>
-                                        <Close
-                                            sx={{
-                                                padding: 1,
-                                                fontSize: 36,
-                                                borderWidth: 1,
-                                                borderStyle: "solid",
-                                                borderRadius: "30%",
-                                                borderColor: "light.secondary",
-                                                color: "secondary.main",
-                                                backgroundColor: "light.secondary",
-                                                cursor: "pointer"
-                                            }}
-                                        />
-                                    </Box>
-                                }
-                                title="Categories"
-                                message="No categories available"
-                                button={
-                                    <Link to="/category/new" style={{textDecoration: "none"}}>
-                                        <Button sx={{textTransform: "capitalize", borderWidth: 2}} size="small"
-                                                color="secondary" variant="outlined" fullWidth>
-                                            Create Category
-                                        </Button>
-                                    </Link>
-                                }
-                            />
-                        </Box>
-                    ) : (
-                        <TableContainer component={Paper} elevation={0} variant="elevation">
-                            <Table>
-                                <TableBody>
-                                    {filteredCategories.map((category, index) => (
-                                        <React.Fragment key={category._id ?? category.id ?? index}>
-                                            <Category
-                                                index={index}
-                                                category={category}
-                                                onView={() => handleOpenView(category)}
-                                                onEdit={() => handleOpenEdit(category)}
-                                                onDelete={() => handleDelete(category)}/>
-                                        </React.Fragment>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
                 </Container>
 
                 {/* Dialogs */}

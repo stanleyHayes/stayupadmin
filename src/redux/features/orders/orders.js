@@ -3,97 +3,204 @@ import profile from "./../../../assets/images/profile.jpg";
 export const orders = [
     {
         _id: 1,
-        number: '#9D',
-        createdAt: '07-29-2020',
-        status: 'completed',
+        number: "#1001",
+        createdAt: "2024-11-15T09:23:00Z",
+        status: "completed",
         billing: {
-            address: 'Zoe Tamayo, Patterson-Fletcher, 2349 Court Street, Old Monroe, MD 63369',
-            method: 'PayPal'
+            address: "Inigo Lopez, 71 Cherry Court, Southampton, Hampshire, SO53 5PD, UK",
+            method: "PayPal"
         },
-        total: {
-            amount: 50,
-            currency: 'GBP'
+        shipping: {
+            address: "71 Cherry Court, Southampton, Hampshire, SO53 5PD, UK",
+            method: "Standard Flat Rate"
         },
-        customer: {
-            name: 'Inigo Lopez',
-            image: '',
-            _id: '12345'
-        },
+        total: { amount: 160, currency: "GBP" },
+        customer: { name: "Inigo Lopez", image: "", _id: "c1" },
         orderItems: [
             {
-                product: {
-                    title: "Cap",
-                    image: "",
-                    price: {
-                        amount: 20,
-                        currency: "GPB"
-                    }
-                },
-                quantity: 3
+                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 1
             },
             {
-                product: {
-                    title: "Belt",
-                    image: "",
-                    price: {
-                        amount: 50,
-                        currency: "GPB"
-                    }
-                },
-                quantity: 2
+                product: { title: "Hoodie", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 1
             },
             {
-                product: {
-                    title: "Trousers",
-                    image: "",
-                    price: {
-                        amount: 100,
-                        currency: "GPB"
-                    }
-                },
+                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 50, currency: "GBP" } },
                 quantity: 1
             }
         ]
     },
     {
         _id: 2,
-        number: '#8D',
-        createdAt: '07-25-2020',
-        status: 'pending payment',
+        number: "#1002",
+        createdAt: "2024-11-20T14:05:00Z",
+        status: "pending payment",
         billing: {
-            address: 'Megan Harrison, Patterson-Fletcher, 47 City Walls Rd, Clifton Upon Teme, WR6 6NG, United Kingdom (UK)',
-            method: 'PayPal'
+            address: "Vladislaus Draguila, 71 Cherry Court, Billinge, Merseyside, WN5 7PX, UK",
+            method: "Direct Bank Transfer"
         },
-        total: {
-            amount: 70,
-            currency: 'GBP'
+        shipping: {
+            address: "71 Cherry Court, Billinge, Merseyside, WN5 7PX, UK",
+            method: "Free Shipping"
         },
-        customer: {
-            name: 'Vladislaus Draguila',
-            image: profile,
-            _id: '23456'
-        },
+        total: { amount: 220, currency: "GBP" },
+        customer: { name: "Vladislaus Draguila", image: profile, _id: "c3" },
         orderItems: [
             {
-                product: {
-                    name: "Cap",
-                    image: "",
-                    price: {
-                        amount: 20,
-                        currency: "GPB"
-                    }
-                },
-                quantity: 3
+                product: { title: "Hoodie", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 2
             },
             {
-                product: {
-                    name: "Trousers",
-                    image: "",
-                    price: {
-                        amount: 100,
-                        currency: "GPB"
-                    }
-                },
+                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 2
+            }
+        ]
+    },
+    {
+        _id: 3,
+        number: "#1003",
+        createdAt: "2024-12-02T11:40:00Z",
+        status: "processing",
+        billing: {
+            address: "Stanley Hayford, 71 Cherry Court, Birkenhead, Merseyside, CH25 9BH, UK",
+            method: "Credit Card (Stripe)"
+        },
+        shipping: {
+            address: "71 Cherry Court, Birkenhead, Merseyside, CH25 9BH, UK",
+            method: "Express Delivery"
+        },
+        total: { amount: 300, currency: "GBP" },
+        customer: { name: "Stanley Hayford", image: "", _id: "c2" },
+        orderItems: [
+            {
+                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 150, currency: "GBP" } },
+                quantity: 2
+            }
+        ]
+    },
+    {
+        _id: 4,
+        number: "#1004",
+        createdAt: "2024-12-10T16:15:00Z",
+        status: "on-hold",
+        billing: {
+            address: "Inigo Lopez, 71 Cherry Court, Southampton, Hampshire, SO53 5PD, UK",
+            method: "PayPal"
+        },
+        shipping: {
+            address: "71 Cherry Court, Southampton, Hampshire, SO53 5PD, UK",
+            method: "Standard Flat Rate"
+        },
+        total: { amount: 110, currency: "GBP" },
+        customer: { name: "Inigo Lopez", image: "", _id: "c1" },
+        orderItems: [
+            {
+                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 2
+            }
+        ]
+    },
+    {
+        _id: 5,
+        number: "#1005",
+        createdAt: "2024-12-18T08:30:00Z",
+        status: "cancelled",
+        billing: {
+            address: "Userma'atre Setepenre, 71 Cherry Court, London, BR1 1AA, UK",
+            method: "Credit Card (Stripe)"
+        },
+        shipping: {
+            address: "71 Cherry Court, London, BR1 1AA, UK",
+            method: "Standard Flat Rate"
+        },
+        total: { amount: 55, currency: "GBP" },
+        customer: { name: "Userma'atre Setepenre", image: "", _id: "c4" },
+        orderItems: [
+            {
+                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 1
+            }
+        ]
+    },
+    {
+        _id: 6,
+        number: "#1006",
+        createdAt: "2025-01-05T13:55:00Z",
+        status: "refunded",
+        billing: {
+            address: "Vladislaus Draguila, 71 Cherry Court, Billinge, Merseyside, WN5 7PX, UK",
+            method: "PayPal"
+        },
+        shipping: {
+            address: "71 Cherry Court, Billinge, Merseyside, WN5 7PX, UK",
+            method: "Free Shipping"
+        },
+        total: { amount: 150, currency: "GBP" },
+        customer: { name: "Vladislaus Draguila", image: profile, _id: "c3" },
+        orderItems: [
+            {
+                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 150, currency: "GBP" } },
+                quantity: 1
+            }
+        ]
+    },
+    {
+        _id: 7,
+        number: "#1007",
+        createdAt: "2025-01-12T10:00:00Z",
+        status: "failed",
+        billing: {
+            address: "Stanley Hayford, 71 Cherry Court, Birkenhead, Merseyside, CH25 9BH, UK",
+            method: "Credit Card (Stripe)"
+        },
+        shipping: {
+            address: "71 Cherry Court, Birkenhead, Merseyside, CH25 9BH, UK",
+            method: "Standard Flat Rate"
+        },
+        total: { amount: 205, currency: "GBP" },
+        customer: { name: "Stanley Hayford", image: "", _id: "c2" },
+        orderItems: [
+            {
+                product: { title: "Hoodie", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 1
+            },
+            {
+                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 150, currency: "GBP" } },
+                quantity: 1
+            }
+        ]
+    },
+    {
+        _id: 8,
+        number: "#1008",
+        createdAt: "2025-02-01T09:10:00Z",
+        status: "completed",
+        billing: {
+            address: "Inigo Lopez, 71 Cherry Court, Southampton, Hampshire, SO53 5PD, UK",
+            method: "Credit Card (Stripe)"
+        },
+        shipping: {
+            address: "71 Cherry Court, Southampton, Hampshire, SO53 5PD, UK",
+            method: "Express Delivery"
+        },
+        total: { amount: 315, currency: "GBP" },
+        customer: { name: "Inigo Lopez", image: "", _id: "c1" },
+        orderItems: [
+            {
+                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 1
+            },
+            {
+                product: { title: "Hoodie", image: "", price: { amount: 55, currency: "GBP" } },
+                quantity: 1
+            },
+            {
+                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 150, currency: "GBP" } },
+                quantity: 1
+            },
+            {
+                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
                 quantity: 1
             }
         ]

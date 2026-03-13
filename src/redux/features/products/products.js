@@ -1,233 +1,158 @@
 import cap from "./../../../assets/images/products/cap.jpg";
 import hoodie from "./../../../assets/images/products/hoodie.jpg";
 import turtle from "./../../../assets/images/products/turtle-neck.jpg";
+
 export const products = [
     {
-        sku: "CAP",
-        title: "Cap",
-        description: "",
+        _id: "prod1",
+        sku: "CAP-001",
+        title: "Classic Logo Cap",
+        description: "A timeless structured cap with an embroidered logo. Adjustable strap for a perfect fit.",
         stock_quantity: 52,
-        short_description: "",
-        variations: {},
+        short_description: "Structured cap with embroidered logo.",
+        type: "simple",
+        status: "publish",
+        variations: [],
         image: {
-            public_id: "",
+            public_id: "products/cap",
             secure_url: cap
         },
         allow_back_orders: false,
-        low_stock_threshold: 2,
+        low_stock_threshold: 5,
         sold_individually: false,
-        price: {
-            currency: "GBP",
-            amount: 55
-        },
+        price: { currency: "GBP", amount: 55 },
+        regular_price: 55,
+        sale_price: 45,
+        on_sale: true,
         sale: {
             status: true,
-            price: {
-                currency: "GBP",
-                amount: 45
-            },
-            start_date: "",
-            end_date: ""
+            price: { currency: "GBP", amount: 45 },
+            start_date: "2024-01-01",
+            end_date: "2024-12-31"
         },
-        weight: {
-            unit: "g",
-            amount: 15
-        },
-        dimensions: {
-            length: {
-                unit: "cm",
-                amount: 20
-            },
-            width: {
-                unit: "cm",
-                amount: 20
-            },
-            height: {
-                unit: "cm",
-                amount: 30
-            }
-        },
-        shipping: "",
+        weight: "0.15",
+        dimensions: { length: "20", width: "20", height: "10" },
+        shipping_class: "standard",
+        tax_status: "taxable",
+        tax_class: "",
+        manage_stock: true,
+        stock_status: "instock",
+        backorders: "no",
+        reviews_allowed: true,
         upsells: [],
         cross_sells: [],
         attributes: [],
         purchase_note: "",
         enable_reviews: true,
-        categories: [
-            {
-                name: "",
-                slug: "",
-                is_sub_category: false,
-                parent: true,
-                description: "",
-                image: {
-                    secure_url: ""
-                }
-            }
-        ],
-        tags: [""],
-        status: "PUBLISHED",
-        visibility: 'PUBLIC',
-        date_published: "",
-        created_at: "",
+        categories: [{ id: 3, name: "Apparel", slug: "apparel" }],
+        tags: [{ id: 1, name: "caps", slug: "caps" }],
+        visibility: "visible",
+        date_published: "2024-01-10",
+        created_at: "2024-01-10T08:00:00Z",
         featured: false,
-        gallery: [
-            {
-                public_id: "",
-                secure_url: ""
-            }
-        ]
+        gallery: []
     },
     {
-        sku: "HDEE",
-        title: "Hoodie",
-        description: "",
+        _id: "prod2",
+        sku: "HOD-002",
+        title: "Pullover Hoodie",
+        description: "Comfortable midweight pullover hoodie in a relaxed fit. Kangaroo pocket and adjustable drawstring.",
         stock_quantity: 5,
-        short_description: "",
-        variations: {},
+        short_description: "Midweight pullover hoodie, relaxed fit.",
+        type: "simple",
+        status: "publish",
+        variations: [],
         image: {
-            public_id: "",
+            public_id: "products/hoodie",
             secure_url: hoodie
         },
         allow_back_orders: false,
-        low_stock_threshold: 2,
+        low_stock_threshold: 3,
         sold_individually: false,
-        price: {
-            currency: "GBP",
-            amount: 55
-        },
+        price: { currency: "GBP", amount: 55 },
+        regular_price: 65,
+        sale_price: 55,
+        on_sale: true,
         sale: {
             status: true,
-            price: {
-                currency: "GBP",
-                amount: 45
-            },
-            start_date: "",
-            end_date: ""
+            price: { currency: "GBP", amount: 55 },
+            start_date: "2024-03-01",
+            end_date: "2024-06-30"
         },
-        weight: {
-            unit: "g",
-            amount: 15
-        },
-        dimensions: {
-            length: {
-                unit: "cm",
-                amount: 20
-            },
-            width: {
-                unit: "cm",
-                amount: 20
-            },
-            height: {
-                unit: "cm",
-                amount: 30
-            }
-        },
-        shipping: {
-            type: String
-        },
-        upsells: [],
+        weight: "0.45",
+        dimensions: { length: "35", width: "28", height: "5" },
+        shipping_class: "standard",
+        tax_status: "taxable",
+        tax_class: "",
+        manage_stock: true,
+        stock_status: "lowstock",
+        backorders: "no",
+        reviews_allowed: true,
+        upsells: ["prod1"],
         cross_sells: [],
-        attributes: [],
+        attributes: [
+            { id: 1, name: "Colour", options: ["Black", "Navy", "Grey"], visible: true, variation: false },
+            { id: 2, name: "Size", options: ["S", "M", "L", "XL"], visible: true, variation: false }
+        ],
         purchase_note: "",
         enable_reviews: true,
-        categories: [
-            {
-                name: "",
-                slug: "",
-                is_sub_category: false,
-                parent: true,
-                description: "",
-                image: {
-                    secure_url: ""
-                }
-            }
-        ],
-        tags: [""],
-        status: "PUBLISHED",
-        visibility: 'PUBLIC',
-        date_published: "",
+        categories: [{ id: 3, name: "Apparel", slug: "apparel" }],
+        tags: [{ id: 2, name: "hoodies", slug: "hoodies" }],
+        visibility: "visible",
+        date_published: "2024-03-01",
+        created_at: "2024-03-01T09:00:00Z",
         featured: true,
-        gallery: [
-            {
-                public_id: ""
-            }
-        ]
+        gallery: []
     },
     {
-        sku: "NJA",
-        title: "Ninja Silhouette",
-        description: "",
+        _id: "prod3",
+        sku: "NJA-003",
+        title: "Ninja Silhouette T-Shirt",
+        description: "Premium cotton tee featuring a bold ninja silhouette graphic. Unisex cut, pre-shrunk fabric.",
         stock_quantity: 200,
-        short_description: "",
-        variations: {},
+        short_description: "Premium cotton tee with ninja graphic.",
+        type: "simple",
+        status: "publish",
+        variations: [],
         image: {
-            public_id: "",
+            public_id: "products/turtle",
             secure_url: turtle
         },
         allow_back_orders: false,
-        low_stock_threshold: 2,
+        low_stock_threshold: 10,
         sold_individually: false,
-        price: {
-            currency: "GBP",
-            amount: 150
-        },
+        price: { currency: "GBP", amount: 150 },
+        regular_price: 150,
+        sale_price: null,
+        on_sale: false,
         sale: {
-            status: true,
-            price: {
-                currency: "GBP",
-                amount: 45
-            },
+            status: false,
+            price: { currency: "GBP", amount: 150 },
             start_date: "",
             end_date: ""
         },
-        weight: {
-            unit: "g",
-            amount: 15
-        },
-        dimensions: {
-            length: {
-                unit: "cm",
-                amount: 20
-            },
-            width: {
-                unit: "cm",
-                amount: 20
-            },
-            height: {
-                unit: "cm",
-                amount: 30
-            }
-        },
-        shipping: {
-            type: String
-        },
+        weight: "0.20",
+        dimensions: { length: "30", width: "25", height: "3" },
+        shipping_class: "standard",
+        tax_status: "taxable",
+        tax_class: "",
+        manage_stock: true,
+        stock_status: "instock",
+        backorders: "no",
+        reviews_allowed: true,
         upsells: [],
-        cross_sells: [],
-        attributes: [],
+        cross_sells: ["prod1", "prod2"],
+        attributes: [
+            { id: 2, name: "Size", options: ["XS", "S", "M", "L", "XL", "XXL"], visible: true, variation: false }
+        ],
         purchase_note: "",
         enable_reviews: true,
-        categories: [
-            {
-                name: "",
-                slug: "",
-                is_sub_category: false,
-                parent: true,
-                description: "",
-                image: {
-                    secure_url: ""
-                }
-            }
-        ],
-        tags: [""],
-        status: "PUBLISHED",
-        visibility: 'PUBLIC',
-        date_published: "",
+        categories: [{ id: 3, name: "Apparel", slug: "apparel" }],
+        tags: [{ id: 3, name: "t-shirts", slug: "t-shirts" }, { id: 4, name: "graphic-tees", slug: "graphic-tees" }],
+        visibility: "visible",
+        date_published: "2024-05-15",
+        created_at: "2024-05-15T10:30:00Z",
         featured: false,
-        gallery: [
-            {
-                public_id: ""
-            }
-        ]
-    },
-]
+        gallery: []
+    }
+];

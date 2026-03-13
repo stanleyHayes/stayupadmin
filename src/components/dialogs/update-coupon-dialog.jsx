@@ -112,7 +112,7 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
             <DialogTitle>Update Coupon</DialogTitle>
             <DialogContent dividers>
                 <Grid container spacing={2} sx={{ pt: 1 }}>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             label="Code"
                             fullWidth
@@ -124,7 +124,7 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             label="Amount"
                             fullWidth
@@ -134,7 +134,7 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <FormControl fullWidth size="small">
                             <InputLabel>Discount Type</InputLabel>
                             <Select
@@ -150,7 +150,7 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                         </FormControl>
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <LocalizationProvider dateAdapter={AdapterMoment}>
                             <DatePicker
                                 label="Expires"
@@ -161,7 +161,7 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                         </LocalizationProvider>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             label="Description"
                             fullWidth
@@ -173,7 +173,7 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             label="Usage limit"
                             fullWidth
@@ -183,7 +183,7 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             label="Usage limit per user"
                             fullWidth
@@ -193,7 +193,7 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextField
                             label="Included emails (comma separated)"
                             fullWidth
@@ -203,13 +203,13 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <FormControlLabel
                             control={<Switch checked={form.free_shipping} onChange={e => setForm({ ...form, free_shipping: e.target.checked })} />}
                             label="Free shipping"
                         />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <FormControlLabel
                             control={<Switch checked={form.exclude_sale_items} onChange={e => setForm({ ...form, exclude_sale_items: e.target.checked })} />}
                             label="Exclude sale items"

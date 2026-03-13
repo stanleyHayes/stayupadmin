@@ -90,7 +90,7 @@ const ProfileDropdown = () => {
                                         sx={{
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.default",
                                             padding: 1,
                                             fontSize: 36,
@@ -104,7 +104,7 @@ const ProfileDropdown = () => {
                                             fontSize: 36,
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.icon",
                                             color: "background.icon"
                                         }}/>
@@ -121,7 +121,7 @@ const ProfileDropdown = () => {
                                         sx={{
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.default",
                                             padding: 1,
                                             fontSize: 36,
@@ -135,7 +135,7 @@ const ProfileDropdown = () => {
                                             fontSize: 36,
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.icon",
                                             color: "background.icon"
                                         }}/>
@@ -150,7 +150,7 @@ const ProfileDropdown = () => {
                                         sx={{
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.default",
                                             padding: 1,
                                             fontSize: 36,
@@ -164,7 +164,7 @@ const ProfileDropdown = () => {
                                             fontSize: 36,
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.icon",
                                             color: "background.icon"
                                         }}/>
@@ -179,7 +179,7 @@ const ProfileDropdown = () => {
                                         sx={{
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.default",
                                             padding: 1,
                                             fontSize: 36,
@@ -193,7 +193,7 @@ const ProfileDropdown = () => {
                                             fontSize: 36,
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.icon",
                                             color: "background.icon"
                                         }}/>
@@ -208,7 +208,7 @@ const ProfileDropdown = () => {
                                         sx={{
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.default",
                                             padding: 1,
                                             fontSize: 36,
@@ -222,7 +222,7 @@ const ProfileDropdown = () => {
                                             fontSize: 36,
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.icon",
                                             color: "background.icon"
                                         }}/>
@@ -237,7 +237,7 @@ const ProfileDropdown = () => {
                                         sx={{
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.default",
                                             padding: 1,
                                             fontSize: 36,
@@ -251,7 +251,7 @@ const ProfileDropdown = () => {
                                             fontSize: 36,
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '100%',
+                                            borderRadius: '25%',
                                             borderColor: "light.icon",
                                             color: "background.icon"
                                         }}

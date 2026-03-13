@@ -1,114 +1,30 @@
-import {Button} from "@mui/material";
-import {blue, green, grey, orange, red} from "@mui/material/colors";
+import {Chip} from "@mui/material";
 import React from "react";
 
+const statusConfig = {
+    "completed":        {label: "Completed",       color: "success"},
+    "processing":       {label: "Processing",      color: "info"},
+    "pending payment":  {label: "Pending Payment", color: "warning"},
+    "on hold":          {label: "On Hold",          color: "warning"},
+    "refunded":         {label: "Refunded",         color: "default"},
+    "cancelled":        {label: "Cancelled",        color: "default"},
+    "failed":           {label: "Failed",           color: "error"},
+    // uppercase variants (for other entities)
+    "ACTIVE":           {label: "Active",           color: "success"},
+    "INACTIVE":         {label: "Inactive",         color: "default"},
+    "PENDING":          {label: "Pending",          color: "warning"},
+    "EXPIRED":          {label: "Expired",          color: "default"},
+    "UPCOMING":         {label: "Upcoming",         color: "info"},
+    "SUSPENDED":        {label: "Suspended",        color: "error"},
+    "DELETED":          {label: "Deleted",          color: "error"},
+    "APPROVED":         {label: "Approved",         color: "success"},
+    "SPAM":             {label: "Spam",             color: "error"},
+    "HOLD":             {label: "Hold",             color: "warning"},
+};
+
 const Status = ({status}) => {
-    const renderStatus = status => {
-        switch (status) {
-            case 'completed':
-                return (
-                    <Button
-                        disableElevation={true}
-                        fullWidth={true}
-                        variant="contained"
-                        size="small"
-                        sx={{color: blue[800], backgroundColor: blue[200]}}>
-                        Cancelled
-                    </Button>
-                )
-
-
-            case 'cancelled':
-                return (
-                    <Button
-                        disableElevation={true}
-                        fullWidth={true}
-                        variant="contained"
-                        size="small"
-                        sx={{color: grey[800], backgroundColor: grey[200]}}>
-                        Cancelled
-                    </Button>
-                )
-
-
-            case 'failed':
-                return (
-                    <Button
-                        disableElevation={true}
-                        fullWidth={true}
-                        variant="contained"
-                        size="small"
-                        sx={{color: red[800], backgroundColor: red[200]}}>
-                        Failed
-                    </Button>
-                )
-
-
-            case 'on hold':
-                return (
-                    <Button
-                        disableElevation={true}
-                        fullWidth={true}
-                        variant="contained"
-                        size="small"
-                        sx={{color: orange[800], backgroundColor: orange[200]}}>
-                        On Hold
-                    </Button>
-                )
-
-            case 'pending payment':
-                return (
-                    <Button
-                        disableElevation={true}
-                        fullWidth={true}
-                        variant="contained"
-                        size="small"
-                        sx={{color: grey[800], backgroundColor: grey[200]}}>
-                        Pending Payment
-                    </Button>
-                )
-
-            case 'processing':
-                return (
-                    <Button
-                        disableElevation={true}
-                        fullWidth={true}
-                        variant="contained"
-                        size="small"
-                        sx={{color: green[800], backgroundColor: green[200]}}>
-                        Processing
-                    </Button>
-                )
-
-            case 'refunded':
-                return (
-                    <Button
-                        disableElevation={true}
-                        fullWidth={true}
-                        variant="contained"
-                        size="small"
-                        sx={{color: grey[800], backgroundColor: grey[200]}}>
-                        Refunded
-                    </Button>
-                )
-
-            default:
-                return (
-                    <Button
-                        disableElevation={true}
-                        fullWidth={true}
-                        variant="contained"
-                        size="small"
-                        sx={{color: green[800], backgroundColor: green[200]}}>
-                        Processing
-                    </Button>
-                )
-        }
-    }
-
-    return (
-        renderStatus(status)
-    )
-}
+    const cfg = statusConfig[status] || {label: status || "Unknown", color: "default"};
+    return <Chip label={cfg.label} color={cfg.color} size="small"/>;
+};
 
 export default Status;

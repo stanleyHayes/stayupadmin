@@ -55,7 +55,7 @@ const OrdersPage = () => {
             {orderLoading && <LinearProgress variant="query" color="secondary"/>}
             <Box sx={{pt: 4, pb: 6}}>
                 {orderError && (
-                    <Alert severity="error" variant="standard">
+                    <Alert severity="error" sx={{mb: 2}}>
                         <AlertTitle>
                             {orderError}
                         </AlertTitle>
@@ -73,10 +73,6 @@ const OrdersPage = () => {
                                         to="/order/new"
                                         style={{textDecoration: "none", width: "100%", display: "block"}}>
                                         <Button
-                                            sx={{
-                                                textTransform: "capitalize",
-                                                borderWidth: 2
-                                            }}
                                             size="small"
                                             color="secondary"
                                             variant="outlined"
@@ -115,7 +111,7 @@ const OrdersPage = () => {
                                             variant="standard"
                                             type="text"
                                             placeholder="Search orders..."
-                                            InputProps={{disableUnderline: true}}
+                                            slotProps={{ input: { disableUnderline: true } }}
                                         />
                                         <SearchOutlined
                                             onClick={handleSearch}
@@ -126,10 +122,6 @@ const OrdersPage = () => {
                                 </Grid>
                                 <Grid item={true} size={{xs: 12, md: 4}}>
                                     <Button
-                                        sx={{
-                                            textTransform: "capitalize",
-                                            borderWidth: 2
-                                        }}
                                         size="small"
                                         color="secondary"
                                         variant="outlined"
@@ -222,10 +214,6 @@ const OrdersPage = () => {
                                 </Grid>
                                 <Grid alignItems="center" item={true} size={{xs: 12, md: 4}}>
                                     <Button
-                                        sx={{
-                                            textTransform: "capitalize",
-                                            borderWidth: 2
-                                        }}
                                         size="small"
                                         color="secondary"
                                         variant="outlined"
@@ -237,7 +225,7 @@ const OrdersPage = () => {
 
                     <Divider variant="fullWidth" sx={{my: 4}}/>
 
-                    <TableContainer component={Paper} elevation={0} variant="elevation">
+                    <TableContainer component={Paper} elevation={0}>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -277,10 +265,6 @@ const OrdersPage = () => {
                                 button={
                                     <Link to="/order/new" style={{textDecoration: "none"}}>
                                         <Button
-                                            sx={{
-                                                textTransform: "capitalize",
-                                                borderWidth: 2
-                                            }}
                                             size="small"
                                             color="secondary"
                                             variant="outlined"

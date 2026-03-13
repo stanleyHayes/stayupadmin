@@ -6,9 +6,17 @@ import {selectUI, UI_ACTION_CREATORS} from "../../redux/features/ui/ui-slice";
 import React from "react";
 import MobileDrawer from "../sidebar/mobile-drawer.jsx";
 import MobileBottomNavigation from "./mobile-bottom-navigation.jsx";
+import {useLocation} from "react-router-dom";
+import {motion} from "framer-motion";
+
+const pageVariants = {
+    initial: {opacity: 0, y: 10},
+    animate: {opacity: 1, y: 0, transition: {duration: 0.2, ease: "easeOut"}},
+    exit:    {opacity: 0, y: -6, transition: {duration: 0.15, ease: "easeIn"}},
+};
 
 const Layout = ({children}) => {
-
+    const location = useLocation();
     const {sidebarExpanded, drawerOpen} = useSelector(selectUI);
     const dispatch = useDispatch();
     return (
@@ -27,7 +35,8 @@ const Layout = ({children}) => {
                     borderRightStyle: "solid",
                     borderRightColor: "divider",
                     overflowY: "scroll",
-                    overflowX: "hidden"
+                    overflowX: "hidden",
+                    transition: "flex-basis 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                 }}>
                 <Sidebar/>
             </Box>
@@ -39,14 +48,22 @@ const Layout = ({children}) => {
                         lg: sidebarExpanded ? '75%' : '95%'
                     },
                     minHeight: "100vh",
-                    backgroundColor: "background.default"
+                    backgroundColor: "background.default",
+                    transition: "flex-basis 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                 }}>
                 <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
                     <Box sx={{pb:{xs: 6, lg: 0}}}>
                         <Header/>
                     </Box>
                     <Box sx={{flexGrow: 1}}>
-                        <Box sx={{ maxWidth: {xs: "100vw", md: "100%"}}}>
+                        <Box
+                            key={location.pathname}
+                            component={motion.div}
+                            variants={pageVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            sx={{ maxWidth: {xs: "100vw", md: "100%"}}}>
                             {children}
                         </Box>
                         <Box

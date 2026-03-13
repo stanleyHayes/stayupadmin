@@ -24,14 +24,13 @@ import {
     TextField,
     Typography,
     Grid,
-    IconButton,
     Tooltip,
     Chip
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import moment from "moment";
 import { motion } from "framer-motion";
-import { Close, SearchOutlined, Visibility, Edit, Delete } from "@mui/icons-material";
+import { Close, SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import Empty from "../../components/shared/empty.jsx";
 
@@ -56,8 +55,8 @@ const CouponsPage = () => {
     // UI state
     const [query, setQuery] = useState("");
     const [status, setStatus] = useState("all");
-    const [startDate, setStartDate] = useState(moment().startOf("day"));
-    const [endDate, setEndDate] = useState(moment().endOf("day"));
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
 
     // Dialog state
     const [openCreate, setOpenCreate] = useState(false);
@@ -150,9 +149,9 @@ const CouponsPage = () => {
     return (
         <Layout>
             {couponLoading && <LinearProgress variant="query" color="secondary" />}
-            <Box sx={{ pt: 4, pb: 8 }}>
+            <Box sx={{ pt: 4, pb: 6 }}>
                 {couponError && (
-                    <Alert severity="error" variant="standard">
+                    <Alert severity="error" sx={{mb: 2}}>
                         <AlertTitle>{couponError}</AlertTitle>
                     </Alert>
                 )}
@@ -166,7 +165,6 @@ const CouponsPage = () => {
                                 </Grid>
                                 <Grid item size={{ xs: 12, md: "auto" }}>
                                     <Button
-                                        sx={{ textTransform: "capitalize", borderWidth: 2 }}
                                         size="small"
                                         color="secondary"
                                         variant="outlined"
@@ -197,14 +195,14 @@ const CouponsPage = () => {
                                             variant="standard"
                                             type="text"
                                             placeholder="Search attributes by code, description, email..."
-                                            InputProps={{ disableUnderline: true }}
+                                            slotProps={{ input: { disableUnderline: true } }}
                                         />
                                         <SearchOutlined sx={{ color: "background.icon" }} color="secondary" />
                                     </Stack>
                                 </Grid>
 
                                 <Grid item size={{ xs: 12, md: 4 }}>
-                                    <Button sx={{ textTransform: "capitalize", borderWidth: 2 }} size="small" color="secondary" variant="outlined" fullWidth onClick={() => {}}>
+                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={() => {}}>
                                         Search
                                     </Button>
                                 </Grid>
@@ -215,7 +213,7 @@ const CouponsPage = () => {
                     <Divider variant="fullWidth" sx={{ my: 4 }} />
 
                     <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <DatePicker
                                 slotProps={{ textField: { size: "small", fullWidth: true } }}
                                 value={startDate}
@@ -223,7 +221,7 @@ const CouponsPage = () => {
                                 label="Start Date"
                             />
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <DatePicker
                                 slotProps={{ textField: { size: "small", fullWidth: true } }}
                                 value={endDate}
@@ -231,7 +229,7 @@ const CouponsPage = () => {
                                 label="End Date"
                             />
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <FormControl fullWidth variant="outlined">
                                 <InputLabel>Status</InputLabel>
                                 <Select onChange={e => setStatus(e.target.value)} value={status} fullWidth size="small" label="Status" variant="outlined">
@@ -243,9 +241,8 @@ const CouponsPage = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <Button
-                                sx={{ textTransform: "capitalize", borderWidth: 2 }}
                                 size="small"
                                 color="secondary"
                                 variant="outlined"
@@ -270,7 +267,7 @@ const CouponsPage = () => {
                                                 fontSize: 36,
                                                 borderWidth: 1,
                                                 borderStyle: "solid",
-                                                borderRadius: "30%",
+                                                borderRadius: "25%",
                                                 borderColor: "light.secondary",
                                                 color: "secondary.main",
                                                 backgroundColor: "light.secondary",
@@ -282,14 +279,14 @@ const CouponsPage = () => {
                                 title="Coupons"
                                 message="No attributes available"
                                 button={
-                                    <Button sx={{ textTransform: "capitalize", borderWidth: 2 }} size="small" color="secondary" variant="outlined" onClick={handleOpenCreate}>
+                                    <Button size="small" color="secondary" variant="outlined" onClick={handleOpenCreate}>
                                         Create Coupon
                                     </Button>
                                 }
                             />
                         </Box>
                     ) : (
-                        <TableContainer component={Paper} elevation={0} variant="elevation">
+                        <TableContainer component={Paper} elevation={0}>
                             <Table>
                                 <TableHead>
                                     <TableRow>
@@ -318,9 +315,26 @@ const CouponsPage = () => {
                                             <TableCell>{c.usage_count ?? 0}</TableCell>
                                             <TableCell>{renderEmails(c.included_emails)}</TableCell>
                                             <TableCell>
-                                                <Tooltip title="View"><IconButton size="small" onClick={() => handleOpenView(c)}><Visibility /></IconButton></Tooltip>
-                                                <Tooltip title="Edit"><IconButton size="small" onClick={() => handleOpenEdit(c)}><Edit /></IconButton></Tooltip>
-                                                <Tooltip title="Delete"><IconButton size="small" onClick={() => handleDelete(c)}><Delete /></IconButton></Tooltip>
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Tooltip title="View Coupon">
+                                                        <VisibilityOutlined
+                                                            onClick={() => handleOpenView(c)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip title="Edit Coupon">
+                                                        <EditOutlined
+                                                            onClick={() => handleOpenEdit(c)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip title="Delete Coupon">
+                                                        <DeleteForeverOutlined
+                                                            onClick={() => handleDelete(c)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
+                                                </Stack>
                                             </TableCell>
                                         </TableRow>
                                     ))}

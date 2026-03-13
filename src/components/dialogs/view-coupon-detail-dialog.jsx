@@ -1,15 +1,28 @@
 import React from "react";
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Grid,
     Button,
-    Typography,
-    Chip
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Stack,
+    Typography
 } from "@mui/material";
 import moment from "moment";
+
+const Row = ({ label, children }) => (
+    <Stack spacing={0.5} sx={{ mb: 1 }}>
+        <Typography variant="caption" color="text.secondary">{label}</Typography>
+        <Typography variant="body2">{children ?? "—"}</Typography>
+    </Stack>
+);
+
+const renderList = (arr) => {
+    if (!arr || arr.length === 0) return "—";
+    return arr.map((it, i) => <Chip key={i} size="small" label={String(it)} sx={{ mr: 0.5, mb: 0.5 }} />);
+};
 
 /**
  * Props:
@@ -18,69 +31,51 @@ import moment from "moment";
  * - onClose: () => void
  */
 const ViewCouponDialog = ({ open, coupon, onClose }) => {
-    const renderList = (arr) => {
-        if (!arr || arr.length === 0) return <Typography variant="body2" color="text.secondary">—</Typography>;
-        return arr.map((it, i) => <Chip key={i} size="small" label={String(it)} sx={{ mr: .5, mb: .5 }} />);
-    };
-
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle>Coupon Details</DialogTitle>
             <DialogContent dividers>
                 {coupon ? (
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={6}>
-                            <Typography variant="subtitle2">Code</Typography>
-                            <Typography>{coupon.code}</Typography>
-                        </Grid>
+                    <>
+                        <Row label="Code">{coupon.code}</Row>
+                        <Row label="Discount Type">{coupon.discount_type ?? "fixed_cart"}</Row>
+                        <Row label="Amount">{coupon.amount ?? "—"}</Row>
+                        <Row label="Expires">{coupon.date_expires ? moment(coupon.date_expires).format("LLL") : "—"}</Row>
 
-                        <Grid item xs={12} md={6}>
-                            <Typography variant="subtitle2">Amount</Typography>
-                            <Typography>{coupon.amount ?? "—"}</Typography>
-                        </Grid>
+                        <Divider sx={{ my: 1.5 }} />
 
-                        <Grid item xs={12} md={6}>
-                            <Typography variant="subtitle2">Type</Typography>
-                            <Typography>{coupon.discount_type ?? "fixed_cart"}</Typography>
-                        </Grid>
+                        <Row label="Usage Count">{coupon.usage_count ?? 0}</Row>
+                        <Row label="Usage Limit">{coupon.usage_limit ?? "—"}</Row>
+                        <Row label="Usage Limit Per User">{coupon.usage_limit_per_user ?? "—"}</Row>
+                        <Row label="Free Shipping">{coupon.free_shipping ? "Yes" : "No"}</Row>
+                        <Row label="Exclude Sale Items">{coupon.exclude_sale_items ? "Yes" : "No"}</Row>
+                        <Row label="Individual Use">{coupon.individual_use ? "Yes" : "No"}</Row>
 
-                        <Grid item xs={12} md={6}>
-                            <Typography variant="subtitle2">Expires</Typography>
-                            <Typography>{coupon.date_expires ? moment(coupon.date_expires).format("YYYY-MM-DD") : "—"}</Typography>
-                        </Grid>
+                        <Divider sx={{ my: 1.5 }} />
 
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2">Description</Typography>
-                            <Typography>{coupon.description || "—"}</Typography>
-                        </Grid>
+                        <Row label="Minimum Amount">{coupon.minimum_amount ?? "—"}</Row>
+                        <Row label="Maximum Amount">{coupon.maximum_amount ?? "—"}</Row>
 
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2">Included Emails</Typography>
-                            {renderList(coupon.included_emails)}
-                        </Grid>
+                        <Row label="Description">
+                            <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                                {coupon.description || "—"}
+                            </Typography>
+                        </Row>
 
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2">Included Products</Typography>
-                            <Typography>{(coupon.included_products || []).join(", ") || "—"}</Typography>
-                        </Grid>
+                        <Divider sx={{ my: 1.5 }} />
 
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2">Excluded Products</Typography>
-                            <Typography>{(coupon.excluded_products || []).join(", ") || "—"}</Typography>
-                        </Grid>
+                        <Stack spacing={0.5} sx={{ mb: 1 }}>
+                            <Typography variant="caption" color="text.secondary">Included Emails</Typography>
+                            <Stack direction="row" flexWrap="wrap">{renderList(coupon.included_emails)}</Stack>
+                        </Stack>
 
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2">Usage Count</Typography>
-                            <Typography>{coupon.usage_count ?? 0}</Typography>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Typography variant="subtitle2">Meta</Typography>
-                            <Typography style={{ wordBreak: "break-word" }}>{(coupon.meta_data && coupon.meta_data.length) ? JSON.stringify(coupon.meta_data) : "—"}</Typography>
-                        </Grid>
-                    </Grid>
+                        <Row label="Included Products">{(coupon.included_products || []).join(", ") || "—"}</Row>
+                        <Row label="Excluded Products">{(coupon.excluded_products || []).join(", ") || "—"}</Row>
+                        <Row label="Included Categories">{(coupon.included_product_categories || []).join(", ") || "—"}</Row>
+                        <Row label="Excluded Categories">{(coupon.excluded_product_categories || []).join(", ") || "—"}</Row>
+                    </>
                 ) : (
-                    <Typography>No coupon selected</Typography>
+                    <Typography variant="body2">No coupon selected</Typography>
                 )}
             </DialogContent>
             <DialogActions>

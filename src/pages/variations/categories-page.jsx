@@ -111,7 +111,7 @@ const CategoriesPage = () => {
                                             variant="standard"
                                             type="text"
                                             placeholder="Search orders..."
-                                            InputProps={{disableUnderline: true}}
+                                            slotProps={{ input: { disableUnderline: true } }}
                                         />
                                         <SearchOutlined
                                             onClick={handleSearch}
