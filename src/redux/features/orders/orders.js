@@ -1,4 +1,7 @@
 import profile from "./../../../assets/images/profile.jpg";
+import cap from "./../../../assets/images/products/cap.jpg";
+import hoodie from "./../../../assets/images/products/hoodie.jpg";
+import turtle from "./../../../assets/images/products/turtle-neck.jpg";
 
 export const orders = [
     {
@@ -18,15 +21,15 @@ export const orders = [
         customer: { name: "Inigo Lopez", image: "", _id: "c1" },
         orderItems: [
             {
-                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Classic Logo Cap", image: cap, price: { amount: 55, currency: "GBP" } },
                 quantity: 1
             },
             {
-                product: { title: "Hoodie", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Pullover Hoodie", image: hoodie, price: { amount: 55, currency: "GBP" } },
                 quantity: 1
             },
             {
-                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 50, currency: "GBP" } },
+                product: { title: "Ribbed Turtleneck Jumper", image: turtle, price: { amount: 50, currency: "GBP" } },
                 quantity: 1
             }
         ]
@@ -48,11 +51,11 @@ export const orders = [
         customer: { name: "Vladislaus Draguila", image: profile, _id: "c3" },
         orderItems: [
             {
-                product: { title: "Hoodie", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Pullover Hoodie", image: hoodie, price: { amount: 55, currency: "GBP" } },
                 quantity: 2
             },
             {
-                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Classic Logo Cap", image: cap, price: { amount: 55, currency: "GBP" } },
                 quantity: 2
             }
         ]
@@ -74,7 +77,7 @@ export const orders = [
         customer: { name: "Stanley Hayford", image: "", _id: "c2" },
         orderItems: [
             {
-                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 150, currency: "GBP" } },
+                product: { title: "Ribbed Turtleneck Jumper", image: turtle, price: { amount: 150, currency: "GBP" } },
                 quantity: 2
             }
         ]
@@ -96,7 +99,7 @@ export const orders = [
         customer: { name: "Inigo Lopez", image: "", _id: "c1" },
         orderItems: [
             {
-                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Classic Logo Cap", image: cap, price: { amount: 55, currency: "GBP" } },
                 quantity: 2
             }
         ]
@@ -118,7 +121,7 @@ export const orders = [
         customer: { name: "Userma'atre Setepenre", image: "", _id: "c4" },
         orderItems: [
             {
-                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Classic Logo Cap", image: cap, price: { amount: 55, currency: "GBP" } },
                 quantity: 1
             }
         ]
@@ -140,7 +143,7 @@ export const orders = [
         customer: { name: "Vladislaus Draguila", image: profile, _id: "c3" },
         orderItems: [
             {
-                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 150, currency: "GBP" } },
+                product: { title: "Ribbed Turtleneck Jumper", image: turtle, price: { amount: 150, currency: "GBP" } },
                 quantity: 1
             }
         ]
@@ -162,11 +165,11 @@ export const orders = [
         customer: { name: "Stanley Hayford", image: "", _id: "c2" },
         orderItems: [
             {
-                product: { title: "Hoodie", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Pullover Hoodie", image: hoodie, price: { amount: 55, currency: "GBP" } },
                 quantity: 1
             },
             {
-                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 150, currency: "GBP" } },
+                product: { title: "Ribbed Turtleneck Jumper", image: turtle, price: { amount: 150, currency: "GBP" } },
                 quantity: 1
             }
         ]
@@ -188,19 +191,19 @@ export const orders = [
         customer: { name: "Inigo Lopez", image: "", _id: "c1" },
         orderItems: [
             {
-                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Classic Logo Cap", image: cap, price: { amount: 55, currency: "GBP" } },
                 quantity: 1
             },
             {
-                product: { title: "Hoodie", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Pullover Hoodie", image: hoodie, price: { amount: 55, currency: "GBP" } },
                 quantity: 1
             },
             {
-                product: { title: "Ninja Silhouette T-Shirt", image: "", price: { amount: 150, currency: "GBP" } },
+                product: { title: "Ribbed Turtleneck Jumper", image: turtle, price: { amount: 150, currency: "GBP" } },
                 quantity: 1
             },
             {
-                product: { title: "Cap", image: "", price: { amount: 55, currency: "GBP" } },
+                product: { title: "Classic Logo Cap", image: cap, price: { amount: 55, currency: "GBP" } },
                 quantity: 1
             }
         ]

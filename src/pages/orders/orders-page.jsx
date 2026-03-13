@@ -24,7 +24,7 @@ import {
     Typography
 } from "@mui/material";
 import {Link} from "react-router-dom";
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import {DatePicker} from "@mui/x-date-pickers";
 import CustomerProfile from "../../components/shared/customer-profile.jsx";
 import moment from "moment";
@@ -40,15 +40,27 @@ const OrdersPage = () => {
 
     const [query, setQuery] = useState("");
     const [status, setStatus] = useState("all");
-    const [startDate, setStartDate] = useState(moment(new Date()));
-    const [endDate, setEndDate] = useState(moment(new Date()));
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const {customers} = useSelector(selectCustomer);
     const {orders, orderLoading, orderError} = useSelector(selectOrder)
 
-    const handleSearch = () => {
-        console.log(query)
-    }
+    const filteredOrders = useMemo(() => {
+        if (!Array.isArray(orders)) return [];
+        const q = query.trim().toLowerCase();
+        return orders.filter(o => {
+            if (status !== "all" && o.status !== status) return false;
+            if (selectedCustomer && o.customer?._id !== selectedCustomer._id) return false;
+            if (o.createdAt) {
+                const d = moment(o.createdAt);
+                if (startDate && d.isBefore(moment(startDate).startOf("day"))) return false;
+                if (endDate && d.isAfter(moment(endDate).endOf("day"))) return false;
+            }
+            if (!q) return true;
+            return [o.number, o.customer?.name, o.status].join(" ").toLowerCase().includes(q);
+        });
+    }, [orders, query, status, selectedCustomer, startDate, endDate]);
 
     return (
         <Layout>
@@ -114,14 +126,14 @@ const OrdersPage = () => {
                                             slotProps={{ input: { disableUnderline: true } }}
                                         />
                                         <SearchOutlined
-                                            onClick={handleSearch}
-                                            sx={{color: "background.icon"}}
+                                                                                        sx={{color: "background.icon"}}
                                             color="secondary"
                                         />
                                     </Stack>
                                 </Grid>
                                 <Grid item={true} size={{xs: 12, md: 4}}>
                                     <Button
+                                        onClick={() => {}}
                                         size="small"
                                         color="secondary"
                                         variant="outlined"
@@ -175,7 +187,8 @@ const OrdersPage = () => {
                                         variant="outlined">
                                         <MenuItem value="all">All</MenuItem>
                                         <MenuItem value="pending payment">Pending Payment</MenuItem>
-                                        <MenuItem value="on hold">On Hold</MenuItem>
+                                        <MenuItem value="processing">Processing</MenuItem>
+                                        <MenuItem value="on-hold">On Hold</MenuItem>
                                         <MenuItem value="completed">Completed</MenuItem>
                                         <MenuItem value="cancelled">Cancelled</MenuItem>
                                         <MenuItem value="refunded">Refunded</MenuItem>
@@ -214,6 +227,7 @@ const OrdersPage = () => {
                                 </Grid>
                                 <Grid alignItems="center" item={true} size={{xs: 12, md: 4}}>
                                     <Button
+                                        onClick={() => {}}
                                         size="small"
                                         color="secondary"
                                         variant="outlined"
@@ -240,7 +254,7 @@ const OrdersPage = () => {
                         </Table>
                     </TableContainer>
 
-                    {orders && orders.length === 0 ? (
+                    {filteredOrders.length === 0 ? (
                         <Box>
                             <Empty
                                 icon={
@@ -277,7 +291,7 @@ const OrdersPage = () => {
                         <TableContainer>
                             <Table>
                                 <TableBody>
-                                    {orders.map((order, index) => {
+                                    {filteredOrders.map((order, index) => {
                                         return (
                                             <React.Fragment key={index}>
                                                 <Order order={order}/>

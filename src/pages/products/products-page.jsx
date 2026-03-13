@@ -25,7 +25,7 @@ import {
     Typography
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { DatePicker } from "@mui/x-date-pickers";
 import moment from "moment";
 import { useSelector } from "react-redux";
@@ -37,15 +37,30 @@ import Product from "../../components/shared/product.jsx";
 
 const ProductsPage = () => {
     const [query, setQuery] = useState("");
-    const [startDate, setStartDate] = useState(moment(new Date()));
-    const [endDate, setEndDate] = useState(moment(new Date()));
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState("all");
 
     const { products = [], productLoading = false, productError = null } = useSelector(selectProducts);
 
-    const handleSearch = () => {
-        console.log("search", query);
-    };
+    const filteredProducts = useMemo(() => {
+        if (!Array.isArray(products)) return [];
+        const q = query.trim().toLowerCase();
+        return products.filter(p => {
+            if (selectedCategory && selectedCategory !== "all") {
+                if (selectedCategory === "featured" && !p.featured) return false;
+                if (selectedCategory === "low_stock" && p.stock_status !== "lowstock") return false;
+                if (selectedCategory === "out_of_stock" && p.stock_status !== "outofstock") return false;
+            }
+            if (p.created_at) {
+                const d = moment(p.created_at);
+                if (startDate && d.isBefore(moment(startDate).startOf("day"))) return false;
+                if (endDate && d.isAfter(moment(endDate).endOf("day"))) return false;
+            }
+            if (!q) return true;
+            return [p.title, p.sku, p.short_description, p.description].join(" ").toLowerCase().includes(q);
+        });
+    }, [products, query, selectedCategory, startDate, endDate]);
 
     return (
         <Layout>
@@ -96,12 +111,12 @@ const ProductsPage = () => {
                                             placeholder="Search products..."
                                             slotProps={{ input: { disableUnderline: true } }}
                                         />
-                                        <SearchOutlined onClick={handleSearch} sx={{ color: "background.icon" }} color="secondary" />
+                                        <SearchOutlined sx={{ color: "background.icon" }} color="secondary" />
                                     </Stack>
                                 </Grid>
 
                                 <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth>
+                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={() => {}}>
                                         Search Products
                                     </Button>
                                 </Grid>
@@ -175,7 +190,7 @@ const ProductsPage = () => {
                         </Table>
                     </TableContainer>
 
-                    {Array.isArray(products) && products.length === 0 ? (
+                    {filteredProducts.length === 0 ? (
                         <Box>
                             <Empty
                                 icon={
@@ -198,7 +213,7 @@ const ProductsPage = () => {
                         <TableContainer component={Paper} elevation={0}>
                             <Table>
                                 <TableBody>
-                                    {products.map((product, index) => (
+                                    {filteredProducts.map((product, index) => (
                                         <React.Fragment key={index}>
                                             <Product index={index} product={product} />
                                         </React.Fragment>

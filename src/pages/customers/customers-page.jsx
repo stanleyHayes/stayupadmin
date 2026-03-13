@@ -24,7 +24,7 @@ import {
     Typography
 } from "@mui/material";
 import {Link} from "react-router-dom";
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment";
 import {useSelector} from "react-redux";
@@ -38,14 +38,24 @@ const CustomersPage = () => {
 
     const [query, setQuery] = useState("");
     const [status, setStatus] = useState("all");
-    const [startDate, setStartDate] = useState(moment(new Date()));
-    const [endDate, setEndDate] = useState(moment(new Date()));
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const {customers, customerLoading, customerError} = useSelector(selectCustomer)
 
-    const handleSearch = () => {
-        console.log(query)
-    }
+    const filteredCustomers = useMemo(() => {
+        if (!Array.isArray(customers)) return [];
+        const q = query.trim().toLowerCase();
+        return customers.filter(c => {
+            if (status !== "all" && (c.status || "ACTIVE").toUpperCase() !== status.toUpperCase()) return false;
+            if (c.created_at) {
+                const d = moment(c.created_at);
+                if (startDate && d.isBefore(moment(startDate).startOf("day"))) return false;
+                if (endDate && d.isAfter(moment(endDate).endOf("day"))) return false;
+            }
+            if (!q) return true;
+            return [c.name, c.email, c.username, c.phone].join(" ").toLowerCase().includes(q);
+        });
+    }, [customers, query, status, startDate, endDate]);
 
     return (
         <Layout>
@@ -110,14 +120,14 @@ const CustomersPage = () => {
                                             slotProps={{ input: { disableUnderline: true } }}
                                         />
                                         <SearchOutlined
-                                            onClick={handleSearch}
-                                            sx={{color: "background.icon"}}
+                                                                                        sx={{color: "background.icon"}}
                                             color="secondary"
                                         />
                                     </Stack>
                                 </Grid>
                                 <Grid size={{xs: 12, md: 4}}>
                                     <Button
+                                        onClick={() => {}}
                                         size="small"
                                         color="secondary"
                                         variant="outlined"
@@ -204,7 +214,7 @@ const CustomersPage = () => {
                         </Table>
                     </TableContainer>
 
-                    {customers && customers.length === 0 ? (
+                    {filteredCustomers.length === 0 ? (
                         <Box>
                             <Empty
                                 icon={
@@ -241,7 +251,7 @@ const CustomersPage = () => {
                         <TableContainer component={Paper} elevation={0}>
                             <Table>
                                 <TableBody>
-                                    {customers.map((customer, index) => {
+                                    {filteredCustomers.map((customer, index) => {
                                         return (
                                             <React.Fragment key={index}>
                                                 <Customer index={index} customer={customer}/>

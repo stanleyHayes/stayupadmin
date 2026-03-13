@@ -71,6 +71,8 @@ const CategoryDetailPage = lazy(() => import("./pages/categories/category-detail
 
 const TagsPage = lazy(() => import("./pages/tags/tags-page.jsx"));
 const AttributesPage = lazy(() => import("./pages/attributes/attributes-page.jsx"));
+const VariationsPage = lazy(() => import("./pages/variations/variations-page.jsx"));
+const OrderActionsPage = lazy(() => import("./pages/order-actions/order-actions-page.jsx"));
 const AnalyticsPage = lazy(() => import("./pages/analytics/analytics-page.jsx"));
 
 // Order sub-resources
@@ -167,6 +169,12 @@ function App() {
 
                 {/* Attributes */}
                 <Route path="/attributes" element={wrap(AttributesPage)}/>
+
+                {/* Variations */}
+                <Route path="/variations" element={wrap(VariationsPage)}/>
+
+                {/* Order Actions */}
+                <Route path="/order-actions" element={wrap(OrderActionsPage)}/>
 
                 {/* Reviews */}
                 <Route path="/reviews" element={wrap(ReviewsPage)}/>

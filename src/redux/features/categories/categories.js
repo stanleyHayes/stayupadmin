@@ -14,7 +14,7 @@ export const categories = [
         created_at: new Date("2024-01-01T08:00:00.000Z").toISOString(),
         updated_at: new Date("2024-09-15T10:30:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/electronics.jpg", alt: "Electronics category" },
+        image: { url: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&q=80", alt: "Electronics category" },
         created_by: { _id: "admin_01", first_name: "Vladislaus", last_name: "Draguila", email: "vlad@example.com" }
     },
     {
@@ -31,7 +31,7 @@ export const categories = [
         created_at: new Date("2024-02-01T09:00:00.000Z").toISOString(),
         updated_at: new Date("2024-10-01T12:00:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/mobile-phones.jpg", alt: "Smartphones and accessories" },
+        image: { url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80", alt: "Smartphones and accessories" },
         created_by: { _id: "admin_02", first_name: "Maria", last_name: "Gonzalez", email: "maria@example.com" }
     },
     {
@@ -48,7 +48,7 @@ export const categories = [
         created_at: new Date("2024-01-15T10:00:00.000Z").toISOString(),
         updated_at: new Date("2024-10-05T11:20:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/laptops.jpg", alt: "Laptops and computers" },
+        image: { url: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80", alt: "Laptops and computers" },
         created_by: { _id: "admin_01", first_name: "Vladislaus", last_name: "Draguila", email: "vlad@example.com" }
     },
     {
@@ -65,7 +65,7 @@ export const categories = [
         created_at: new Date("2024-03-01T08:15:00.000Z").toISOString(),
         updated_at: new Date("2024-09-20T09:45:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/audio.jpg", alt: "Speakers and headphones" },
+        image: { url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80", alt: "Speakers and headphones" },
         created_by: { _id: "admin_03", first_name: "James", last_name: "Morrison", email: "james@example.com" }
     },
     {
@@ -82,7 +82,7 @@ export const categories = [
         created_at: new Date("2023-11-01T07:30:00.000Z").toISOString(),
         updated_at: new Date("2024-08-01T14:00:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/home-kitchen.jpg", alt: "Home and kitchen" },
+        image: { url: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80", alt: "Home and kitchen" },
         created_by: { _id: "admin_04", first_name: "Aisha", last_name: "Kamara", email: "aisha@example.com" }
     },
     {
@@ -99,7 +99,7 @@ export const categories = [
         created_at: new Date("2023-12-01T09:00:00.000Z").toISOString(),
         updated_at: new Date("2024-07-10T08:00:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/kitchen-appliances.jpg", alt: "Kitchen appliances" },
+        image: { url: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&q=80", alt: "Kitchen appliances" },
         created_by: { _id: "admin_04", first_name: "Aisha", last_name: "Kamara", email: "aisha@example.com" }
     },
     {
@@ -116,7 +116,7 @@ export const categories = [
         created_at: new Date("2024-04-01T06:00:00.000Z").toISOString(),
         updated_at: new Date("2024-10-10T09:00:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/fashion-men.jpg", alt: "Men's fashion" },
+        image: { url: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&q=80", alt: "Men's fashion" },
         created_by: { _id: "admin_05", first_name: "Paul", last_name: "Adjei", email: "paul@example.com" }
     },
     {
@@ -133,7 +133,7 @@ export const categories = [
         created_at: new Date("2024-04-01T06:30:00.000Z").toISOString(),
         updated_at: new Date("2024-10-12T10:00:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/fashion-women.jpg", alt: "Women's fashion" },
+        image: { url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&q=80", alt: "Women's fashion" },
         created_by: { _id: "admin_05", first_name: "Paul", last_name: "Adjei", email: "paul@example.com" }
     },
     {
@@ -150,7 +150,7 @@ export const categories = [
         created_at: new Date("2024-10-01T08:00:00.000Z").toISOString(),
         updated_at: new Date("2024-10-10T08:30:00.000Z").toISOString(),
         is_deleted: false,
-        image: { url: "https://cdn.example.com/images/categories/clearance.jpg", alt: "Clearance deals" },
+        image: { url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400&q=80", alt: "Clearance deals" },
         created_by: { _id: "admin_06", first_name: "Lina", last_name: "Owusu", email: "lina@example.com" }
     },
     {
@@ -167,7 +167,7 @@ export const categories = [
         created_at: new Date("2022-06-01T09:00:00.000Z").toISOString(),
         updated_at: new Date("2023-01-15T10:00:00.000Z").toISOString(),
         is_deleted: true,
-        image: { url: "https://cdn.example.com/images/categories/discontinued.jpg", alt: "Discontinued" },
+        image: { url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80", alt: "Discontinued" },
         created_by: { _id: "admin_07", first_name: "Nora", last_name: "Peterson", email: "nora@example.com" }
     }
 ];

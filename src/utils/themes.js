@@ -1,4 +1,4 @@
-import {createTheme} from "@mui/material";
+import { createTheme } from "@mui/material";
 
 const sharedComponents = {
     MuiButton: {
@@ -42,7 +42,7 @@ const sharedComponents = {
 };
 
 const sharedTypography = {
-    fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
+    fontFamily: "'EuclidCircularA', 'EuclidCircularB', 'Outfit', sans-serif",
     h1: { fontWeight: 700 },
     h2: { fontWeight: 700 },
     h3: { fontWeight: 700 },
@@ -324,4 +324,4 @@ const darkTheme = createTheme({
     },
 });
 
-export const THEMES = {darkTheme, lightTheme};
+export const THEMES = { darkTheme, lightTheme };
