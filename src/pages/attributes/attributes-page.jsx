@@ -115,19 +115,19 @@ const AttributesPage = () => {
                                                     <Tooltip title="View Attribute">
                                                         <VisibilityOutlined
                                                             onClick={() => openView(a)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer" }}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Edit Attribute">
                                                         <EditOutlined
                                                             onClick={() => openEdit(a)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer" }}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Delete Attribute">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(a)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer" }}
                                                         />
                                                     </Tooltip>
                                                 </Stack>
