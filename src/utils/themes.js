@@ -10,25 +10,40 @@ const sharedComponents = {
         styleOverrides: {
             root: {
                 textTransform: "capitalize",
-                fontWeight: 500,
-                borderRadius: 8,
+                fontWeight: 600,
+                borderRadius: 0,
+                letterSpacing: "0.01em",
+                transition: "all 0.2s ease",
             },
             sizeSmall: {
-                padding: "5px 14px",
+                padding: "6px 16px",
                 fontSize: "0.8125rem",
             },
             sizeMedium: {
-                padding: "7px 20px",
+                padding: "8px 22px",
                 fontSize: "0.875rem",
             },
             sizeLarge: {
-                padding: "10px 26px",
+                padding: "11px 28px",
                 fontSize: "0.9375rem",
+            },
+            contained: {
+                boxShadow: "0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)",
+                "&:hover": {
+                    boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)",
+                    transform: "translateY(-1px)",
+                },
             },
             outlined: {
                 borderWidth: "1.5px",
                 "&:hover": {
                     borderWidth: "1.5px",
+                    transform: "translateY(-1px)",
+                },
+            },
+            text: {
+                "&:hover": {
+                    transform: "translateY(-1px)",
                 },
             },
         }
@@ -37,12 +52,52 @@ const sharedComponents = {
         defaultProps: {
             variant: "outlined",
             elevation: 0,
-        }
-    }
+        },
+        styleOverrides: {
+            root: {
+                borderRadius: 0,
+            },
+        },
+    },
+    MuiChip: {
+        styleOverrides: {
+            root: {
+                fontWeight: 500,
+                borderRadius: 0,
+            },
+        },
+    },
+    MuiCard: {
+        styleOverrides: { root: { borderRadius: 0 } },
+    },
+    MuiDialog: {
+        styleOverrides: { paper: { borderRadius: 0 } },
+    },
+    MuiAlert: {
+        styleOverrides: { root: { borderRadius: 0 } },
+    },
+    MuiOutlinedInput: {
+        styleOverrides: { root: { borderRadius: 0 } },
+    },
+    MuiInputBase: {
+        styleOverrides: { root: { borderRadius: "0 !important" } },
+    },
+    MuiMenu: {
+        styleOverrides: { paper: { borderRadius: "0 !important" } },
+    },
+    MuiPopover: {
+        styleOverrides: { paper: { borderRadius: "0 !important" } },
+    },
+    MuiAvatar: {
+        styleOverrides: { root: { borderRadius: 0 } },
+    },
+    MuiSnackbarContent: {
+        styleOverrides: { root: { borderRadius: 0 } },
+    },
 };
 
 const sharedTypography = {
-    fontFamily: "'EuclidCircularA', 'EuclidCircularB', 'Outfit', sans-serif",
+    fontFamily: "'Inconsolata', 'EuclidCircularA', 'EuclidCircularB', 'Outfit', monospace",
     h1: { fontWeight: 700 },
     h2: { fontWeight: 700 },
     h3: { fontWeight: 700 },
@@ -54,7 +109,7 @@ const sharedTypography = {
     button: { fontWeight: 500 },
 };
 
-const sharedShape = { borderRadius: 10 };
+const sharedShape = { borderRadius: 0 };
 
 const lightTheme = createTheme({
     components: sharedComponents,
@@ -74,6 +129,7 @@ const lightTheme = createTheme({
         background: {
             default: "#F8FAFC",
             paper: "#FFFFFF",
+            sidebar: "#FFFFFF",
             alternative: "#F1F5F9",
             transparent: "rgba(255,255,255,0.03)",
             overlay: "rgba(0,0,0,0.55)",
@@ -123,6 +179,7 @@ const lightTheme = createTheme({
             pending: "rgba(107,114,128,0.1)",
             grey: "rgba(107,114,128,0.1)",
             refunded: "rgba(6,182,212,0.1)",
+            default: "rgba(100,116,139,0.06)",
         },
         colors: {
             purple: "#8B5CF6",
@@ -197,26 +254,27 @@ const darkTheme = createTheme({
     palette: {
         mode: "dark",
         primary: {
-            main: "#E8E8E8"
+            main: "#E2E8F0"
         },
         secondary: {
             main: "#818CF8",
             light: "#A5B4FC",
-            dark: "#4F46E5",
+            dark: "#6366F1",
         },
-        divider: "rgba(255,255,255,0.07)",
+        divider: "rgba(148,163,184,0.08)",
         background: {
-            default: "#1C1C1C",
-            paper: "#242424",
-            alternative: "#2E2E2E",
+            default: "#0F172A",
+            paper: "#1E293B",
+            sidebar: "#0B1120",
+            alternative: "#273549",
             transparent: "rgba(0,0,0,0.03)",
             overlay: "rgba(0,0,0,0.7)",
         },
         text: {
-            heading: "#F0F0F0",
-            primary: "#E8E8E8",
-            secondary: "#A0A0A0",
-            muted: "#6B6B6B",
+            heading: "#F1F5F9",
+            primary: "#E2E8F0",
+            secondary: "#94A3B8",
+            muted: "#64748B",
             success: "#34D399",
             error: "#F87171",
             completed: "#34D399",
@@ -237,26 +295,27 @@ const darkTheme = createTheme({
             refunded: "#22D3EE",
         },
         light: {
-            secondary: "rgba(129,140,248,0.12)",
+            secondary: "rgba(129,140,248,0.15)",
             white: "rgba(255,255,255,0.06)",
-            accent: "rgba(245,158,11,0.12)",
-            orange: "rgba(249,115,22,0.1)",
-            success: "rgba(16,185,129,0.12)",
-            error: "rgba(239,68,68,0.12)",
-            completed: "rgba(16,185,129,0.12)",
-            green: "rgba(16,185,129,0.12)",
-            active: "rgba(16,185,129,0.12)",
-            processing: "rgba(59,130,246,0.12)",
-            blue: "rgba(59,130,246,0.12)",
-            hold: "rgba(245,158,11,0.12)",
-            pending_payment: "rgba(245,158,11,0.12)",
-            yellow: "rgba(245,158,11,0.12)",
-            failed: "rgba(239,68,68,0.12)",
-            red: "rgba(239,68,68,0.12)",
+            accent: "rgba(245,158,11,0.15)",
+            orange: "rgba(249,115,22,0.12)",
+            success: "rgba(16,185,129,0.15)",
+            error: "rgba(239,68,68,0.15)",
+            completed: "rgba(16,185,129,0.15)",
+            green: "rgba(16,185,129,0.15)",
+            active: "rgba(16,185,129,0.15)",
+            processing: "rgba(59,130,246,0.15)",
+            blue: "rgba(59,130,246,0.15)",
+            hold: "rgba(245,158,11,0.15)",
+            pending_payment: "rgba(245,158,11,0.15)",
+            yellow: "rgba(245,158,11,0.15)",
+            failed: "rgba(239,68,68,0.15)",
+            red: "rgba(239,68,68,0.15)",
             cancelled: "rgba(107,114,128,0.12)",
             pending: "rgba(107,114,128,0.12)",
             grey: "rgba(107,114,128,0.12)",
             refunded: "rgba(6,182,212,0.12)",
+            default: "rgba(148,163,184,0.08)",
         },
         colors: {
             purple: "#A78BFA",

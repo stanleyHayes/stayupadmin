@@ -9,7 +9,7 @@ const actionIcon = (colorKey, bgKey) => ({
     fontSize: 28,
     borderWidth: 1,
     borderStyle: "solid",
-    borderRadius: "25%",
+    borderRadius: 0,
     borderColor: bgKey,
     color: colorKey,
     backgroundColor: bgKey,

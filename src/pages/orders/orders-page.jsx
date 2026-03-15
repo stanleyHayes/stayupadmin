@@ -34,7 +34,9 @@ import {selectOrder} from "../../redux/features/orders/orders-slice";
 import Order from "../../components/shared/order.jsx";
 import Empty from "../../components/shared/empty.jsx";
 import {motion} from "framer-motion";
-import {Close, SearchOutlined} from "@mui/icons-material";
+import {Close, ShoppingCartOutlined, AttachMoneyOutlined, LocalShippingOutlined, CancelOutlined} from "@mui/icons-material";
+import KPIBox from "../../components/shared/kpi-box.jsx";
+import PageHeader from "../../components/shared/page-header.jsx";
 
 const OrdersPage = () => {
 
@@ -45,6 +47,11 @@ const OrdersPage = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const {customers} = useSelector(selectCustomer);
     const {orders, orderLoading, orderError} = useSelector(selectOrder)
+
+    const totalOrders = orders?.length || 0;
+    const revenue = orders ? orders.reduce((sum, o) => sum + Number(o.total?.amount || o.total || 0), 0) : 0;
+    const completedOrders = orders?.filter(o => o.status === "completed").length || 0;
+    const pendingOrders = orders?.filter(o => o.status === "pending payment" || o.status === "processing").length || 0;
 
     const filteredOrders = useMemo(() => {
         if (!Array.isArray(orders)) return [];
@@ -74,76 +81,34 @@ const OrdersPage = () => {
                     </Alert>
                 )}
                 <Container>
-                    <Grid spacing={4} container={true} alignItems="center" justifyContent="space-between">
-                        <Grid item={true} size={{xs: 12, md: 'auto'}}>
-                            <Grid container={true} spacing={2} alignItems="center">
-                                <Grid item={true} size={{xs: 12, md: 'auto'}}>
-                                    <Typography variant="h4" sx={{color: "text.secondary"}}>Orders</Typography>
-                                </Grid>
-                                <Grid item={true} size={{xs: 12, md: 'auto'}}>
-                                    <Link
-                                        to="/order/new"
-                                        style={{textDecoration: "none", width: "100%", display: "block"}}>
-                                        <Button
-                                            size="small"
-                                            color="secondary"
-                                            variant="outlined"
-                                            fullWidth={true}>Add Order</Button>
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                    <PageHeader
+                        title="Orders"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search orders..."
+                        action={
+                            <Link to="/order/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add Order</Button>
+                            </Link>
+                        }
+                    />
+
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Orders" value={totalOrders} icon={<ShoppingCartOutlined/>} iconColor="secondary.main" iconBg="light.secondary" trend={15}/>
                         </Grid>
-                        <Grid item={true} size={{xs: 12, md: 'auto'}}>
-                            <Grid container={true} spacing={2} alignItems="center">
-                                <Grid item={true} size={{xs: 12, md: 8}}>
-                                    <Stack
-                                        divider={
-                                            <Divider
-                                                sx={{color: "light.secondary", backgroundColor: "light.secondary"}}
-                                                flexItem={true}
-                                                variant="inset"
-                                                light={true}
-                                                orientation="vertical"
-                                            />
-                                        }
-                                        sx={{
-                                            backgroundColor: "background.paper",
-                                            borderRadius: 3,
-                                            padding: 1,
-                                            px: 2
-                                        }}
-                                        spacing={2}
-                                        alignItems="center"
-                                        direction="row">
-                                        <TextField
-                                            value={query}
-                                            size="small"
-                                            onChange={event => setQuery(event.target.value)}
-                                            fullWidth={true}
-                                            variant="standard"
-                                            type="text"
-                                            placeholder="Search orders..."
-                                            slotProps={{ input: { disableUnderline: true } }}
-                                        />
-                                        <SearchOutlined
-                                                                                        sx={{color: "background.icon"}}
-                                            color="secondary"
-                                        />
-                                    </Stack>
-                                </Grid>
-                                <Grid item={true} size={{xs: 12, md: 4}}>
-                                    <Button
-                                        onClick={() => {}}
-                                        size="small"
-                                        color="secondary"
-                                        variant="outlined"
-                                        fullWidth={true}>Search Orders</Button>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Revenue" value={`GHS ${revenue.toLocaleString()}`} icon={<AttachMoneyOutlined/>} iconColor="text.green" iconBg="light.green" trend={8}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Completed" value={completedOrders} icon={<LocalShippingOutlined/>} iconColor="text.blue" iconBg="light.blue" trend={12}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Pending" value={pendingOrders} icon={<CancelOutlined/>} iconColor="text.orange" iconBg="light.orange" trend={-3}/>
                         </Grid>
                     </Grid>
-
-                    <Divider variant="fullWidth" sx={{my: 4}}/>
 
                     <Grid container={true} spacing={2} alignItems="center">
                         <Grid item={true} size={{xs: 12, md: 3}}>
@@ -265,7 +230,7 @@ const OrdersPage = () => {
                                                 fontSize: 36,
                                                 borderWidth: 1,
                                                 borderStyle: "solid",
-                                                borderRadius: '30%',
+                                                borderRadius: 0,
                                                 borderColor: "light.secondary",
                                                 color: "secondary.main",
                                                 backgroundColor: "light.secondary",

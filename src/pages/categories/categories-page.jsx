@@ -1,5 +1,6 @@
 // src/pages/categories/CategoriesPage.jsx
 import React, {useEffect, useMemo, useState} from "react";
+import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {
     Alert,
@@ -29,7 +30,9 @@ import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
-import {SearchOutlined} from "@mui/icons-material";
+import {CategoryOutlined, FolderOutlined, SubdirectoryArrowRightOutlined, VisibilityOutlined} from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import Category from "../../components/shared/category.jsx";
 
@@ -147,53 +150,31 @@ const CategoriesPage = () => {
                 )}
 
                 <Container>
-                    <Grid container spacing={4} alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Typography variant="h4" sx={{color: "text.secondary"}}>Categories</Typography>
-                                </Grid>
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Button onClick={handleOpenCreate} size="small"
-                                            color="secondary" variant="outlined" fullWidth>
-                                        Add Category
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Grid>
+                    <PageHeader
+                        title="Categories"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search categories..."
+                        action={
+                            <Link to="/category/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add Category</Button>
+                            </Link>
+                        }
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
 
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: 6}}>
-                                    <Stack
-                                        divider={<Divider
-                                            sx={{color: "light.secondary", backgroundColor: "light.secondary"}} flexItem
-                                            variant="inset" light orientation="vertical"/>}
-                                        sx={{backgroundColor: "background.paper", borderRadius: 3, padding: 1, px: 2}}
-                                        spacing={2}
-                                        alignItems="center"
-                                        direction="row"
-                                    >
-                                        <TextField
-                                            value={query}
-                                            size="small"
-                                            onChange={e => setQuery(e.target.value)}
-                                            fullWidth
-                                            variant="standard"
-                                            type="text"
-                                            placeholder="Search categories..."
-                                            slotProps={{ input: { disableUnderline: true } }}
-                                        />
-                                        <SearchOutlined sx={{color: "background.icon"}} color="secondary"/>
-                                    </Stack>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 6}}>
-                                    <Button size="small"
-                                            color="secondary" variant="outlined" fullWidth>
-                                        Search Category
-                                    </Button>
-                                </Grid>
-                            </Grid>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Categories" value={categories?.length || 0} icon={<CategoryOutlined fontSize="small"/>} iconColor="secondary.main" iconBg="light.secondary" trend={8}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Active" value={categories?.filter(c => !c.is_deleted).length || 0} icon={<FolderOutlined fontSize="small"/>} iconColor="text.green" iconBg="light.green" trend={5}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Top Level" value={categories?.filter(c => c.parent === 0 || !c.parent).length || 0} icon={<SubdirectoryArrowRightOutlined fontSize="small"/>} iconColor="text.blue" iconBg="light.blue"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Displayed" value={categories?.filter(c => c.display !== "hidden").length || 0} icon={<VisibilityOutlined fontSize="small"/>} iconColor="text.orange" iconBg="light.orange"/>
                         </Grid>
                     </Grid>
 

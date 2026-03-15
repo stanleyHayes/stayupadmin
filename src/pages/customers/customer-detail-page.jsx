@@ -8,7 +8,7 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchCustomer, selectCustomer, deleteCustomer} from "../../redux/features/customers/customers-slice";
-import {selectOrder} from "../../redux/features/orders/orders-slice";
+import {fetchOrders, selectOrder} from "../../redux/features/orders/orders-slice";
 import moment from "moment";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
@@ -32,6 +32,7 @@ const CustomerDetailPage = () => {
 
     useEffect(() => {
         if (customerID) dispatch(fetchCustomer(customerID));
+        dispatch(fetchOrders());
     }, [dispatch, customerID]);
 
     const handleDelete = async () => {

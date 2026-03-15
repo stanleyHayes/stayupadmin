@@ -14,7 +14,7 @@ const actionIcon = (colorKey, borderKey) => ({
     padding: 0.4,
     borderWidth: 1,
     borderStyle: "solid",
-    borderRadius: "25%",
+    borderRadius: 0,
     borderColor: borderKey,
     color: colorKey,
     backgroundColor: borderKey,

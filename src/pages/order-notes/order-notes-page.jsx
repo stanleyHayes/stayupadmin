@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {
     Alert, AlertTitle, Box, Button, Chip, Container, Divider, Grid,
     LinearProgress, Paper, Stack, Table, TableBody, TableCell,
@@ -8,8 +8,10 @@ import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchOrderNotes, deleteOrderNote, selectOrderNotes} from "../../redux/features/order-notes/order-notes-slice";
-import {SearchOutlined, VisibilityOutlined, DeleteForeverOutlined, Add} from "@mui/icons-material";
+import {VisibilityOutlined, DeleteForeverOutlined, NotesOutlined, NoteAddOutlined, PersonOutlined, TodayOutlined} from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
 import moment from "moment";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 
 const OrderNotesPage = () => {
     const dispatch = useDispatch();
@@ -18,7 +20,15 @@ const OrderNotesPage = () => {
 
     useEffect(() => { dispatch(fetchOrderNotes()); }, [dispatch]);
 
-    const handleSearch = () => dispatch(fetchOrderNotes({search: query}));
+    const filteredNotes = useMemo(() => {
+        if (!Array.isArray(orderNotes)) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return orderNotes;
+        return orderNotes.filter(item =>
+            [item.note, item.customer_name, item.order_number].join(" ").toLowerCase().includes(q)
+        );
+    }, [orderNotes, query]);
+
     const handleDelete = async (note) => {
         if (!window.confirm("Delete this order note? This cannot be undone.")) return;
         await dispatch(deleteOrderNote(note._id));
@@ -30,33 +40,28 @@ const OrderNotesPage = () => {
             <Box sx={{pt: 4, pb: 6}}>
                 {orderNoteError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{orderNoteError}</AlertTitle></Alert>}
                 <Container>
-                    <Grid spacing={4} container alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Typography variant="h4" sx={{color: "text.secondary"}}>Order Notes</Typography>
-                                </Grid>
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Link to="/order-note/new" style={{textDecoration: "none"}}>
-                                        <Button startIcon={<Add/>} size="small" color="secondary" variant="outlined">Add Note</Button>
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                    <PageHeader
+                        title="Order Notes"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search notes..."
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Notes" value={orderNotes?.length || 0} icon={<NotesOutlined/>} iconColor="secondary" iconBg="secondary" trend={6}/>
                         </Grid>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: 8}}>
-                                    <Stack direction="row" spacing={1} sx={{backgroundColor: "background.paper", p: 1, borderRadius: 2}}>
-                                        <TextField value={query} size="small" placeholder="Search notes..." onChange={e => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth/>
-                                        <SearchOutlined onClick={handleSearch} sx={{cursor: "pointer", alignSelf: "center"}}/>
-                                    </Stack>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 4}}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={handleSearch}>Search</Button>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Customer Notes" value={orderNotes?.filter(n => n.customer_note).length || 0} icon={<PersonOutlined/>} iconColor="text.blue" iconBg="light.blue" trend={4}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Private Notes" value={orderNotes?.filter(n => !n.customer_note).length || 0} icon={<NoteAddOutlined/>} iconColor="text.orange" iconBg="light.orange"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Recent (This Week)" value={orderNotes?.filter(n => n.created_at && new Date(n.created_at) > new Date(Date.now() - 7*24*60*60*1000)).length || 0} icon={<TodayOutlined/>} iconColor="text.green" iconBg="light.green" trend={15}/>
                         </Grid>
                     </Grid>
+
                     <Divider sx={{my: 4}}/>
                     <Paper elevation={0}>
                         <TableContainer>
@@ -73,14 +78,14 @@ const OrderNotesPage = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {orderNotes && orderNotes.length === 0 && (
+                                    {filteredNotes.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={7}>
                                                 <Typography variant="body2" color="text.secondary" align="center">No order notes found</Typography>
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {orderNotes && orderNotes.map((note, i) => (
+                                    {filteredNotes.map((note, i) => (
                                         <TableRow key={note._id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>
@@ -107,14 +112,14 @@ const OrderNotesPage = () => {
                                                     <Tooltip title="View Order Note">
                                                         <Link to={`/order-notes/${note._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Order Note">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(note)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

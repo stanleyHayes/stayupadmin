@@ -1,5 +1,5 @@
 // src/pages/tags/TagsPage.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Layout from "../../components/shared/layout.jsx";
 import {
     Box,
@@ -20,9 +20,12 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
+import {Link} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTags, selectTags, deleteTag, fetchTag } from "../../redux/features/tags/tags-slice";
-import { SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined } from "@mui/icons-material";
+import { VisibilityOutlined, EditOutlined, DeleteForeverOutlined, TagOutlined, LocalOfferOutlined, TrendingUpOutlined } from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 import CreateTagDialog from "../../components/dialogs/create-tag-dialog.jsx";
 import ViewTagDialog from "../../components/dialogs/view-tag-dialog.jsx";
 import UpdateTagDialog from "../../components/dialogs/update-tag-dialog.jsx";
@@ -41,9 +44,14 @@ const TagsPage = () => {
         dispatch(fetchTags());
     }, [dispatch]);
 
-    const handleSearch = async () => {
-        dispatch(fetchTags({ search: query }));
-    };
+    const filteredTags = useMemo(() => {
+        if (!Array.isArray(tags)) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return tags;
+        return tags.filter(item =>
+            [item.name, item.slug].join(" ").toLowerCase().includes(q)
+        );
+    }, [tags, query]);
 
     const openView = async (tag) => {
         setActiveTag(tag);
@@ -67,30 +75,28 @@ const TagsPage = () => {
             {loading && <LinearProgress variant="query" color="secondary" />}
             <Box sx={{ pt: 4, pb: 6 }}>
                 <Container>
-                    <Grid spacing={4} container={true} alignItems="center" justifyContent="space-between">
-                        <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                            <Grid container={true} spacing={2} alignItems="center">
-                                <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                                    <Typography variant="h4" sx={{ color: "text.secondary" }}>Product tags</Typography>
-                                </Grid>
-                                <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                                    <Button size="small" color="secondary" variant="outlined" onClick={() => setCreateOpen(true)}>Add tag</Button>
-                                </Grid>
-                            </Grid>
-                        </Grid>
+                    <PageHeader
+                        title="Tags"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search tags..."
+                        action={
+                            <Link to="/tag/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add Tag</Button>
+                            </Link>
+                        }
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
 
-                        <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                            <Grid container={true} spacing={2} alignItems="center">
-                                <Grid item={true} size={{ xs: 12, md: 8 }}>
-                                    <Stack direction="row" spacing={1} sx={{ backgroundColor: "background.paper", p: 1, borderRadius: 2 }}>
-                                        <TextField value={query} size="small" placeholder="Search tags..." onChange={(e) => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth />
-                                        <SearchOutlined onClick={handleSearch} sx={{ cursor: "pointer", alignSelf: "center" }} />
-                                    </Stack>
-                                </Grid>
-                                <Grid item={true} size={{ xs: 12, md: 4 }}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={handleSearch}>Search</Button>
-                                </Grid>
-                            </Grid>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Total Tags" value={tags?.length || 0} icon={<LocalOfferOutlined fontSize="small"/>} iconColor="secondary.main" iconBg="light.secondary" trend={10}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="With Products" value={tags?.filter(t => t.count > 0).length || 0} icon={<TrendingUpOutlined fontSize="small"/>} iconColor="text.green" iconBg="light.green"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Empty Tags" value={tags?.filter(t => !t.count || t.count === 0).length || 0} icon={<TagOutlined fontSize="small"/>} iconColor="text.orange" iconBg="light.orange"/>
                         </Grid>
                     </Grid>
 
@@ -111,7 +117,7 @@ const TagsPage = () => {
                                 </TableHead>
 
                                 <TableBody>
-                                    {tags && tags.length === 0 && (
+                                    {filteredTags.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={6}>
                                                 <Typography variant="body2" color="text.secondary" align="center">No tags available</Typography>
@@ -119,7 +125,7 @@ const TagsPage = () => {
                                         </TableRow>
                                     )}
 
-                                    {tags && tags.map((t, i) => (
+                                    {filteredTags.map((t, i) => (
                                         <TableRow key={t.id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>{t.name}</TableCell>
@@ -131,19 +137,19 @@ const TagsPage = () => {
                                                     <Tooltip title="View Tag">
                                                         <VisibilityOutlined
                                                             onClick={() => openView(t)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Edit Tag">
                                                         <EditOutlined
                                                             onClick={() => openEdit(t)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Delete Tag">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(t)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

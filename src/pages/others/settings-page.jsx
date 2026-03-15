@@ -22,7 +22,7 @@ import {
 const iconBox = (color = "secondary.main", bg = "light.secondary") => ({
     width: 36,
     height: 36,
-    borderRadius: "25%",
+    borderRadius: 0,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -60,7 +60,7 @@ const NavItem = ({ to, icon, label }) => (
             sx={{
                 px: 1.5,
                 py: 1,
-                borderRadius: 2,
+                borderRadius: 0,
                 cursor: "pointer",
                 "&:hover": { backgroundColor: "background.alternative" },
             }}
@@ -109,7 +109,7 @@ const SettingsPage = () => {
                                     sx={{
                                         px: 2,
                                         py: 1.5,
-                                        borderRadius: 2,
+                                        borderRadius: 0,
                                         backgroundColor: "background.alternative",
                                     }}
                                 >
@@ -169,7 +169,7 @@ const SettingsPage = () => {
                                         sx={{
                                             px: 2,
                                             py: 1.5,
-                                            borderRadius: 2,
+                                            borderRadius: 0,
                                             backgroundColor: "background.alternative",
                                         }}
                                     >
@@ -196,7 +196,7 @@ const SettingsPage = () => {
                                         sx={{
                                             px: 2,
                                             py: 1.5,
-                                            borderRadius: 2,
+                                            borderRadius: 0,
                                             backgroundColor: "background.alternative",
                                         }}
                                     >
@@ -204,7 +204,8 @@ const SettingsPage = () => {
                                             <Typography variant="body2" sx={{ fontWeight: 500 }}>Two-factor authentication</Typography>
                                             <Typography variant="caption" color="text.secondary">Not configured</Typography>
                                         </Box>
-                                        <Button variant="outlined" color="secondary" size="small" startIcon={<ShieldOutlined fontSize="small" />}>
+                                        <Button variant="outlined" color="secondary" size="small" startIcon={<ShieldOutlined fontSize="small" />}
+                                            onClick={() => alert("Two-factor authentication setup will be available when connected to a backend API. This feature requires server-side TOTP generation.")}>
                                             Set up
                                         </Button>
                                     </Stack>

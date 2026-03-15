@@ -34,10 +34,11 @@ const UpdateAdminPage = lazy(() => import("./pages/admins/update-admin-page.jsx"
 
 const ForgotPasswordPage = lazy(() => import("./pages/authentication/forgot-password-page.jsx"));
 const LoginPage = lazy(() => import("./pages/authentication/login-page.jsx"));
-const RegisterPage = lazy(() => import("./pages/authentication/register-page.jsx"));
+
 const ResetPasswordPage = lazy(() => import("./pages/authentication/reset-password-page.jsx"));
 const VerifyAccountPage = lazy(() => import("./pages/authentication/verify-account-page.jsx"));
 const VerifyOTPPage = lazy(() => import("./pages/authentication/verify-otp-page.jsx"));
+const AcceptInvitationPage = lazy(() => import("./pages/authentication/accept-invitation-page.jsx"));
 
 const CreateProductPage = lazy(() => import("./pages/products/create-product-page.jsx"));
 const ProductDetailPage = lazy(() => import("./pages/products/product-detail-page.jsx"));
@@ -106,6 +107,27 @@ const WebhookDetailPage = lazy(() => import("./pages/webhooks/webhook-detail-pag
 const CreateWebhookPage = lazy(() => import("./pages/webhooks/create-webhook-page.jsx"));
 const UpdateWebhookPage = lazy(() => import("./pages/webhooks/update-webhook-page.jsx"));
 
+// Revenue
+const RevenuePage = lazy(() => import("./pages/revenue/revenue-page.jsx"));
+
+// Subscribers
+const SubscribersPage = lazy(() => import("./pages/subscribers/subscribers-page.jsx"));
+const SubscriberDetailPage = lazy(() => import("./pages/subscribers/subscriber-detail-page.jsx"));
+
+// Messages
+const MessagesPage = lazy(() => import("./pages/messages/messages-page.jsx"));
+const MessageDetailPage = lazy(() => import("./pages/messages/message-detail-page.jsx"));
+
+// Blog
+const BlogPostsPage = lazy(() => import("./pages/blog/blog-posts-page.jsx"));
+const BlogPostDetailPage = lazy(() => import("./pages/blog/blog-post-detail-page.jsx"));
+const CreateBlogPostPage = lazy(() => import("./pages/blog/create-blog-post-page.jsx"));
+const UpdateBlogPostPage = lazy(() => import("./pages/blog/update-blog-post-page.jsx"));
+
+// Testimonials
+const TestimonialsPage = lazy(() => import("./pages/testimonials/testimonials-page.jsx"));
+const TestimonialDetailPage = lazy(() => import("./pages/testimonials/testimonial-detail-page.jsx"));
+
 
 const wrap = (Component) => (
     <Suspense fallback={<Splash/>}><Component/></Suspense>
@@ -123,6 +145,7 @@ function App() {
 
                 {/* Analytics */}
                 <Route path="/analytics" element={wrap(AnalyticsPage)}/>
+                <Route path="/revenue" element={wrap(RevenuePage)}/>
 
                 {/* Products */}
                 <Route path="/products" element={wrap(ProductsPage)}/>
@@ -201,6 +224,24 @@ function App() {
                 <Route path="/webhooks/:webhookID/update" element={wrap(UpdateWebhookPage)}/>
                 <Route path="/webhook/new" element={wrap(CreateWebhookPage)}/>
 
+                {/* Subscribers */}
+                <Route path="/subscribers" element={wrap(SubscribersPage)}/>
+                <Route path="/subscribers/:subscriberID" element={wrap(SubscriberDetailPage)}/>
+
+                {/* Messages */}
+                <Route path="/messages" element={wrap(MessagesPage)}/>
+                <Route path="/messages/:messageID" element={wrap(MessageDetailPage)}/>
+
+                {/* Blog */}
+                <Route path="/blog" element={wrap(BlogPostsPage)}/>
+                <Route path="/blog/:postID" element={wrap(BlogPostDetailPage)}/>
+                <Route path="/blog/:postID/update" element={wrap(UpdateBlogPostPage)}/>
+                <Route path="/blog/new" element={wrap(CreateBlogPostPage)}/>
+
+                {/* Testimonials */}
+                <Route path="/testimonials" element={wrap(TestimonialsPage)}/>
+                <Route path="/testimonials/:testimonialID" element={wrap(TestimonialDetailPage)}/>
+
                 {/* Admins */}
                 <Route path="/admins" element={wrap(AdminsPage)}/>
                 <Route path="/admins/:adminID" element={wrap(AdminDetailPage)}/>
@@ -227,11 +268,11 @@ function App() {
 
                 {/* Auth */}
                 <Route path="/auth/login" element={wrap(LoginPage)}/>
-                <Route path="/auth/register" element={wrap(RegisterPage)}/>
                 <Route path="/auth/forgot-password" element={wrap(ForgotPasswordPage)}/>
                 <Route path="/auth/reset-password" element={wrap(ResetPasswordPage)}/>
                 <Route path="/auth/verify/:token" element={wrap(VerifyAccountPage)}/>
                 <Route path="/auth/otp" element={wrap(VerifyOTPPage)}/>
+                <Route path="/auth/invite/:token" element={wrap(AcceptInvitationPage)}/>
 
                 {/* Info pages */}
                 <Route path="/terms" element={wrap(TermsPage)}/>

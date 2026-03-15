@@ -30,7 +30,9 @@ import moment from "moment";
 import {useSelector} from "react-redux";
 import Empty from "../../components/shared/empty.jsx";
 import {motion} from "framer-motion";
-import {Close, SearchOutlined} from "@mui/icons-material";
+import {Close, PeopleOutlined, PersonAddOutlined, BlockOutlined, VerifiedUserOutlined} from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 import Customer from "../../components/shared/customer.jsx";
 import {selectCustomer} from "../../redux/features/customers/customers-slice";
 
@@ -41,6 +43,11 @@ const CustomersPage = () => {
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const {customers, customerLoading, customerError} = useSelector(selectCustomer)
+
+    const totalCustomers = customers?.length || 0;
+    const activeCustomers = customers?.filter(c => (c.status || "ACTIVE") === "ACTIVE").length || 0;
+    const suspendedCustomers = customers?.filter(c => c.status === "SUSPENDED").length || 0;
+    const verifiedCustomers = customers?.filter(c => c.is_verified).length || 0;
 
     const filteredCustomers = useMemo(() => {
         if (!Array.isArray(customers)) return [];
@@ -69,75 +76,33 @@ const CustomersPage = () => {
                     </Alert>
                 )}
                 <Container>
-                    <Grid spacing={4} container={true} alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, md: 'auto'}}>
-                            <Grid container={true} spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: 'auto'}}>
-                                    <Typography variant="h4" sx={{color: "text.secondary"}}>Customers</Typography>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 'auto'}}>
-                                    <Link
-                                        to="/customer/new"
-                                        style={{textDecoration: "none", width: "100%", display: "block"}}>
-                                        <Button
-                                            size="small"
-                                            color="secondary"
-                                            variant="outlined"
-                                            fullWidth={true}>Add Customer</Button>
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                    <PageHeader
+                        title="Customers"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search customers..."
+                        action={
+                            <Link to="/customer/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add Customer</Button>
+                            </Link>
+                        }
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Customers" value={totalCustomers} icon={<PeopleOutlined/>} iconColor="secondary.main" iconBg="light.secondary" trend={18}/>
                         </Grid>
-                        <Grid size={{xs: 12, md: 'auto'}}>
-                            <Grid container={true} spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: 8}}>
-                                    <Stack
-                                        divider={
-                                            <Divider
-                                                sx={{color: "light.secondary", backgroundColor: "light.secondary"}}
-                                                flexItem={true}
-                                                variant="inset"
-                                                orientation="vertical"
-                                            />
-                                        }
-                                        sx={{
-                                            backgroundColor: "background.paper",
-                                            borderRadius: 3,
-                                            padding: 1,
-                                            px: 2
-                                        }}
-                                        spacing={2}
-                                        alignItems="center"
-                                        direction="row">
-                                        <TextField
-                                            value={query}
-                                            size="small"
-                                            onChange={event => setQuery(event.target.value)}
-                                            fullWidth={true}
-                                            variant="standard"
-                                            type="text"
-                                            placeholder="Search orders..."
-                                            slotProps={{ input: { disableUnderline: true } }}
-                                        />
-                                        <SearchOutlined
-                                                                                        sx={{color: "background.icon"}}
-                                            color="secondary"
-                                        />
-                                    </Stack>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 4}}>
-                                    <Button
-                                        onClick={() => {}}
-                                        size="small"
-                                        color="secondary"
-                                        variant="outlined"
-                                        fullWidth={true}>Search Customer</Button>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Active" value={activeCustomers} icon={<PersonAddOutlined/>} iconColor="text.green" iconBg="light.green" trend={14}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Suspended" value={suspendedCustomers} icon={<BlockOutlined/>} iconColor="text.red" iconBg="light.red" trend={-5}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Verified" value={verifiedCustomers} icon={<VerifiedUserOutlined/>} iconColor="text.blue" iconBg="light.blue" trend={10}/>
                         </Grid>
                     </Grid>
-
-                    <Divider variant="fullWidth" sx={{my: 4}}/>
 
                     <Grid container={true} spacing={2} alignItems="center">
                         <Grid size={{xs: 12, md: 3}}>
@@ -225,7 +190,7 @@ const CustomersPage = () => {
                                                 fontSize: 36,
                                                 borderWidth: 1,
                                                 borderStyle: "solid",
-                                                borderRadius: '30%',
+                                                borderRadius: 0,
                                                 borderColor: "light.secondary",
                                                 color: "secondary.main",
                                                 backgroundColor: "light.secondary",

@@ -94,7 +94,7 @@ const TaxClassesPage = () => {
                                                 <Tooltip title="Delete Tax Class">
                                                     <DeleteForeverOutlined
                                                         onClick={() => handleDelete(tc)}
-                                                        sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "100%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                        sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                     />
                                                 </Tooltip>
                                             </TableCell>

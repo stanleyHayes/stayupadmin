@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {
     Alert, AlertTitle, Box, Button, Chip, Container, Divider, FormControl,
     Grid, InputLabel, LinearProgress, MenuItem, Paper, Select,
@@ -9,7 +9,9 @@ import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchReviews, deleteReview, selectReviews} from "../../redux/features/reviews/reviews-slice";
-import {SearchOutlined, VisibilityOutlined, DeleteForeverOutlined} from "@mui/icons-material";
+import {VisibilityOutlined, DeleteForeverOutlined, RateReviewOutlined, ThumbUpOutlined, PendingOutlined, ReportOutlined} from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 import moment from "moment";
 
 const statusColor = (s) => s === "approved" ? "success" : s === "pending" ? "warning" : s === "spam" ? "error" : "default";
@@ -27,7 +29,15 @@ const ReviewsPage = () => {
 
     useEffect(() => { dispatch(fetchReviews()); }, [dispatch]);
 
-    const handleSearch = () => dispatch(fetchReviews({search: query, status: statusFilter}));
+    const filteredReviews = useMemo(() => {
+        if (!Array.isArray(reviews)) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return reviews;
+        return reviews.filter(item =>
+            [item.reviewer, item.review, item.product_name].join(" ").toLowerCase().includes(q)
+        );
+    }, [reviews, query]);
+
     const handleStatusFilter = (e) => {
         const s = e.target.value;
         setStatusFilter(s);
@@ -44,33 +54,42 @@ const ReviewsPage = () => {
             <Box sx={{pt: 4, pb: 6}}>
                 {reviewError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{reviewError}</AlertTitle></Alert>}
                 <Container>
-                    <Grid spacing={4} container alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Typography variant="h4" sx={{color: "text.secondary"}}>Reviews</Typography>
+                    <PageHeader
+                        title="Reviews"
+                        subtitle="Moderate and manage product reviews"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search reviews..."
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Reviews" value={reviews?.length || 0} icon={<RateReviewOutlined/>} iconColor="secondary" iconBg="secondary" trend={10}/>
                         </Grid>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <FormControl size="small" sx={{minWidth: 130}}>
-                                        <InputLabel>Status</InputLabel>
-                                        <Select value={statusFilter} onChange={handleStatusFilter} label="Status">
-                                            <MenuItem value="all">All</MenuItem>
-                                            <MenuItem value="approved">Approved</MenuItem>
-                                            <MenuItem value="pending">Pending</MenuItem>
-                                            <MenuItem value="spam">Spam</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Stack direction="row" spacing={1} sx={{backgroundColor: "background.paper", p: 1, borderRadius: 2}}>
-                                        <TextField value={query} size="small" placeholder="Search reviews..." onChange={e => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} sx={{minWidth: 180}}/>
-                                        <SearchOutlined onClick={handleSearch} sx={{cursor: "pointer", alignSelf: "center"}}/>
-                                    </Stack>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Approved" value={reviews?.filter(r => r.status === "approved").length || 0} icon={<ThumbUpOutlined/>} iconColor="text.green" iconBg="light.green" trend={8}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Pending" value={reviews?.filter(r => r.status === "pending").length || 0} icon={<PendingOutlined/>} iconColor="text.orange" iconBg="light.orange"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Spam" value={reviews?.filter(r => r.status === "spam").length || 0} icon={<ReportOutlined/>} iconColor="text.red" iconBg="light.red" trend={-15}/>
                         </Grid>
                     </Grid>
-                    <Divider sx={{my: 4}}/>
+                    <Grid spacing={2} container alignItems="center" justifyContent="flex-end" sx={{mb: 2}}>
+                        <Grid size={{xs: 12, md: "auto"}}>
+                            <FormControl size="small" sx={{minWidth: 130}}>
+                                <InputLabel>Status</InputLabel>
+                                <Select value={statusFilter} onChange={handleStatusFilter} label="Status">
+                                    <MenuItem value="all">All</MenuItem>
+                                    <MenuItem value="approved">Approved</MenuItem>
+                                    <MenuItem value="pending">Pending</MenuItem>
+                                    <MenuItem value="spam">Spam</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                    <Divider sx={{my: 3}}/>
                     <Paper elevation={0}>
                         <TableContainer>
                             <Table>
@@ -86,14 +105,14 @@ const ReviewsPage = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {reviews && reviews.length === 0 && (
+                                    {filteredReviews.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={7}>
                                                 <Typography variant="body2" color="text.secondary" align="center">No reviews found</Typography>
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {reviews && reviews.map((review, i) => (
+                                    {filteredReviews.map((review, i) => (
                                         <TableRow key={review._id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>
@@ -116,14 +135,14 @@ const ReviewsPage = () => {
                                                     <Tooltip title="View Review">
                                                         <Link to={`/reviews/${review._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Review">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(review)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

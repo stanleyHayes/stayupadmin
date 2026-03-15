@@ -28,15 +28,20 @@ const Layout = ({children}) => {
                         md: sidebarExpanded ? '30%' : '10%',
                         lg: sidebarExpanded ? '25%' : '5%'
                     },
+                    flexShrink: 0,
                     display: {xs: "none", "md": "block"},
-                    maxHeight: "100vh",
-                    backgroundColor: "background.default",
+                    height: "100vh",
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "background.sidebar",
                     borderRightWidth: 1,
                     borderRightStyle: "solid",
                     borderRightColor: "divider",
-                    overflowY: "scroll",
+                    overflowY: "auto",
                     overflowX: "hidden",
-                    transition: "flex-basis 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                    transition: "flex-basis 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    "&::-webkit-scrollbar": { width: 4 },
+                    "&::-webkit-scrollbar-thumb": { backgroundColor: "divider", borderRadius: 0 }
                 }}>
                 <Sidebar/>
             </Box>

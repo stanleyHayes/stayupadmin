@@ -121,13 +121,13 @@ const ProductDetailPage = () => {
                                                 component="img"
                                                 image={p.image?.secure_url ?? p.image?.preview}
                                                 alt={p.title ?? "Product image"}
-                                                sx={{width: "100%", maxWidth: 360, objectFit: "contain", borderRadius: 2}}
+                                                sx={{width: "100%", maxWidth: 360, objectFit: "contain", borderRadius: 0}}
                                             />
                                         ) : (
                                             <Box sx={{
                                                 width: "100%", height: 200,
                                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                                bgcolor: "background.alternative", borderRadius: 2
+                                                bgcolor: "background.alternative", borderRadius: 0
                                             }}>
                                                 <ImageNotSupportedIcon sx={{fontSize: 48, color: "text.muted"}}/>
                                             </Box>

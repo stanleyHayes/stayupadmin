@@ -1,336 +1,404 @@
-// src/pages/overview/OverviewPage.jsx
-import React, { useMemo, useState } from "react";
+import React, {useEffect, useMemo} from "react";
 import Layout from "../../components/shared/layout.jsx";
 import {
-    Box,
-    Chip,
-    Container,
-    Divider,
-    Button,
-    Grid,
-    Paper,
-    Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    Typography,
-    useMediaQuery,
-    useTheme,
+    Avatar, Box, Button, Chip, Container, Divider, Grid, LinearProgress,
+    Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow,
+    Typography, useMediaQuery, useTheme
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import {Link} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchOrders, selectOrder} from "../../redux/features/orders/orders-slice";
+import {selectProducts} from "../../redux/features/products/products-slice";
+import {selectCustomer} from "../../redux/features/customers/customers-slice";
+import {selectAuth} from "../../redux/features/authentication/authentication-slice";
+import {LineChart, BarChart, PieChart} from "@mui/x-charts";
 import moment from "moment";
-import { LineChart, BarChart, PieChart } from "@mui/x-charts";
+import {motion} from "framer-motion";
 import KPIBox from "../../components/shared/kpi-box.jsx";
 import {
-    AttachMoneyOutlined,
-    ShoppingCartOutlined,
-    PeopleOutlined,
-    ReceiptOutlined,
+    AttachMoneyOutlined, ShoppingCartOutlined, PeopleOutlined,
+    TrendingUpOutlined, InventoryOutlined, LocalShippingOutlined,
+    StarOutlined, WarningAmberOutlined, ArrowForward,
+    ReceiptOutlined
 } from "@mui/icons-material";
 
-const statusChipSx = (status) => {
-    const map = {
-        Completed:  { color: "text.green",      bg: "light.green" },
-        Processing: { color: "text.processing", bg: "light.processing" },
-        Pending:    { color: "text.pending",    bg: "light.pending" },
-        Refunded:   { color: "text.refunded",   bg: "light.refunded" },
-    };
-    const s = map[status] ?? { color: "text.secondary", bg: "light.grey" };
-    return { color: s.color, backgroundColor: s.bg, fontWeight: 500, fontSize: "0.72rem" };
+const STATUS_COLORS = {
+    completed: "#22C55E", processing: "#3B82F6", "pending payment": "#F59E0B",
+    "on-hold": "#F59E0B", refunded: "#06B6D4", cancelled: "#6B7280", failed: "#EF4444",
 };
 
-const ChartCard = ({ title, children }) => (
-    <Paper
-        elevation={0}
-        sx={{
-            p: { xs: 2, sm: 2.5 },
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: "border.default",
-            height: "100%",
-            overflow: "hidden",
-        }}
-    >
-        <Typography variant="subtitle1" sx={{ mb: 1.5 }}>{title}</Typography>
-        {children}
-    </Paper>
+const statusChipColor = (s) => {
+    if (s === "completed") return "success";
+    if (s === "processing") return "info";
+    if (s === "failed" || s === "cancelled") return "error";
+    if (s === "on-hold" || s === "pending payment") return "warning";
+    return "default";
+};
+
+const ChartCard = ({title, subtitle, children, action, delay = 0}) => (
+    <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{duration: 0.5, delay, ease: [0.25, 0.46, 0.45, 0.94]}} style={{height: "100%"}}>
+        <Paper elevation={0} sx={{p: {xs: 2, sm: 2.5}, height: "100%", transition: "border-color 0.25s, box-shadow 0.25s", "&:hover": {boxShadow: "0 4px 20px rgba(0,0,0,0.06)"}}}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{mb: 1.5}}>
+                <Box>
+                    <Typography variant="subtitle1" sx={{fontWeight: 600, lineHeight: 1.2}}>{title}</Typography>
+                    {subtitle && <Typography variant="caption" color="text.secondary">{subtitle}</Typography>}
+                </Box>
+                {action}
+            </Stack>
+            {children}
+        </Paper>
+    </motion.div>
 );
 
 const OverviewPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-    const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+    const dispatch = useDispatch();
+    const {user} = useSelector(selectAuth);
+    const {orders, orderLoading} = useSelector(selectOrder);
+    const {products} = useSelector(selectProducts);
+    const {customers} = useSelector(selectCustomer);
+    const accent = theme.palette.secondary.main;
 
-    const [startDate, setStartDate] = useState(moment().subtract(30, "days"));
-    const [endDate, setEndDate] = useState(moment());
+    useEffect(() => { dispatch(fetchOrders()); }, [dispatch]);
 
-    const revenueData = useMemo(() => {
+    // KPI calculations from real data
+    const totalRevenue = orders ? orders.reduce((s, o) => s + Number(o.total?.amount || 0), 0) : 0;
+    const totalOrders = orders?.length || 0;
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const completedOrders = orders?.filter(o => o.status === "completed").length || 0;
+    const pendingOrders = orders?.filter(o => o.status === "pending payment" || o.status === "processing").length || 0;
+    const totalCustomers = customers?.length || 0;
+    const totalProducts = products?.length || 0;
+    const featuredProducts = products?.filter(p => p.featured).length || 0;
+    const lowStockProducts = products?.filter(p => p.stock_status === "lowstock" || p.stock_status === "outofstock").length || 0;
+    const completedRevenue = orders?.filter(o => o.status === "completed").reduce((s, o) => s + Number(o.total?.amount || 0), 0) || 0;
+
+    // Revenue trend (last 14 days)
+    const revenueTrend = useMemo(() => {
         const days = [];
         const revenue = [];
-        const orders = [];
+        const orderCounts = [];
         const points = isMobile ? 7 : 14;
         for (let i = points - 1; i >= 0; i--) {
-            const d = moment(endDate).clone().subtract(i, "days");
+            const d = moment().subtract(i, "days");
             days.push(d.format("MM/DD"));
-            revenue.push(200 + Math.round(Math.random() * 1800));
-            orders.push(5 + Math.round(Math.random() * 40));
+            const dayOrders = (orders || []).filter(o => moment(o.createdAt).isSame(d, "day"));
+            revenue.push(dayOrders.reduce((s, o) => s + Number(o.total?.amount || 0), 0));
+            orderCounts.push(dayOrders.length);
         }
-        return { days, revenue, orders };
-    }, [endDate, isMobile]);
+        return {days, revenue, orders: orderCounts};
+    }, [orders, isMobile]);
 
-    const categorySales = [
-        { label: "Clothing",    value: 4200 },
-        { label: "Shoes",       value: 3100 },
-        { label: "Electronics", value: 2600 },
-        { label: "Home",        value: 1900 },
-    ];
+    // Monthly revenue
+    const monthlyRevenue = useMemo(() => {
+        const months = Array(12).fill(0);
+        (orders || []).forEach(o => { months[moment(o.createdAt).month()] += Number(o.total?.amount || 0); });
+        return months;
+    }, [orders]);
+    const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    const orderStatusData = [
-        { label: "Completed",  value: 62, color: "#22C55E" },
-        { label: "Processing", value: 21, color: "#3B82F6" },
-        { label: "Pending",    value: 9,  color: "#EAB308" },
-        { label: "Refunded",   value: 8,  color: "#EF4444" },
-    ];
+    // Order status breakdown
+    const statusGroups = useMemo(() => {
+        const map = {};
+        (orders || []).forEach(o => {
+            const s = o.status || "unknown";
+            if (!map[s]) map[s] = {count: 0, total: 0};
+            map[s].count += 1;
+            map[s].total += Number(o.total?.amount || 0);
+        });
+        return map;
+    }, [orders]);
 
-    const recentOrders = [
-        { id: "ORD-1005", customer: "Jane Doe",     total: "$189.00", status: "Completed",  date: "2025-11-17" },
-        { id: "ORD-1004", customer: "Kwame Mensah", total: "$79.00",  status: "Processing", date: "2025-11-17" },
-        { id: "ORD-1003", customer: "Aisha Kamara", total: "$320.00", status: "Completed",  date: "2025-11-16" },
-        { id: "ORD-1002", customer: "John Smith",   total: "$59.99",  status: "Pending",    date: "2025-11-16" },
-    ];
+    const pieData = Object.entries(statusGroups).map(([status, data], i) => ({
+        id: i, value: data.count, label: status,
+        color: STATUS_COLORS[status] || "#9CA3AF",
+    }));
 
-    const chartHeight = isMobile ? 220 : 280;
+    // Top products
+    const topProducts = useMemo(() => {
+        const map = {};
+        (orders || []).forEach(o => {
+            (o.orderItems || []).forEach(item => {
+                const name = item.product?.title || "Unknown";
+                const img = typeof item.product?.image === "string" ? item.product.image : (item.product?.image?.secure_url || "");
+                if (!map[name]) map[name] = {name, img, sales: 0, revenue: 0};
+                map[name].sales += item.quantity || 1;
+                map[name].revenue += (item.product?.price?.amount || 0) * (item.quantity || 1);
+            });
+        });
+        return Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+    }, [orders]);
+
+    // Recent orders
+    const recentOrders = orders ? [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 6) : [];
+
+    const chartHeight = isMobile ? 200 : 260;
+    const greeting = (() => {
+        const h = new Date().getHours();
+        if (h < 12) return "Good morning";
+        if (h < 17) return "Good afternoon";
+        return "Good evening";
+    })();
 
     return (
         <Layout>
-            <Container sx={{ py: 4 }}>
-
-                {/* Header */}
-                <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    alignItems={{ xs: "flex-start", sm: "center" }}
-                    justifyContent="space-between"
-                    spacing={2}
-                    sx={{ mb: 3 }}
-                >
-                    <Box>
-                        <Typography variant="h4" sx={{ color: "text.heading" }}>Overview</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Snapshot of your store performance
-                        </Typography>
-                    </Box>
-
-                    <Stack
-                        direction={{ xs: "column", sm: "row" }}
-                        spacing={1.5}
-                        alignItems={{ xs: "stretch", sm: "center" }}
-                        sx={{ width: { xs: "100%", sm: "auto" } }}
-                    >
-                        <LocalizationProvider dateAdapter={AdapterMoment}>
-                            <Stack direction="row" spacing={1.5}>
-                                <DatePicker
-                                    label="Start"
-                                    value={startDate}
-                                    onChange={(d) => setStartDate(d)}
-                                    slotProps={{ textField: { size: "small", sx: { flex: 1 } } }}
-                                />
-                                <DatePicker
-                                    label="End"
-                                    value={endDate}
-                                    onChange={(d) => setEndDate(d)}
-                                    slotProps={{ textField: { size: "small", sx: { flex: 1 } } }}
-                                />
+            {orderLoading && <LinearProgress variant="query" color="secondary"/>}
+            <Box sx={{pt: 4, pb: 6}}>
+                <Container>
+                    {/* Welcome Banner */}
+                    <motion.div initial={{opacity: 0, y: -10}} animate={{opacity: 1, y: 0}} transition={{duration: 0.4}}>
+                        <Paper elevation={0} sx={{
+                            p: {xs: 2.5, sm: 3}, mb: 3, overflow: "hidden", position: "relative",
+                            background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%)",
+                        }}>
+                            <Box sx={{position: "absolute", top: -30, right: -30, width: 150, height: 150, borderRadius: 0, backgroundColor: "rgba(255,255,255,0.08)"}}/>
+                            <Box sx={{position: "absolute", bottom: -40, right: 60, width: 100, height: 100, borderRadius: 0, backgroundColor: "rgba(255,255,255,0.05)"}}/>
+                            <Stack direction={{xs: "column", sm: "row"}} spacing={2} alignItems={{xs: "flex-start", sm: "center"}} justifyContent="space-between" sx={{position: "relative", zIndex: 1}}>
+                                <Box>
+                                    <Typography variant="h5" sx={{color: "#fff", fontWeight: 700, mb: 0.5}}>
+                                        {greeting}, {user?.firstName}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{color: "rgba(255,255,255,0.75)"}}>
+                                        Here's what's happening with your store today
+                                    </Typography>
+                                </Box>
+                                <Stack direction="row" spacing={1}>
+                                    <Link to="/analytics" style={{textDecoration: "none"}}>
+                                        <Button size="small" variant="contained" sx={{backgroundColor: "rgba(255,255,255,0.2)", color: "#fff", "&:hover": {backgroundColor: "rgba(255,255,255,0.3)"}}} endIcon={<ArrowForward sx={{fontSize: 14}}/>}>
+                                            Analytics
+                                        </Button>
+                                    </Link>
+                                    <Link to="/revenue" style={{textDecoration: "none"}}>
+                                        <Button size="small" variant="contained" sx={{backgroundColor: "rgba(255,255,255,0.15)", color: "#fff", "&:hover": {backgroundColor: "rgba(255,255,255,0.25)"}}} endIcon={<ArrowForward sx={{fontSize: 14}}/>}>
+                                            Revenue
+                                        </Button>
+                                    </Link>
+                                </Stack>
                             </Stack>
-                        </LocalizationProvider>
-                        <Button
-                            size="small"
-                            variant="outlined"
-                            fullWidth={isMobile}
-                            onClick={() => {
-                                setStartDate(moment().subtract(30, "days"));
-                                setEndDate(moment());
-                            }}
-                        >
-                            Last 30 days
-                        </Button>
-                    </Stack>
-                </Stack>
+                        </Paper>
+                    </motion.div>
 
-                <Divider sx={{ mb: 3 }} />
+                    {/* Primary KPIs */}
+                    <Grid container spacing={2} sx={{mb: 2}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Revenue" value={`£${totalRevenue.toLocaleString()}`} icon={<AttachMoneyOutlined fontSize="small"/>} iconColor="text.green" iconBg="light.green" trend={12}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Orders" value={totalOrders} icon={<ShoppingCartOutlined fontSize="small"/>} iconColor="text.blue" iconBg="light.blue" trend={8}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Avg Order Value" value={`£${avgOrderValue.toFixed(2)}`} icon={<TrendingUpOutlined fontSize="small"/>} iconColor="text.orange" iconBg="light.orange" trend={-2}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Customers" value={totalCustomers} icon={<PeopleOutlined fontSize="small"/>} iconColor="secondary.main" iconBg="light.secondary" trend={15}/>
+                        </Grid>
+                    </Grid>
 
-                {/* KPIs — 2-up on mobile, 4-up on desktop */}
-                <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid size={{ xs: 6, md: 3 }}>
-                        <KPIBox
-                            label="Total Revenue"
-                            value="$24,320"
-                            subtitle="Last 30 days"
-                            trend={12.4}
-                            icon={<AttachMoneyOutlined fontSize="small" />}
-                            iconColor="text.green"
-                            iconBg="light.green"
-                        />
+                    {/* Secondary KPIs */}
+                    <Grid container spacing={2} sx={{mb: 3}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Completed Revenue" value={`£${completedRevenue.toLocaleString()}`} icon={<AttachMoneyOutlined fontSize="small"/>} iconColor="text.green" iconBg="light.green"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Products" value={totalProducts} icon={<InventoryOutlined fontSize="small"/>} iconColor="text.blue" iconBg="light.blue"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Pending Orders" value={pendingOrders} icon={<LocalShippingOutlined fontSize="small"/>} iconColor="text.orange" iconBg="light.orange"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Low Stock Items" value={lowStockProducts} icon={<WarningAmberOutlined fontSize="small"/>} iconColor="text.red" iconBg="light.red"/>
+                        </Grid>
                     </Grid>
-                    <Grid size={{ xs: 6, md: 3 }}>
-                        <KPIBox
-                            label="Total Orders"
-                            value="1,284"
-                            subtitle="All channels"
-                            trend={8.1}
-                            icon={<ShoppingCartOutlined fontSize="small" />}
-                            iconColor="text.blue"
-                            iconBg="light.blue"
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 6, md: 3 }}>
-                        <KPIBox
-                            label="Avg. Order Value"
-                            value="$18.93"
-                            subtitle="Per order"
-                            trend={-2.3}
-                            icon={<ReceiptOutlined fontSize="small" />}
-                            iconColor="text.orange"
-                            iconBg="light.orange"
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 6, md: 3 }}>
-                        <KPIBox
-                            label="New Customers"
-                            value="312"
-                            subtitle="Last 30 days"
-                            trend={5.7}
-                            icon={<PeopleOutlined fontSize="small" />}
-                            iconColor="secondary.main"
-                            iconBg="light.secondary"
-                        />
-                    </Grid>
-                </Grid>
 
-                {/* Charts row 1 */}
-                <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid size={{ xs: 12, md: 8 }}>
-                        <ChartCard title="Revenue & Orders">
-                            <Box sx={{ overflowX: "auto" }}>
+                    {/* Charts Row 1 */}
+                    <Grid container spacing={2.5} sx={{mb: 2.5}}>
+                        <Grid size={{xs: 12, md: 8}}>
+                            <ChartCard title="Revenue Trend" subtitle="Daily revenue over the last 14 days" delay={0.1}
+                                action={<Link to="/revenue" style={{textDecoration: "none"}}><Button size="small" variant="outlined" color="secondary" endIcon={<ArrowForward sx={{fontSize: 12}}/>}>Details</Button></Link>}>
                                 <LineChart
-                                    height={chartHeight}
-                                    xAxis={[{ data: revenueData.days, scaleType: "point" }]}
+                                    xAxis={[{scaleType: "point", data: revenueTrend.days}]}
                                     series={[
-                                        { data: revenueData.revenue, label: "Revenue", color: "#7C3AED", area: true },
-                                        { data: revenueData.orders,  label: "Orders",  color: "#06B6D4" },
+                                        {data: revenueTrend.revenue, label: "Revenue (£)", color: accent, area: true, showMark: false},
+                                        {data: revenueTrend.orders, label: "Orders", color: "#06B6D4", showMark: false},
                                     ]}
-                                    slotProps={{
-                                        legend: {
-                                            direction: "row",
-                                            position: { vertical: "top", horizontal: "right" },
-                                        },
-                                    }}
-                                    margin={{ left: 40, right: 20, top: 16, bottom: 32 }}
-                                />
-                            </Box>
-                        </ChartCard>
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <ChartCard title="Sales by Category">
-                            <Box sx={{ overflowX: "auto" }}>
-                                <BarChart
                                     height={chartHeight}
-                                    xAxis={[{
-                                        data: categorySales.map((c) => c.label),
-                                        scaleType: "band",
-                                    }]}
-                                    series={[{
-                                        data: categorySales.map((c) => c.value),
-                                        label: "Sales",
-                                        color: "#F97316",
-                                    }]}
-                                    margin={{ left: 40, right: 10, top: 16, bottom: 40 }}
+                                    margin={{left: 50, right: 20, top: 20, bottom: 30}}
+                                    sx={{"& .MuiAreaElement-root": {fillOpacity: 0.12}}}
                                 />
-                            </Box>
-                        </ChartCard>
-                    </Grid>
-                </Grid>
-
-                {/* Charts row 2 */}
-                <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <ChartCard title="Orders by Status">
-                            <Box sx={{ overflowX: "auto" }}>
-                                <PieChart
-                                    height={isMobile ? 220 : 260}
-                                    series={[{
-                                        data: orderStatusData.map((s, i) => ({
-                                            id: i,
-                                            label: s.label,
-                                            value: s.value,
-                                            color: s.color,
-                                        })),
-                                        innerRadius: 40,
-                                        outerRadius: 90,
-                                        paddingAngle: 2,
-                                    }]}
-                                    slotProps={{
-                                        legend: {
-                                            direction: isTablet ? "row" : "column",
-                                            position: isTablet
-                                                ? { vertical: "bottom", horizontal: "middle" }
-                                                : { vertical: "middle", horizontal: "right" },
-                                        },
-                                    }}
-                                />
-                            </Box>
-                        </ChartCard>
+                            </ChartCard>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 4}}>
+                            <ChartCard title="Orders by Status" subtitle="Distribution breakdown" delay={0.15}>
+                                {pieData.length > 0 ? (
+                                    <PieChart
+                                        series={[{data: pieData, innerRadius: 40, outerRadius: 80, paddingAngle: 3, cornerRadius: 4}]}
+                                        height={isMobile ? 180 : 200}
+                                        margin={{top: 5, bottom: 5, left: 5, right: 5}}
+                                        slotProps={{legend: {hidden: true}}}
+                                    />
+                                ) : (
+                                    <Box sx={{height: 200, display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                        <Typography variant="body2" color="text.secondary">No data</Typography>
+                                    </Box>
+                                )}
+                                <Stack spacing={0.75} sx={{mt: 1}}>
+                                    {pieData.map(d => (
+                                        <Stack key={d.id} direction="row" spacing={1} alignItems="center">
+                                            <Box sx={{width: 8, height: 8, borderRadius: 0, bgcolor: d.color, flexShrink: 0}}/>
+                                            <Typography variant="caption" sx={{textTransform: "capitalize", flex: 1}}>{d.label}</Typography>
+                                            <Typography variant="caption" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 600}}>{d.value}</Typography>
+                                        </Stack>
+                                    ))}
+                                </Stack>
+                            </ChartCard>
+                        </Grid>
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 8 }}>
-                        <ChartCard title="Recent Orders">
-                            <Box sx={{ overflowX: "auto" }}>
-                                <Table size="small" sx={{ minWidth: 480 }}>
+                    {/* Charts Row 2 */}
+                    <Grid container spacing={2.5} sx={{mb: 2.5}}>
+                        <Grid size={{xs: 12, md: 5}}>
+                            <ChartCard title="Monthly Revenue" subtitle="Revenue by month" delay={0.2}>
+                                <BarChart
+                                    xAxis={[{scaleType: "band", data: monthLabels}]}
+                                    series={[{data: monthlyRevenue, label: "Revenue (£)", color: accent}]}
+                                    height={chartHeight}
+                                    margin={{left: 50, right: 10, top: 10, bottom: 30}}
+                                />
+                            </ChartCard>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 7}}>
+                            <ChartCard title="Top Products" subtitle="Best sellers by revenue" delay={0.25}
+                                action={<Link to="/products" style={{textDecoration: "none"}}><Button size="small" variant="outlined" color="secondary" endIcon={<ArrowForward sx={{fontSize: 12}}/>}>All Products</Button></Link>}>
+                                {topProducts.length > 0 ? (
+                                    <Stack spacing={1.5}>
+                                        {topProducts.map((p, i) => (
+                                            <Stack key={i} direction="row" spacing={1.5} alignItems="center">
+                                                <Typography variant="caption" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 700, width: 18, color: i < 3 ? "secondary.main" : "text.secondary"}}>
+                                                    {i + 1}
+                                                </Typography>
+                                                <Avatar variant="rounded" src={p.img} sx={{width: 36, height: 36, bgcolor: "background.default"}}>
+                                                    <InventoryOutlined sx={{fontSize: 16}}/>
+                                                </Avatar>
+                                                <Box sx={{flex: 1, minWidth: 0}}>
+                                                    <Typography variant="body2" sx={{fontWeight: 500}} noWrap>{p.name}</Typography>
+                                                    <Typography variant="caption" color="text.secondary">{p.sales} sold</Typography>
+                                                </Box>
+                                                <Typography variant="body2" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 700, color: "text.green"}}>
+                                                    £{p.revenue.toLocaleString()}
+                                                </Typography>
+                                            </Stack>
+                                        ))}
+                                    </Stack>
+                                ) : (
+                                    <Typography variant="body2" color="text.secondary" sx={{py: 4, textAlign: "center"}}>No product data yet</Typography>
+                                )}
+                            </ChartCard>
+                        </Grid>
+                    </Grid>
+
+                    {/* Bottom Row */}
+                    <Grid container spacing={2.5}>
+                        {/* Recent Orders */}
+                        <Grid size={{xs: 12, md: 8}}>
+                            <ChartCard title="Recent Orders" subtitle="Latest order activity" delay={0.3}
+                                action={<Link to="/orders" style={{textDecoration: "none"}}><Button size="small" variant="outlined" color="secondary" endIcon={<ArrowForward sx={{fontSize: 12}}/>}>All Orders</Button></Link>}>
+                                <Table size="small">
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>#</TableCell>
                                             <TableCell>Order</TableCell>
                                             <TableCell>Customer</TableCell>
-                                            <TableCell>Total</TableCell>
                                             <TableCell>Status</TableCell>
+                                            <TableCell align="right">Total</TableCell>
                                             <TableCell>Date</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {recentOrders.map((order, index) => (
-                                            <TableRow key={order.id}>
+                                        {recentOrders.length === 0 ? (
+                                            <TableRow><TableCell colSpan={5}><Typography variant="body2" color="text.secondary" align="center">No orders</Typography></TableCell></TableRow>
+                                        ) : recentOrders.map(order => (
+                                            <TableRow key={order._id} sx={{"&:hover": {backgroundColor: "action.hover"}}}>
                                                 <TableCell>
-                                                    <Typography variant="caption" color="text.secondary">{index + 1}</Typography>
+                                                    <Link to={`/orders/${order._id}`} style={{textDecoration: "none"}}>
+                                                        <Typography variant="body2" color="secondary.main" sx={{fontWeight: 500}}>{order.number}</Typography>
+                                                    </Link>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>{order.id}</Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2" color="text.secondary">{order.customer}</Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2">{order.total}</Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Chip size="small" label={order.status} sx={statusChipSx(order.status)} />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="caption" color="text.secondary">{order.date}</Typography>
-                                                </TableCell>
+                                                <TableCell><Typography variant="body2">{order.customer?.name || "—"}</Typography></TableCell>
+                                                <TableCell><Chip label={order.status} size="small" color={statusChipColor(order.status)} sx={{textTransform: "capitalize", fontWeight: 500}}/></TableCell>
+                                                <TableCell align="right"><Typography variant="body2" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 600}}>£{Number(order.total?.amount || 0).toFixed(2)}</Typography></TableCell>
+                                                <TableCell><Typography variant="caption" color="text.secondary">{moment(order.createdAt).fromNow()}</Typography></TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
-                            </Box>
-                        </ChartCard>
-                    </Grid>
-                </Grid>
+                            </ChartCard>
+                        </Grid>
 
-            </Container>
+                        {/* Quick Stats + Revenue by Status */}
+                        <Grid size={{xs: 12, md: 4}}>
+                            <Stack spacing={2.5} sx={{height: "100%"}}>
+                                {/* Revenue by Status */}
+                                <ChartCard title="Revenue by Status" delay={0.35}>
+                                    <Stack spacing={1.5}>
+                                        {Object.entries(statusGroups).map(([status, data]) => {
+                                            const pct = totalRevenue > 0 ? (data.total / totalRevenue) * 100 : 0;
+                                            return (
+                                                <Box key={status}>
+                                                    <Stack direction="row" justifyContent="space-between" sx={{mb: 0.5}}>
+                                                        <Typography variant="caption" sx={{textTransform: "capitalize", fontWeight: 500}}>{status}</Typography>
+                                                        <Typography variant="caption" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 600}}>£{data.total.toLocaleString()}</Typography>
+                                                    </Stack>
+                                                    <Box sx={{width: "100%", height: 6, borderRadius: 3, backgroundColor: "divider", overflow: "hidden"}}>
+                                                        <motion.div
+                                                            initial={{width: 0}}
+                                                            animate={{width: `${pct}%`}}
+                                                            transition={{duration: 0.8, delay: 0.5, ease: "easeOut"}}
+                                                            style={{height: "100%", borderRadius: 3, backgroundColor: STATUS_COLORS[status] || "#9CA3AF"}}
+                                                        />
+                                                    </Box>
+                                                </Box>
+                                            );
+                                        })}
+                                    </Stack>
+                                </ChartCard>
+
+                                {/* Quick Links */}
+                                <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{duration: 0.5, delay: 0.4}}>
+                                    <Paper elevation={0} sx={{p: 2.5}}>
+                                        <Typography variant="subtitle2" sx={{fontWeight: 600, mb: 1.5}}>Quick Actions</Typography>
+                                        <Stack spacing={1}>
+                                            {[
+                                                {label: "Add Product", path: "/product/new", icon: <InventoryOutlined sx={{fontSize: 16}}/>},
+                                                {label: "View Customers", path: "/customers", icon: <PeopleOutlined sx={{fontSize: 16}}/>},
+                                                {label: "Manage Coupons", path: "/coupons", icon: <StarOutlined sx={{fontSize: 16}}/>},
+                                                {label: "Payment Gateways", path: "/payment-gateways", icon: <ReceiptOutlined sx={{fontSize: 16}}/>},
+                                            ].map(item => (
+                                                <Link key={item.path} to={item.path} style={{textDecoration: "none"}}>
+                                                    <Stack direction="row" spacing={1.5} alignItems="center" sx={{
+                                                        p: 1, borderRadius: 0, cursor: "pointer",
+                                                        transition: "all 0.2s",
+                                                        "&:hover": {backgroundColor: "light.secondary"},
+                                                    }}>
+                                                        <Box sx={{
+                                                            width: 30, height: 30, borderRadius: 0,
+                                                            backgroundColor: "light.secondary", color: "secondary.main",
+                                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                                        }}>
+                                                            {item.icon}
+                                                        </Box>
+                                                        <Typography variant="body2" sx={{color: "text.primary", fontWeight: 500, flex: 1}}>{item.label}</Typography>
+                                                        <ArrowForward sx={{fontSize: 14, color: "text.secondary"}}/>
+                                                    </Stack>
+                                                </Link>
+                                            ))}
+                                        </Stack>
+                                    </Paper>
+                                </motion.div>
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                </Container>
+            </Box>
         </Layout>
     );
 };

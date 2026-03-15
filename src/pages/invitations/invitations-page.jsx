@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {
     Alert, AlertTitle, Box, Button, Chip, Container, Divider, Grid,
     LinearProgress, Paper, Stack, Table, TableBody, TableCell,
@@ -8,7 +8,9 @@ import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchInvitations, deleteInvitation, selectInvitations} from "../../redux/features/invitations/invitations-slice";
-import {SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined, Add} from "@mui/icons-material";
+import {VisibilityOutlined, EditOutlined, DeleteForeverOutlined, MailOutlined, CheckCircleOutlined, PendingOutlined, CancelOutlined} from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 import moment from "moment";
 
 const statusColor = (s) => {
@@ -27,7 +29,15 @@ const InvitationsPage = () => {
         dispatch(fetchInvitations());
     }, [dispatch]);
 
-    const handleSearch = () => dispatch(fetchInvitations({search: query}));
+    const filteredInvitations = useMemo(() => {
+        if (!Array.isArray(invitations)) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return invitations;
+        return invitations.filter(item =>
+            [item.email, item.role, item.status].join(" ").toLowerCase().includes(q)
+        );
+    }, [invitations, query]);
+
     const handleDelete = async (inv) => {
         if (!window.confirm(`Delete invitation for ${inv.email}? This cannot be undone.`)) return;
         await dispatch(deleteInvitation(inv._id));
@@ -39,31 +49,31 @@ const InvitationsPage = () => {
             <Box sx={{pt: 4, pb: 6}}>
                 {invitationError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{invitationError}</AlertTitle></Alert>}
                 <Container>
-                    <Grid spacing={4} container alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Typography variant="h4" sx={{color: "text.secondary"}}>Invitations</Typography>
-                                </Grid>
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Link to="/invitation/new" style={{textDecoration: "none"}}>
-                                        <Button startIcon={<Add/>} size="small" color="secondary" variant="outlined">Send Invitation</Button>
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                    <PageHeader
+                        title="Invitations"
+                        subtitle="Track and manage admin invitations"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search invitations..."
+                        action={
+                            <Link to="/invitation/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add Invitation</Button>
+                            </Link>
+                        }
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Invitations" value={invitations?.length || 0} icon={<MailOutlined/>} iconColor="secondary" iconBg="secondary" trend={8}/>
                         </Grid>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: 8}}>
-                                    <Stack direction="row" spacing={1} sx={{backgroundColor: "background.paper", p: 1, borderRadius: 2}}>
-                                        <TextField value={query} size="small" placeholder="Search invitations..." onChange={e => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth/>
-                                        <SearchOutlined onClick={handleSearch} sx={{cursor: "pointer", alignSelf: "center"}}/>
-                                    </Stack>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 4}}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={handleSearch}>Search</Button>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Accepted" value={invitations?.filter(i => i.status === "accepted").length || 0} icon={<CheckCircleOutlined/>} iconColor="text.green" iconBg="light.green" trend={6}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Pending" value={invitations?.filter(i => i.status === "pending").length || 0} icon={<PendingOutlined/>} iconColor="text.orange" iconBg="light.orange"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Expired" value={invitations?.filter(i => i.status === "expired").length || 0} icon={<CancelOutlined/>} iconColor="text.red" iconBg="light.red" trend={-3}/>
                         </Grid>
                     </Grid>
                     <Divider sx={{my: 4}}/>
@@ -82,14 +92,14 @@ const InvitationsPage = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {invitations && invitations.length === 0 && (
+                                    {filteredInvitations.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={7}>
                                                 <Typography variant="body2" color="text.secondary" align="center">No invitations found</Typography>
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {invitations && invitations.map((inv, i) => (
+                                    {filteredInvitations.map((inv, i) => (
                                         <TableRow key={inv._id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>
@@ -114,21 +124,21 @@ const InvitationsPage = () => {
                                                     <Tooltip title="View Invitation">
                                                         <Link to={`/invitations/${inv._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Edit Invitation">
                                                         <Link to={`/invitations/${inv._id}/update`} style={{textDecoration: "none"}}>
                                                             <EditOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Invitation">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(inv)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

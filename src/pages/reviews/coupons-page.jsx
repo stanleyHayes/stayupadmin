@@ -96,7 +96,7 @@ const CouponsPage = () => {
                                         }
                                         sx={{
                                             backgroundColor: "background.paper",
-                                            borderRadius: 3,
+                                            borderRadius: 0,
                                             padding: 1,
                                             px: 2
                                         }}
@@ -227,7 +227,7 @@ const CouponsPage = () => {
                                                 fontSize: 36,
                                                 borderWidth: 1,
                                                 borderStyle: "solid",
-                                                borderRadius: '30%',
+                                                borderRadius: 0,
                                                 borderColor: "light.secondary",
                                                 color: "secondary.main",
                                                 backgroundColor: "light.secondary",

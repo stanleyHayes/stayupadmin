@@ -1,5 +1,6 @@
 // src/pages/attributes/CouponsPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
+import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {
     Alert,
@@ -30,9 +31,11 @@ import {
 import { DatePicker } from "@mui/x-date-pickers";
 import moment from "moment";
 import { motion } from "framer-motion";
-import { Close, SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined } from "@mui/icons-material";
+import { Close, VisibilityOutlined, EditOutlined, DeleteForeverOutlined, LocalOfferOutlined, CheckCircleOutlined, TimerOffOutlined, TrendingUpOutlined } from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import Empty from "../../components/shared/empty.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 
 // Redux slice exports (expected)
 import {
@@ -157,60 +160,33 @@ const CouponsPage = () => {
                 )}
 
                 <Container>
-                    <Grid container spacing={4} alignItems="center" justifyContent="space-between">
-                        <Grid item size={{ xs: 12, md: "auto" }}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid item size={{ xs: 12, md: "auto" }}>
-                                    <Typography variant="h4" sx={{ color: "text.secondary" }}>Coupons</Typography>
-                                </Grid>
-                                <Grid item size={{ xs: 12, md: "auto" }}>
-                                    <Button
-                                        size="small"
-                                        color="secondary"
-                                        variant="outlined"
-                                        onClick={handleOpenCreate}
-                                        fullWidth
-                                    >
-                                        Create Coupon
-                                    </Button>
-                                </Grid>
-                            </Grid>
+                    <PageHeader
+                        title="Coupons"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search coupons..."
+                        action={
+                            <Link to="/coupon/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add Coupon</Button>
+                            </Link>
+                        }
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Coupons" value={coupons?.length || 0} icon={<LocalOfferOutlined/>} iconColor="secondary" iconBg="secondary" trend={10}/>
                         </Grid>
-
-                        <Grid item size={{ xs: 12, md: "auto" }}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid item size={{ xs: 12, md: 8 }}>
-                                    <Stack
-                                        divider={<Divider sx={{ color: "light.secondary", backgroundColor: "light.secondary" }} flexItem variant="inset" light orientation="vertical" />}
-                                        sx={{ backgroundColor: "background.paper", borderRadius: 3, padding: 1, px: 2 }}
-                                        spacing={2}
-                                        alignItems="center"
-                                        direction="row"
-                                    >
-                                        <TextField
-                                            value={query}
-                                            size="small"
-                                            onChange={e => setQuery(e.target.value)}
-                                            fullWidth
-                                            variant="standard"
-                                            type="text"
-                                            placeholder="Search attributes by code, description, email..."
-                                            slotProps={{ input: { disableUnderline: true } }}
-                                        />
-                                        <SearchOutlined sx={{ color: "background.icon" }} color="secondary" />
-                                    </Stack>
-                                </Grid>
-
-                                <Grid item size={{ xs: 12, md: 4 }}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={() => {}}>
-                                        Search
-                                    </Button>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Active" value={coupons?.filter(c => !c.is_deleted && (c.status || "ACTIVE") === "ACTIVE").length || 0} icon={<CheckCircleOutlined/>} iconColor="text.green" iconBg="light.green" trend={8}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Expired" value={coupons?.filter(c => c.date_expires && new Date(c.date_expires) < new Date()).length || 0} icon={<TimerOffOutlined/>} iconColor="text.red" iconBg="light.red"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Usage" value={coupons ? coupons.reduce((sum, c) => sum + Number(c.usage_count || 0), 0) : 0} icon={<TrendingUpOutlined/>} iconColor="text.blue" iconBg="light.blue" trend={22}/>
                         </Grid>
                     </Grid>
-
-                    <Divider variant="fullWidth" sx={{ my: 4 }} />
 
                     <Grid container spacing={2} alignItems="center">
                         <Grid size={{xs: 12, md: 3}}>
@@ -267,7 +243,7 @@ const CouponsPage = () => {
                                                 fontSize: 36,
                                                 borderWidth: 1,
                                                 borderStyle: "solid",
-                                                borderRadius: "25%",
+                                                borderRadius: 0,
                                                 borderColor: "light.secondary",
                                                 color: "secondary.main",
                                                 backgroundColor: "light.secondary",
@@ -319,19 +295,19 @@ const CouponsPage = () => {
                                                     <Tooltip title="View Coupon">
                                                         <VisibilityOutlined
                                                             onClick={() => handleOpenView(c)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Edit Coupon">
                                                         <EditOutlined
                                                             onClick={() => handleOpenEdit(c)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Delete Coupon">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(c)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

@@ -8,7 +8,9 @@ import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchUsers, deleteUser, selectUsers} from "../../redux/features/users/users-slice";
-import {SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined, Add} from "@mui/icons-material";
+import {VisibilityOutlined, EditOutlined, DeleteForeverOutlined, PeopleOutlined, PersonAddOutlined, PersonOffOutlined, HowToRegOutlined} from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 import moment from "moment";
 
 const UsersPage = () => {
@@ -32,31 +34,31 @@ const UsersPage = () => {
             <Box sx={{pt: 4, pb: 6}}>
                 {userError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{userError}</AlertTitle></Alert>}
                 <Container>
-                    <Grid spacing={4} container alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Typography variant="h4" sx={{color: "text.secondary"}}>Users</Typography>
-                                </Grid>
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Link to="/user/new" style={{textDecoration: "none"}}>
-                                        <Button startIcon={<Add/>} size="small" color="secondary" variant="outlined">Add User</Button>
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                    <PageHeader
+                        title="Users"
+                        subtitle="View and manage registered users"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search users..."
+                        action={
+                            <Link to="/user/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add User</Button>
+                            </Link>
+                        }
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Users" value={users?.length || 0} icon={<PeopleOutlined/>} iconColor="secondary" iconBg="secondary" trend={12}/>
                         </Grid>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: 8}}>
-                                    <Stack direction="row" spacing={1} sx={{backgroundColor: "background.paper", p: 1, borderRadius: 2}}>
-                                        <TextField value={query} size="small" placeholder="Search users..." onChange={e => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth/>
-                                        <SearchOutlined onClick={handleSearch} sx={{cursor: "pointer", alignSelf: "center"}}/>
-                                    </Stack>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 4}}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={handleSearch}>Search</Button>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Active" value={users?.filter(u => (u.status || "ACTIVE") === "ACTIVE").length || 0} icon={<HowToRegOutlined/>} iconColor="text.green" iconBg="light.green" trend={10}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Inactive" value={users?.filter(u => u.status === "INACTIVE").length || 0} icon={<PersonOffOutlined/>} iconColor="text.orange" iconBg="light.orange" trend={-2}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="New (30 days)" value={users?.filter(u => u.created_at && new Date(u.created_at) > new Date(Date.now() - 30*24*60*60*1000)).length || 0} icon={<PersonAddOutlined/>} iconColor="text.blue" iconBg="light.blue" trend={20}/>
                         </Grid>
                     </Grid>
                     <Divider sx={{my: 4}}/>
@@ -110,21 +112,21 @@ const UsersPage = () => {
                                                     <Tooltip title="View User">
                                                         <Link to={`/users/${user._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Edit User">
                                                         <Link to={`/users/${user._id}/update`} style={{textDecoration: "none"}}>
                                                             <EditOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete User">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(user)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

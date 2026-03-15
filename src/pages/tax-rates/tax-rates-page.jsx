@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {
     Alert, AlertTitle, Box, Button, Container, Divider, Grid,
     LinearProgress, Paper, Stack, Table, TableBody, TableCell,
@@ -8,7 +8,9 @@ import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchTaxRates, deleteTaxRate, selectTaxRates} from "../../redux/features/tax-rates/tax-rates-slice";
-import {SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined, Add} from "@mui/icons-material";
+import {VisibilityOutlined, EditOutlined, DeleteForeverOutlined, ReceiptOutlined, PercentOutlined, PublicOutlined, CheckCircleOutlined} from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 
 const TaxRatesPage = () => {
     const dispatch = useDispatch();
@@ -17,7 +19,15 @@ const TaxRatesPage = () => {
 
     useEffect(() => { dispatch(fetchTaxRates()); }, [dispatch]);
 
-    const handleSearch = () => dispatch(fetchTaxRates({search: query}));
+    const filteredTaxRates = useMemo(() => {
+        if (!Array.isArray(taxRates)) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return taxRates;
+        return taxRates.filter(item =>
+            [item.country, item.state, item.name, item.rate].join(" ").toLowerCase().includes(q)
+        );
+    }, [taxRates, query]);
+
     const handleDelete = async (rate) => {
         if (!window.confirm(`Delete tax rate "${rate.name}"? This cannot be undone.`)) return;
         await dispatch(deleteTaxRate(rate._id));
@@ -29,31 +39,30 @@ const TaxRatesPage = () => {
             <Box sx={{pt: 4, pb: 6}}>
                 {taxRateError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{taxRateError}</AlertTitle></Alert>}
                 <Container>
-                    <Grid spacing={4} container alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Typography variant="h4" sx={{color: "text.secondary"}}>Tax Rates</Typography>
-                                </Grid>
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Link to="/tax-rate/new" style={{textDecoration: "none"}}>
-                                        <Button startIcon={<Add/>} size="small" color="secondary" variant="outlined">Add Tax Rate</Button>
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                    <PageHeader
+                        title="Tax Rates"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search tax rates..."
+                        action={
+                            <Link to="/tax-rate/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add Tax Rate</Button>
+                            </Link>
+                        }
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Tax Rates" value={taxRates?.length || 0} icon={<ReceiptOutlined/>} iconColor="secondary" iconBg="secondary"/>
                         </Grid>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: 8}}>
-                                    <Stack direction="row" spacing={1} sx={{backgroundColor: "background.paper", p: 1, borderRadius: 2}}>
-                                        <TextField value={query} size="small" placeholder="Search tax rates..." onChange={e => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth/>
-                                        <SearchOutlined onClick={handleSearch} sx={{cursor: "pointer", alignSelf: "center"}}/>
-                                    </Stack>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 4}}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={handleSearch}>Search</Button>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Avg Rate" value={taxRates?.length > 0 ? (taxRates.reduce((s, t) => s + Number(t.rate || 0), 0) / taxRates.length).toFixed(1) + "%" : "0%"} icon={<PercentOutlined/>} iconColor="text.blue" iconBg="light.blue"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Countries" value={new Set(taxRates?.map(t => t.country).filter(Boolean) || []).size} icon={<PublicOutlined/>} iconColor="text.green" iconBg="light.green"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Active" value={taxRates?.filter(t => t.status !== "inactive").length || 0} icon={<CheckCircleOutlined/>} iconColor="text.orange" iconBg="light.orange"/>
                         </Grid>
                     </Grid>
                     <Divider sx={{my: 4}}/>
@@ -74,14 +83,14 @@ const TaxRatesPage = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {taxRates && taxRates.length === 0 && (
+                                    {filteredTaxRates.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={9}>
                                                 <Typography variant="body2" color="text.secondary" align="center">No tax rates found</Typography>
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {taxRates && taxRates.map((rate, i) => (
+                                    {filteredTaxRates.map((rate, i) => (
                                         <TableRow key={rate._id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell><Typography variant="body2">{rate.name || "—"}</Typography></TableCell>
@@ -96,21 +105,21 @@ const TaxRatesPage = () => {
                                                     <Tooltip title="View Tax Rate">
                                                         <Link to={`/tax-rates/${rate._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Edit Tax Rate">
                                                         <Link to={`/tax-rates/${rate._id}/update`} style={{textDecoration: "none"}}>
                                                             <EditOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Tax Rate">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(rate)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

@@ -17,7 +17,7 @@ const ConfirmDialog = ({ open, handleDelete, handleClose, message }) => {
                         sx={{
                             padding: 1.5,
                             fontSize: 40,
-                            borderRadius: "25%",
+                            borderRadius: 0,
                             color: "text.red",
                             backgroundColor: "light.red",
                         }}

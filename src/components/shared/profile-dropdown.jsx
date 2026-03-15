@@ -1,21 +1,54 @@
-import {Avatar, Divider, Menu, Stack, Typography} from "@mui/material";
-import {useSelector} from "react-redux";
-import {selectAuth} from "../../redux/features/authentication/authentication-slice";
+import {Avatar, Box, Chip, Divider, Menu, Stack, Typography} from "@mui/material";
+import {useDispatch, useSelector} from "react-redux";
+import {selectAuth, logout} from "../../redux/features/authentication/authentication-slice";
 import {
-    Article, ArticleOutlined,
-    ContactPage,
-    ContactPageOutlined,
-    Edit,
-    EditOutlined, Info,
-    InfoOutlined,
-    KeyboardArrowDown, Lock,
-    LockOutlined, Shield, ShieldOutlined
+    EditOutlined, LockOutlined, PersonOutlined, LogoutOutlined,
+    KeyboardArrowDown, SettingsOutlined, HelpOutlineOutlined
 } from "@mui/icons-material";
 import React, {useState} from "react";
-import DropdownLink from "./dropdown-link.jsx";
-import {Link, useLocation} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+
+const MenuItem = ({icon, label, path, subtitle, active, onClick}) => (
+    <Box
+        onClick={onClick}
+        sx={{
+            borderRadius: 0, p: 1, cursor: "pointer",
+            backgroundColor: active ? "light.secondary" : "transparent",
+            transition: "all 0.15s ease",
+            "&:hover": {backgroundColor: "light.secondary"}
+        }}>
+        <Link to={path} style={{textDecoration: "none", display: "block"}}>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+                <Box sx={{
+                    width: 34, height: 34, borderRadius: 0, display: "flex",
+                    alignItems: "center", justifyContent: "center",
+                    backgroundColor: active ? "light.secondary" : "background.default",
+                    color: active ? "secondary.main" : "text.secondary",
+                    transition: "all 0.15s ease"
+                }}>
+                    {React.cloneElement(icon, {sx: {fontSize: 18}})}
+                </Box>
+                <Box sx={{flex: 1}}>
+                    <Typography variant="body2" sx={{
+                        fontWeight: active ? 600 : 500, fontSize: 13,
+                        color: active ? "secondary.main" : "text.primary"
+                    }}>
+                        {label}
+                    </Typography>
+                    {subtitle && (
+                        <Typography variant="caption" sx={{color: "text.secondary", fontSize: 11, lineHeight: 1.2}}>
+                            {subtitle}
+                        </Typography>
+                    )}
+                </Box>
+            </Stack>
+        </Link>
+    </Box>
+);
 
 const ProfileDropdown = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const {user} = useSelector(selectAuth);
     const [menuOpen, setMenuOpen] = useState(false);
     const [anchorElement, setAnchorElement] = useState(null);
@@ -24,245 +57,172 @@ const ProfileDropdown = () => {
     const handleMenuClose = () => {
         setMenuOpen(false);
         setAnchorElement(null);
-    }
+    };
 
     const handleMenuOpen = event => {
         setMenuOpen(true);
         setAnchorElement(event.currentTarget);
-    }
+    };
+
+    const initials = user?.firstName && user?.lastName
+        ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+        : "AD";
 
     return (
         <React.Fragment>
             <Stack
-                direction="row" alignItems="center" spacing={2}>
-                <Avatar src={user.image} variant="circular" sx={{}}/>
-                <Stack>
-                    <Typography
-                        variant="body2"
-                        sx={{color: "text.primary"}}>
-                        {`${user.firstName} ${user.lastName}`}
-                    </Typography>
-                    <Typography
-                        variant="body2"
-                        sx={{color: "secondary.main", fontWeight: 500, fontSize: 10}}>
-                        @{user.username}
-                    </Typography>
-                </Stack>
-                <KeyboardArrowDown sx={{cursor: "pointer", color: "background.icon"}} onClick={handleMenuOpen}/>
-            </Stack>
-            <Menu
+                direction="row" alignItems="center" spacing={1.5}
+                onClick={handleMenuOpen}
                 sx={{
-                    backgroundColor: "rgba(0, 0, 0, 0.35)",
-                    backdropFilter: "blur(5px)"
-                }}
+                    cursor: "pointer", borderRadius: 0, p: 0.75, pr: 1.5,
+                    transition: "all 0.15s ease",
+                    "&:hover": {backgroundColor: "light.secondary"}
+                }}>
+                <Avatar
+                    src={user?.image}
+                    sx={{
+                        width: 36, height: 36, fontSize: 14, fontWeight: 700,
+                        bgcolor: "secondary.main", color: "#fff"
+                    }}>
+                    {initials}
+                </Avatar>
+                <Box sx={{display: {xs: "none", md: "block"}}}>
+                    <Typography variant="body2" sx={{fontWeight: 600, fontSize: 13, lineHeight: 1.3, color: "text.primary"}}>
+                        {`${user?.firstName} ${user?.lastName}`}
+                    </Typography>
+                    <Typography variant="caption" sx={{color: "text.secondary", fontSize: 11}}>
+                        {user?.role || "Admin"}
+                    </Typography>
+                </Box>
+                <KeyboardArrowDown sx={{
+                    fontSize: 18, color: "text.secondary",
+                    transition: "transform 0.2s",
+                    transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)"
+                }}/>
+            </Stack>
+
+            <Menu
                 anchorEl={anchorElement}
-                anchorOrigin={{horizontal: "left", vertical: "top"}}
+                anchorOrigin={{horizontal: "right", vertical: "bottom"}}
+                transformOrigin={{horizontal: "right", vertical: "top"}}
                 onClose={handleMenuClose}
                 open={menuOpen}
-                variant="menu">
-                <Stack
-                    divider={<Divider variant="fullWidth" light={true}/>}
-                    direction="column"
-                    spacing={1}
-                    sx={{padding: 1}}>
-                    <Link to="/profile" style={{textDecoration: "none", display: "block", width: "100%"}}>
-                        <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar src={user.image} variant="circular" sx={{}}/>
-                            <Stack spacing={1}>
-                                <Typography
-                                    variant="body2"
-                                    sx={{color: "text.primary"}}>
-                                    {`${user.firstName} ${user.lastName}`}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            mt: 1, borderRadius: 0, minWidth: 260, p: 1,
+                            boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
+                            border: "1px solid", borderColor: "divider"
+                        }
+                    }
+                }}>
+
+                {/* Profile Header */}
+                <Link to="/profile" onClick={handleMenuClose} style={{textDecoration: "none", display: "block"}}>
+                    <Stack direction="row" spacing={1.5} alignItems="center" sx={{
+                        p: 1.5, borderRadius: 0, mb: 0.5,
+                        transition: "all 0.15s", "&:hover": {backgroundColor: "light.secondary"}
+                    }}>
+                        <Avatar
+                            src={user?.image}
+                            sx={{
+                                width: 44, height: 44, fontSize: 16, fontWeight: 700,
+                                bgcolor: "secondary.main", color: "#fff"
+                            }}>
+                            {initials}
+                        </Avatar>
+                        <Box sx={{flex: 1}}>
+                            <Stack direction="row" spacing={0.75} alignItems="center">
+                                <Typography variant="body2" sx={{fontWeight: 600, color: "text.primary"}}>
+                                    {`${user?.firstName} ${user?.lastName}`}
                                 </Typography>
-                                <Typography
-                                    variant="body2"
-                                    sx={{color: "text.secondary", fontSize: 10}}>
-                                    View Profile
-                                </Typography>
+                                <Chip label={user?.role || "Admin"} size="small" color="secondary" sx={{height: 18, fontSize: 9, fontWeight: 700}}/>
                             </Stack>
-                        </Stack>
-                    </Link>
-                    <DropdownLink
-                        icon={
-                            pathname === "/profile/update" ?
-                                (
-                                    <Edit
-                                        sx={{
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.default",
-                                            padding: 1,
-                                            fontSize: 36,
-                                        }}
-                                        color="secondary"/>
-                                ) :
-                                (
-                                    <EditOutlined
-                                        sx={{
-                                            padding: 1,
-                                            fontSize: 36,
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.icon",
-                                            color: "background.icon"
-                                        }}/>
-                                )
-                        }
-                        label="Update Profile"
-                        path="/profile/update"
+                            <Typography variant="caption" sx={{color: "text.secondary", fontSize: 11}}>
+                                {user?.email || `@${user?.username}`}
+                            </Typography>
+                        </Box>
+                    </Stack>
+                </Link>
+
+                <Divider sx={{my: 0.75}}/>
+
+                {/* Account Links */}
+                <Stack spacing={0.5} sx={{py: 0.5}}>
+                    <MenuItem
+                        icon={<PersonOutlined/>}
+                        label="View Profile"
+                        subtitle="View your account details"
+                        path="/profile"
+                        active={pathname === "/profile"}
+                        onClick={handleMenuClose}
                     />
-                    <DropdownLink
-                        icon={
-                            pathname === "/update-password" ?
-                                (
-                                    <Lock
-                                        sx={{
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.default",
-                                            padding: 1,
-                                            fontSize: 36,
-                                        }}
-                                        color="secondary"/>
-                                ) :
-                                (
-                                    <LockOutlined
-                                        sx={{
-                                            padding: 1,
-                                            fontSize: 36,
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.icon",
-                                            color: "background.icon"
-                                        }}/>
-                                )
-                        }
-                        label="Update Password" path="/update-password"/>
-                    <DropdownLink
-                        icon={
-                            pathname === "/us" ?
-                                (
-                                    <Info
-                                        sx={{
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.default",
-                                            padding: 1,
-                                            fontSize: 36,
-                                        }}
-                                        color="secondary"/>
-                                ) :
-                                (
-                                    <InfoOutlined
-                                        sx={{
-                                            padding: 1,
-                                            fontSize: 36,
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.icon",
-                                            color: "background.icon"
-                                        }}/>
-                                )
-                        }
-                        label="About Us" path="/us"/>
-                    <DropdownLink
-                        icon={
-                            pathname === "/contact" ?
-                                (
-                                    <ContactPage
-                                        sx={{
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.default",
-                                            padding: 1,
-                                            fontSize: 36,
-                                        }}
-                                        color="secondary"/>
-                                ) :
-                                (
-                                    <ContactPageOutlined
-                                        sx={{
-                                            padding: 1,
-                                            fontSize: 36,
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.icon",
-                                            color: "background.icon"
-                                        }}/>
-                                )
-                        }
-                        label="Contact Us" path="/contact"/>
-                    <DropdownLink
-                        icon={
-                            pathname === "/terms" ?
-                                (
-                                    <Article
-                                        sx={{
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.default",
-                                            padding: 1,
-                                            fontSize: 36,
-                                        }}
-                                        color="secondary"/>
-                                ) :
-                                (
-                                    <ArticleOutlined
-                                        sx={{
-                                            padding: 1,
-                                            fontSize: 36,
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.icon",
-                                            color: "background.icon"
-                                        }}/>
-                                )
-                        }
-                        label="Terms" path="/terms"/>
-                    <DropdownLink
-                        icon={
-                            pathname === "/privacy" ?
-                                (
-                                    <Shield
-                                        sx={{
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.default",
-                                            padding: 1,
-                                            fontSize: 36,
-                                        }}
-                                        color="secondary"/>
-                                ) :
-                                (
-                                    <ShieldOutlined
-                                        sx={{
-                                            padding: 1,
-                                            fontSize: 36,
-                                            borderWidth: 1,
-                                            borderStyle: "solid",
-                                            borderRadius: '25%',
-                                            borderColor: "light.icon",
-                                            color: "background.icon"
-                                        }}
-                                    />
-                                )
-                        }
-                        label="Privacy" path="/privacy"/>
+                    <MenuItem
+                        icon={<EditOutlined/>}
+                        label="Edit Profile"
+                        subtitle="Update your personal info"
+                        path="/profile/update"
+                        active={pathname === "/profile/update"}
+                        onClick={handleMenuClose}
+                    />
+                    <MenuItem
+                        icon={<LockOutlined/>}
+                        label="Change Password"
+                        subtitle="Update your security credentials"
+                        path="/change-password"
+                        active={pathname === "/change-password"}
+                        onClick={handleMenuClose}
+                    />
                 </Stack>
+
+                <Divider sx={{my: 0.75}}/>
+
+                {/* Info Links */}
+                <Stack spacing={0.5} sx={{py: 0.5}}>
+                    <MenuItem
+                        icon={<SettingsOutlined/>}
+                        label="Settings"
+                        subtitle="App preferences"
+                        path="/settings"
+                        active={pathname === "/settings"}
+                        onClick={handleMenuClose}
+                    />
+                    <MenuItem
+                        icon={<HelpOutlineOutlined/>}
+                        label="Help & Support"
+                        subtitle="FAQ, contact, and more"
+                        path="/help"
+                        active={pathname === "/help"}
+                        onClick={handleMenuClose}
+                    />
+                </Stack>
+
+                <Divider sx={{my: 0.75}}/>
+
+                {/* Logout */}
+                <Box
+                    onClick={() => { handleMenuClose(); dispatch(logout()); navigate("/auth/login"); }}
+                    sx={{
+                        borderRadius: 0, p: 1, cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        "&:hover": {backgroundColor: "light.red"}
+                    }}>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Box sx={{
+                            width: 34, height: 34, borderRadius: 0, display: "flex",
+                            alignItems: "center", justifyContent: "center",
+                            backgroundColor: "light.red", color: "text.red"
+                        }}>
+                            <LogoutOutlined sx={{fontSize: 18}}/>
+                        </Box>
+                        <Typography variant="body2" sx={{fontWeight: 500, fontSize: 13, color: "text.red"}}>
+                            Sign Out
+                        </Typography>
+                    </Stack>
+                </Box>
             </Menu>
         </React.Fragment>
-    )
-}
+    );
+};
 
 export default ProfileDropdown;

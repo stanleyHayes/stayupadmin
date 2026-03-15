@@ -7,7 +7,8 @@ import {
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchShippingClasses, createShippingClass, deleteShippingClass, selectShippingClasses} from "../../redux/features/shipping-classes/shipping-classes-slice";
-import {DeleteForeverOutlined} from "@mui/icons-material";
+import {DeleteForeverOutlined, LocalShippingOutlined, CategoryOutlined, AttachMoneyOutlined} from "@mui/icons-material";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 
 const ShippingClassesPage = () => {
     const dispatch = useDispatch();
@@ -50,6 +51,17 @@ const ShippingClassesPage = () => {
                             </Button>
                         </Grid>
                     </Grid>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Total Classes" value={shippingClasses?.length || 0} icon={<LocalShippingOutlined/>} iconColor="secondary" iconBg="secondary"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="With Description" value={shippingClasses?.filter(s => s.description).length || 0} icon={<CategoryOutlined/>} iconColor="text.blue" iconBg="light.blue"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Active" value={shippingClasses?.length || 0} icon={<AttachMoneyOutlined/>} iconColor="text.green" iconBg="light.green"/>
+                        </Grid>
+                    </Grid>
                     <Divider sx={{my: 4}}/>
                     <Paper elevation={0}>
                         <TableContainer>
@@ -88,7 +100,7 @@ const ShippingClassesPage = () => {
                                                             fontSize: 28,
                                                             borderWidth: 1,
                                                             borderStyle: "solid",
-                                                            borderRadius: "25%",
+                                                            borderRadius: 0,
                                                             borderColor: "light.red",
                                                             color: "text.red",
                                                             backgroundColor: "light.red",

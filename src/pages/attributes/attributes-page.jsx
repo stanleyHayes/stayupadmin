@@ -1,14 +1,17 @@
 // src/pages/attributes/AttributesPage.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Layout from "../../components/shared/layout.jsx";
 import {
     Box, Button, Container, Divider, Grid, LinearProgress, Paper, Stack,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography
 } from "@mui/material";
+import {Link} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAttributes, selectAttributes, deleteAttribute, fetchAttribute } from "../../redux/features/attributes/attributes-slice";
 
-import { SearchOutlined, VisibilityOutlined, EditOutlined, DeleteForeverOutlined } from "@mui/icons-material";
+import { VisibilityOutlined, EditOutlined, DeleteForeverOutlined, AccountTreeOutlined, ListAltOutlined, TuneOutlined } from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 import CreateAttributeDialog from "../../components/dialogs/create-attribute-dialog.jsx";
 import ViewAttributeDialog from "../../components/dialogs/view-attribute-dialog.jsx";
 import UpdateAttributeDialog from "../../components/dialogs/update-attribute-dialog.jsx";
@@ -26,7 +29,14 @@ const AttributesPage = () => {
         dispatch(fetchAttributes());
     }, [dispatch]);
 
-    const handleSearch = () => dispatch(fetchAttributes({ search: query }));
+    const filteredAttributes = useMemo(() => {
+        if (!Array.isArray(attributes)) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return attributes;
+        return attributes.filter(item =>
+            [item.name, item.slug].join(" ").toLowerCase().includes(q)
+        );
+    }, [attributes, query]);
 
     const openView = async (a) => {
         setActiveAttr(a);
@@ -50,30 +60,28 @@ const AttributesPage = () => {
             {loading && <LinearProgress variant="query" color="secondary" />}
             <Box sx={{ pt: 4, pb: 6 }}>
                 <Container>
-                    <Grid spacing={4} container={true} alignItems="center" justifyContent="space-between">
-                        <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                            <Grid container={true} spacing={2} alignItems="center">
-                                <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                                    <Typography variant="h4" sx={{ color: "text.secondary" }}>Product attributes</Typography>
-                                </Grid>
-                                <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                                    <Button size="small" color="secondary" variant="outlined" onClick={() => setCreateOpen(true)}>Add attribute</Button>
-                                </Grid>
-                            </Grid>
-                        </Grid>
+                    <PageHeader
+                        title="Attributes"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search attributes..."
+                        action={
+                            <Link to="/attribute/new" style={{textDecoration: "none"}}>
+                                <Button size="small" color="secondary" variant="contained">Add Attribute</Button>
+                            </Link>
+                        }
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
 
-                        <Grid item={true} size={{ xs: 12, md: "auto" }}>
-                            <Grid container={true} spacing={2} alignItems="center">
-                                <Grid item={true} size={{ xs: 12, md: 8 }}>
-                                    <Stack direction="row" spacing={1} sx={{ backgroundColor: "background.paper", p: 1, borderRadius: 2 }}>
-                                        <TextField value={query} size="small" placeholder="Search attributes..." onChange={(e) => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth />
-                                        <SearchOutlined onClick={handleSearch} sx={{ cursor: "pointer", alignSelf: "center" }} />
-                                    </Stack>
-                                </Grid>
-                                <Grid item={true} size={{ xs: 12, md: 4 }}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={handleSearch}>Search</Button>
-                                </Grid>
-                            </Grid>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Total Attributes" value={attributes?.length || 0} icon={<AccountTreeOutlined fontSize="small"/>} iconColor="secondary.main" iconBg="light.secondary" trend={6}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Select Type" value={attributes?.filter(a => a.type === "select").length || 0} icon={<ListAltOutlined fontSize="small"/>} iconColor="text.blue" iconBg="light.blue"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Color Type" value={attributes?.filter(a => a.type === "color").length || 0} icon={<TuneOutlined fontSize="small"/>} iconColor="text.orange" iconBg="light.orange"/>
                         </Grid>
                     </Grid>
 
@@ -95,13 +103,13 @@ const AttributesPage = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {attributes && attributes.length === 0 && (
+                                    {filteredAttributes.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={8}><Typography variant="body2" color="text.secondary" align="center">No attributes available</Typography></TableCell>
                                         </TableRow>
                                     )}
 
-                                    {attributes && attributes.map((a, i) => (
+                                    {filteredAttributes.map((a, i) => (
                                         <TableRow key={a.id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>{a.name}</TableCell>
@@ -115,19 +123,19 @@ const AttributesPage = () => {
                                                     <Tooltip title="View Attribute">
                                                         <VisibilityOutlined
                                                             onClick={() => openView(a)}
-                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer" }}
+                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer" }}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Edit Attribute">
                                                         <EditOutlined
                                                             onClick={() => openEdit(a)}
-                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer" }}
+                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer" }}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Delete Attribute">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(a)}
-                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer" }}
+                                                            sx={{ padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer" }}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

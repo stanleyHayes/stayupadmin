@@ -4,6 +4,7 @@ import {DeleteForeverOutlined, EditOutlined, Verified, VisibilityOutlined} from 
 import {Link} from "react-router-dom";
 import ConfirmDialog from "./confirm-dialog.jsx";
 import CustomerQuickView from "./customer-quick-view.jsx";
+import {motion} from "framer-motion";
 
 const Customer = ({customer, index}) => {
 
@@ -20,7 +21,13 @@ const Customer = ({customer, index}) => {
 
     return (
         <React.Fragment>
-            <TableRow>
+            <TableRow
+                component={motion.tr}
+                initial={{opacity: 0, y: 10}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.3, delay: Math.min(index * 0.04, 0.5), ease: "easeOut"}}
+                sx={{"&:hover": {backgroundColor: "action.hover"}}}
+            >
                 <TableCell>
                     <Tooltip title={`Detailed view of order ${customer.name}`}>
                         <Link to={`/customers/${customer._id}`} style={{textDecoration: "none"}}>
@@ -94,11 +101,13 @@ const Customer = ({customer, index}) => {
                                     fontSize: 28,
                                     borderWidth: 1,
                                     borderStyle: "solid",
-                                    borderRadius: '25%',
+                                    borderRadius: 0,
                                     borderColor: "light.green",
                                     color: "text.green",
                                     backgroundColor: "light.green",
-                                    cursor: "pointer"
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease",
+                                    "&:hover": {transform: "scale(1.15)"},
                                 }}
                             />
                         </Tooltip>
@@ -110,7 +119,7 @@ const Customer = ({customer, index}) => {
                                         fontSize: 28,
                                         borderWidth: 1,
                                         borderStyle: "solid",
-                                        borderRadius: '25%',
+                                        borderRadius: 0,
                                         borderColor: "light.secondary",
                                         color: "secondary.main",
                                         backgroundColor: "light.secondary",
@@ -127,11 +136,13 @@ const Customer = ({customer, index}) => {
                                     fontSize: 28,
                                     borderWidth: 1,
                                     borderStyle: "solid",
-                                    borderRadius: '25%',
+                                    borderRadius: 0,
                                     borderColor: "light.red",
                                     color: "text.red",
                                     backgroundColor: "light.red",
-                                    cursor: "pointer"
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease",
+                                    "&:hover": {transform: "scale(1.15)"},
                                 }}
                             />
                         </Tooltip>

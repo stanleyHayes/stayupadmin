@@ -1,123 +1,96 @@
-import {Badge, Box, CardMedia, Grid, Stack, Toolbar, Typography} from "@mui/material";
+import {Avatar, Badge, Box, CardMedia, Stack, Toolbar, Typography} from "@mui/material";
 import {AnimatePresence, motion} from "framer-motion";
 import {DarkModeOutlined, LightModeOutlined, Menu, NotificationsOutlined} from "@mui/icons-material";
 import {selectUI, UI_ACTION_CREATORS} from "../../redux/features/ui/ui-slice";
-import logo from "../../assets/images/logo/logo_text.png";
+import {selectAuth} from "../../redux/features/authentication/authentication-slice";
+import logo from "../../assets/images/logo/logo_image.png";
 import {useDispatch, useSelector} from "react-redux";
-import React from "react";
 import {Link} from "react-router-dom";
 
-const MobileHeader = () => {
+const iconBtn = {
+    padding: 0.6,
+    fontSize: 28,
+    borderRadius: 0,
+    color: "text.secondary",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    "&:hover": {
+        backgroundColor: "light.secondary",
+        color: "secondary.main",
+    },
+};
 
+const MobileHeader = () => {
     const dispatch = useDispatch();
     const {theme} = useSelector(selectUI);
+    const {user} = useSelector(selectAuth);
+
+    const initials = user?.firstName && user?.lastName
+        ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "AD";
 
     return (
         <Toolbar
-            variant="regular"
+            variant="dense"
             sx={{
-                backgroundColor: "background.transparent",
-                backdropFilter: "blur(35.5px)",
+                backgroundColor: theme === "dark" ? "rgba(15,23,42,0.9)" : "rgba(255,255,255,0.9)",
+                backdropFilter: "blur(20px)",
                 borderBottomWidth: 1,
                 borderBottomStyle: "solid",
                 borderBottomColor: "divider",
-                position: "fixed", top: 0, right: 0, left: 0, width: '100%'
+                position: "fixed", top: 0, right: 0, left: 0, width: "100%",
+                zIndex: 1100,
+                px: 2,
+                minHeight: "52px !important",
             }}>
-            <Grid sx={{width: '100%'}} container={true} justifyContent="space-between" alignItems="center">
-                <Grid size={{xs: 'auto'}}>
-                    <Stack spacing={3} direction="row" alignItems="center">
-                        <Link to="/" style={{textDecoration: "none"}}>
-                            <CardMedia
-                                component="img"
-                                sx={{width: 50, height: 50, objectFit: "contain"}}
-                                alt="Logo"
-                                src={logo}
-                            />
-                        </Link>
-                    </Stack>
-                </Grid>
-                <Grid size={{xs: 'auto'}}>
+            <Stack sx={{width: "100%"}} direction="row" justifyContent="space-between" alignItems="center">
+                {/* Left — Logo + Brand */}
+                <Link to="/" style={{textDecoration: "none"}}>
                     <Stack direction="row" spacing={1} alignItems="center">
-                        <Badge badgeContent={5} variant="dot" max={10} color="secondary">
-                            <NotificationsOutlined
-                                sx={{
-                                    padding: 0.5,
-                                    fontSize: 32,
-                                    borderWidth: 1,
-                                    borderStyle: "solid",
-                                    borderRadius: '25%',
-                                    borderColor: "light.secondary",
-                                    color: "secondary.main",
-                                    backgroundColor: "light.secondary",
-                                }}
-                            />
-                        </Badge>
-                        <Box>
-                            <AnimatePresence>
-                                {theme === 'dark' && (
-                                    <Box component={motion.div} exit={{}}>
-                                        <LightModeOutlined
-                                            sx={{
-                                                padding: 0.5,
-                                                fontSize: 32,
-                                                borderWidth: 1,
-                                                borderStyle: "solid",
-                                                borderRadius: '25%',
-                                                borderColor: "light.secondary",
-                                                color: "secondary.main",
-                                                backgroundColor: "light.secondary",
-                                                cursor: "pointer",
-                                                mt: 1
-                                            }}
-                                            onClick={() => dispatch(UI_ACTION_CREATORS.toggleTheme())}
-                                        />
-                                    </Box>
-                                )}
-                            </AnimatePresence>
-                            <AnimatePresence>
-                                {theme === 'light' && (
-                                    <Box component={motion.div} exit={{}}>
-                                        <DarkModeOutlined
-                                            sx={{
-                                                padding: 0.5,
-                                                fontSize: 32,
-                                                borderWidth: 1,
-                                                borderStyle: "solid",
-                                                borderRadius: '25%',
-                                                borderColor: "light.secondary",
-                                                color: "secondary.main",
-                                                backgroundColor: "light.secondary",
-                                                cursor: "pointer",
-                                                mt: 1
-                                            }}
-                                            onClick={() => dispatch(UI_ACTION_CREATORS.toggleTheme())}
-                                        />
-                                    </Box>
-                                )}
-                            </AnimatePresence>
-                        </Box>
-                        <Box component={motion.div} exit={{}}>
-                            <Menu
-                                sx={{
-                                    padding: 0.5,
-                                    fontSize: 32,
-                                    borderWidth: 1,
-                                    borderStyle: "solid",
-                                    borderRadius: '25%',
-                                    borderColor: "light.secondary",
-                                    color: "secondary.main",
-                                    backgroundColor: "light.secondary",
-                                    cursor: "pointer",
-                                    mt: 1
-                                }}
-                                onClick={() => dispatch(UI_ACTION_CREATORS.toggleDrawer(true))}
-                            />
-                        </Box>
+                        <CardMedia component="img" sx={{width: 28, height: 28, objectFit: "contain"}} alt="Logo" src={logo}/>
+                        <Typography sx={{color: "secondary.main", fontSize: 16, fontWeight: 800, letterSpacing: -0.5}}>StayUp</Typography>
                     </Stack>
-                </Grid>
-            </Grid>
+                </Link>
+
+                {/* Right — Actions */}
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Link to="/profile" style={{textDecoration: "none"}}>
+                        <Avatar src={user?.image} sx={{width: 28, height: 28, fontSize: 10, fontWeight: 700, bgcolor: "secondary.main", color: "#fff"}}>
+                            {initials}
+                        </Avatar>
+                    </Link>
+
+                    <Badge badgeContent={5} variant="dot" max={10} color="error"
+                        sx={{"& .MuiBadge-dot": {width: 6, height: 6, borderRadius: "50%", border: "1.5px solid", borderColor: "background.paper"}}}>
+                        <NotificationsOutlined sx={iconBtn}/>
+                    </Badge>
+
+                    <AnimatePresence mode="wait">
+                        {theme === "dark" ? (
+                            <Box key="light" component={motion.div} initial={{scale: 0.5}} animate={{scale: 1}} exit={{scale: 0.5}} transition={{duration: 0.15}}>
+                                <LightModeOutlined sx={iconBtn} onClick={() => dispatch(UI_ACTION_CREATORS.toggleTheme())}/>
+                            </Box>
+                        ) : (
+                            <Box key="dark" component={motion.div} initial={{scale: 0.5}} animate={{scale: 1}} exit={{scale: 0.5}} transition={{duration: 0.15}}>
+                                <DarkModeOutlined sx={iconBtn} onClick={() => dispatch(UI_ACTION_CREATORS.toggleTheme())}/>
+                            </Box>
+                        )}
+                    </AnimatePresence>
+
+                    <Box
+                        onClick={() => dispatch(UI_ACTION_CREATORS.toggleDrawer(true))}
+                        sx={{
+                            width: 32, height: 32, borderRadius: 0,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            backgroundColor: "light.secondary", cursor: "pointer",
+                            transition: "all 0.2s",
+                        }}
+                    >
+                        <Menu sx={{fontSize: 18, color: "secondary.main"}}/>
+                    </Box>
+                </Stack>
+            </Stack>
         </Toolbar>
-    )
-}
+    );
+};
 
 export default MobileHeader;

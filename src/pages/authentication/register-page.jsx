@@ -1,275 +1,128 @@
+import React, {useState} from "react";
 import {
-    Box,
-    Button,
-    CardMedia,
-    Container,
-    FormControl,
-    FormHelperText,
-    Grid,
-    Link as MUILink,
-    OutlinedInput,
-    Stack,
-    Typography
+    Alert, Box, Button, CardMedia, Checkbox, Container, Divider,
+    FormControlLabel, Stack, TextField, Typography
 } from "@mui/material";
 import {useFormik} from "formik";
 import * as yup from "yup";
-import {Link} from "react-router-dom";
-import loginBanner from "./../../assets/images/register-banner.jpg";
-import {VisibilityOffOutlined, VisibilityOutlined} from "@mui/icons-material";
-import {useState} from "react";
-import logo from "../../assets/images/logo.png";
+import {Link, useNavigate} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {login} from "../../redux/features/authentication/authentication-slice";
+import {VisibilityOffOutlined, VisibilityOutlined, PersonAddOutlined} from "@mui/icons-material";
+import logo from "../../assets/images/logo/logo_image.png";
+import {motion} from "framer-motion";
 
 const RegisterPage = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const formik = useFormik({
-        initialValues: {
-            username: "",
-            email: "",
-            password: ""
-        },
-        validateOnChange: true,
-        validateOnBlur: true,
-        validationSchema: yup.object({}).shape({
-            username: yup.string().required("Username required"),
-            email: yup.string().required('Email required').email('Enter a valid email'),
-            password: yup.string().required("Field required"),
-        })
+        initialValues: {firstName: "", lastName: "", email: "", username: "", password: "", confirmPassword: "", terms: false},
+        validationSchema: yup.object({
+            firstName: yup.string().required("First name is required"),
+            lastName: yup.string().required("Last name is required"),
+            email: yup.string().email("Enter a valid email").required("Email is required"),
+            username: yup.string().required("Username is required"),
+            password: yup.string().min(8, "Min 8 characters").required("Password is required"),
+            confirmPassword: yup.string().oneOf([yup.ref("password")], "Passwords must match").required("Confirm your password"),
+            terms: yup.boolean().oneOf([true], "You must accept the terms"),
+        }),
+        onSubmit: async () => {
+            setLoading(true);
+            await new Promise(r => setTimeout(r, 800));
+            dispatch(login());
+            setLoading(false);
+            navigate("/");
+        }
     });
 
-    const [showPassword, setShowPassword] = useState(false);
-
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "row",
-                overflowX: "hidden",
-                overflowY: {xs: "auto", lg: "hidden"},
-                height: {xs: "100vh"}
+        <Box sx={{minHeight: "100vh", display: "flex", backgroundColor: "background.default"}}>
+            {/* Left — Branding */}
+            <Box sx={{
+                display: {xs: "none", md: "flex"}, flexBasis: "40%",
+                background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%)",
+                flexDirection: "column", justifyContent: "center", alignItems: "center",
+                p: 6, position: "relative", overflow: "hidden",
             }}>
-            <Box sx={{flexBasis: {xs: "100%", lg: "70%", height: "100%"}, paddingBottom: 4, paddingTop: 4}}>
-                <Container sx={{height: "100%", display: "flex", flexDirection: "column"}}>
-                    <Stack justifyContent="center" direction="row">
-                        <Link to="/" style={{textDecoration: "none"}}>
-                            <CardMedia
-                                component="img"
-                                src={logo}
-                                sx={{height: 150, objectFit: "contain"}}
-                            />
-                        </Link>
+                <Box sx={{position: "absolute", top: -60, right: -60, width: 200, height: 200, backgroundColor: "rgba(255,255,255,0.06)"}}/>
+                <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{duration: 0.6}}>
+                    <Stack spacing={3} alignItems="center" sx={{position: "relative", zIndex: 1}}>
+                        <CardMedia component="img" src={logo} sx={{width: 64, height: 64, objectFit: "contain"}}/>
+                        <Typography sx={{color: "#fff", fontSize: 32, fontWeight: 800, letterSpacing: -0.5}}>StayUp</Typography>
+                        <Typography sx={{color: "rgba(255,255,255,0.7)", textAlign: "center", maxWidth: 300, fontSize: 14}}>
+                            Join the admin team and help manage the store.
+                        </Typography>
                     </Stack>
-                    <Box sx={{flexGrow: 1}}>
-                        <Grid sx={{height: "100%"}} container={true} justifyContent="center">
-                            <Grid sx={{height: "100%"}} item={true} xs={12} md={8} lg={6}>
-                                <Stack
-                                    spacing={2}
-                                    sx={{height: "100%"}}
-                                    direction="column"
-                                    justifyContent="space-between">
-                                    <Box>
-                                        <Typography
-                                            variant="h3"
-                                            sx={{
-                                                color: "text.primary",
-                                                fontWeight: 700,
-                                                mb: 3,
-                                                fontSize: {xs: 32, lg: 48}
-                                            }}>
-                                            Create your account
-                                        </Typography>
-                                        <Typography
-                                            variant="body1"
-                                            sx={{color: "text.secondary", mb: 2, fontWeight: 500}}>
-                                            Choose your iChoose username. You can always change it later.
-                                        </Typography>
-                                        <Box sx={{mb: 2}}>
-                                            <form onSubmit={formik.handleSubmit}>
-                                                <Stack sx={{mb: 12}} direction="column" spacing={2}>
-                                                    <FormControl fullWidth={true}>
-                                                        <OutlinedInput
-                                                            sx={{
-                                                                borderRadius: 4,
-                                                                backgroundColor: "background.paper"
-                                                            }}
-                                                            name="username"
-                                                            id="username"
-                                                            required={true}
-                                                            fullWidth={true}
-                                                            onChange={formik.handleChange}
-                                                            onBlur={formik.handleBlur}
-                                                            margin="none"
-                                                            size="medium"
-                                                            placeholder="Enter username"
-                                                            error={Boolean(formik.touched.username && formik.errors.username)}
-                                                            value={formik.values.username}
-                                                            variant="outlined"
-                                                            type= "text"
-                                                        />
-                                                        {formik.touched.username && formik.errors.username && (
-                                                            <FormHelperText>
-                                                                {formik.errors.username}
-                                                            </FormHelperText>
-                                                        )}
-                                                    </FormControl>
+                </motion.div>
+            </Box>
 
-                                                    <FormControl fullWidth={true}>
-                                                        <OutlinedInput
-                                                            sx={{
-                                                                borderRadius: 4,
-                                                                backgroundColor: "background.paper"
-                                                            }}
-                                                            name="email"
-                                                            id="email"
-                                                            required={true}
-                                                            fullWidth={true}
-                                                            onChange={formik.handleChange}
-                                                            onBlur={formik.handleBlur}
-                                                            margin="none"
-                                                            size="medium"
-                                                            placeholder="Enter email"
-                                                            error={Boolean(formik.touched.email && formik.errors.email)}
-                                                            value={formik.values.email}
-                                                            variant="outlined"
-                                                            type= "email"
-                                                        />
-                                                        {formik.touched.email && formik.errors.email && (
-                                                            <FormHelperText>
-                                                                {formik.errors.email}
-                                                            </FormHelperText>
-                                                        )}
-                                                    </FormControl>
+            {/* Right — Form */}
+            <Box sx={{flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: {xs: 3, sm: 6}, overflowY: "auto"}}>
+                <Container maxWidth="sm">
+                    <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{duration: 0.4}}>
+                        <Stack direction="row" spacing={1.5} alignItems="center" sx={{mb: 4, display: {xs: "flex", md: "none"}}}>
+                            <CardMedia component="img" src={logo} sx={{width: 32, height: 32, objectFit: "contain"}}/>
+                            <Typography sx={{color: "secondary.main", fontSize: 20, fontWeight: 800}}>StayUp</Typography>
+                        </Stack>
 
-                                                    <FormControl fullWidth={true}>
-                                                        <OutlinedInput
-                                                            sx={{
-                                                                borderRadius: 4,
-                                                                backgroundColor: "background.paper"
-                                                            }}
-                                                            name="password"
-                                                            id="password"
-                                                            required={true}
-                                                            fullWidth={true}
-                                                            onChange={formik.handleChange}
-                                                            onBlur={formik.handleBlur}
-                                                            margin="none"
-                                                            size="medium"
-                                                            placeholder="Password"
-                                                            error={Boolean(formik.touched.password && formik.errors.password)}
-                                                            value={formik.values.email}
-                                                            variant="outlined"
-                                                            type={showPassword ? "text" : "password"}
-                                                            endAdornment={showPassword ?
-                                                                <VisibilityOffOutlined
-                                                                    sx={{
-                                                                        color: "secondary.main",
-                                                                        fontSize: 28,
-                                                                        padding: 0.6,
-                                                                        borderRadius: "10%",
-                                                                        cursor: "pointer"
-                                                                    }}
-                                                                    onClick={() => setShowPassword(false)}
-                                                                /> : <VisibilityOutlined
-                                                                    sx={{
-                                                                        color: "secondary.main",
-                                                                        fontSize: 28,
-                                                                        padding: 0.6,
-                                                                        borderRadius: "10%",
-                                                                        cursor: "pointer"
-                                                                    }}
-                                                                    onClick={() => setShowPassword(true)}
-                                                                />
-                                                            }
-                                                        />
-                                                        {formik.touched.password && formik.errors.password && (
-                                                            <FormHelperText>
-                                                                {formik.errors.password}
-                                                            </FormHelperText>
-                                                        )}
-                                                    </FormControl>
-                                                </Stack>
+                        <Box sx={{mb: 1}}>
+                            <Box sx={{
+                                width: 44, height: 44, mb: 2,
+                                background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                            }}>
+                                <PersonAddOutlined sx={{color: "#fff", fontSize: 22}}/>
+                            </Box>
+                            <Typography variant="h4" sx={{fontWeight: 800, mb: 0.5}}>Create account</Typography>
+                            <Typography variant="body2" color="text.secondary">Set up your admin profile to get started</Typography>
+                        </Box>
 
-                                                <Typography variant="body2" sx={{color: "text.secondary", mb: 2}}>
-                                                    By clicking Create account, you agree to iChoose's{" "}
-                                                    <Link style={{textDecoration: "none"}} to="/terms">
-                                                        <Typography
-                                                            variant="body2"
-                                                            component="span"
-                                                            sx={{color: "secondary.main"}}>
-                                                            Terms and Conditions
-                                                        </Typography>
-                                                    </Link>,{" "} confirm you have read our {" "}
-                                                    <Link style={{textDecoration: "none"}} to="/privacy">
-                                                        <Typography variant="body2" component="span"
-                                                                    sx={{color: "secondary.main"}}>Privacy
-                                                            Notice.</Typography>
-                                                    </Link> {" "} You may receive offers, news and updates from us.
-                                                </Typography>
-
-                                                <Button
-                                                    disableElevation={true}
-                                                    color="secondary"
-                                                    variant="contained"
-                                                    fullWidth={true}
-                                                    sx={{
-                                                        textTransform: "capitalize",
-                                                        padding: 2,
-                                                        borderRadius: 4
-                                                    }}>
-                                                    Create Account
-                                                </Button>
-                                            </form>
-                                        </Box>
-
-                                        <Typography align="center" variant="body2" sx={{color: "text.secondary"}}>
-                                            Already have an account?{" "}
-                                            <Link style={{textDecoration: "none"}} to="/auth/login">
-                                                <Typography
-                                                    variant="body2"
-                                                    component="span"
-                                                    sx={{color: "secondary.main"}}>
-                                                    Log in
-                                                </Typography>
-                                            </Link>
-                                        </Typography>
-                                    </Box>
-                                    <Box>
-                                        <Typography
-                                            variant="body2"
-                                            sx={{
-                                                color: "text.secondary",
-                                                textAlign: {xs: "center", lg: "left"},
-                                                mb: {xs: 4, lg: 0}
-                                            }}>
-                                            This site is protected by the {" "}
-                                            <MUILink
-                                                underline="always"
-                                                sx={{color: "secondary.main"}}
-                                                target="_blank"
-                                                href="">
-                                                Google Privacy Policy</MUILink> {" "} and {" "}
-                                            <MUILink
-                                                underline="always"
-                                                sx={{color: "secondary.main"}}
-                                                target="_blank"
-                                                href="">
-                                                Terms of Service apply
-                                            </MUILink>{" "}.
-                                        </Typography>
-                                    </Box>
+                        <form onSubmit={formik.handleSubmit}>
+                            <Stack spacing={2} sx={{mt: 3}}>
+                                <Stack direction="row" spacing={2}>
+                                    <TextField name="firstName" label="First Name" fullWidth size="small" value={formik.values.firstName} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.firstName && formik.errors.firstName)} helperText={formik.touched.firstName && formik.errors.firstName}/>
+                                    <TextField name="lastName" label="Last Name" fullWidth size="small" value={formik.values.lastName} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.lastName && formik.errors.lastName)} helperText={formik.touched.lastName && formik.errors.lastName}/>
                                 </Stack>
-                            </Grid>
-                        </Grid>
-                    </Box>
+                                <TextField name="email" label="Email Address" fullWidth size="small" type="email" value={formik.values.email} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.email && formik.errors.email)} helperText={formik.touched.email && formik.errors.email}/>
+                                <TextField name="username" label="Username" fullWidth size="small" value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.username && formik.errors.username)} helperText={formik.touched.username && formik.errors.username}/>
+                                <TextField
+                                    name="password" label="Password" fullWidth size="small"
+                                    type={showPassword ? "text" : "password"}
+                                    value={formik.values.password} onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                    error={Boolean(formik.touched.password && formik.errors.password)}
+                                    helperText={formik.touched.password && formik.errors.password}
+                                    slotProps={{input: {endAdornment: <Box sx={{cursor: "pointer", display: "flex", color: "text.secondary"}} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <VisibilityOffOutlined sx={{fontSize: 18}}/> : <VisibilityOutlined sx={{fontSize: 18}}/>}</Box>}}}
+                                />
+                                <TextField name="confirmPassword" label="Confirm Password" fullWidth size="small" type="password" value={formik.values.confirmPassword} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.confirmPassword && formik.errors.confirmPassword)} helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}/>
+
+                                <FormControlLabel
+                                    control={<Checkbox name="terms" checked={formik.values.terms} onChange={formik.handleChange} color="secondary" size="small"/>}
+                                    label={<Typography variant="caption" color="text.secondary">I agree to the <Link to="/terms" style={{textDecoration: "none", color: "#6366F1"}}>Terms</Link> and <Link to="/privacy" style={{textDecoration: "none", color: "#6366F1"}}>Privacy Policy</Link></Typography>}
+                                />
+                                {formik.touched.terms && formik.errors.terms && <Typography variant="caption" color="error">{formik.errors.terms}</Typography>}
+
+                                <Button type="submit" variant="contained" color="secondary" size="large" fullWidth disabled={loading} sx={{py: 1.25}}>
+                                    {loading ? "Creating account..." : "Create Account"}
+                                </Button>
+                            </Stack>
+                        </form>
+
+                        <Divider sx={{my: 3}}/>
+
+                        <Typography align="center" variant="body2" color="text.secondary">
+                            Already have an account?{" "}
+                            <Link to="/auth/login" style={{textDecoration: "none"}}>
+                                <Typography variant="body2" component="span" sx={{color: "secondary.main", fontWeight: 600}}>Sign in</Typography>
+                            </Link>
+                        </Typography>
+                    </motion.div>
                 </Container>
             </Box>
-            <Box sx={{flexBasis: {xs: "100%", lg: "30%"}, display: {xs: "none", lg: "block"}}}>
-                <CardMedia
-                    component="img"
-                    src={loginBanner}
-                    sx={{width: "100%", height: "100%", objectFit: "cover", objectPosition: "top"}}
-                />
-            </Box>
         </Box>
-    )
-}
+    );
+};
 
 export default RegisterPage;

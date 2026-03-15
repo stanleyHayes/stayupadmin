@@ -7,8 +7,9 @@ import {Link} from "react-router-dom";
 import Status from "./status.jsx";
 import ConfirmDialog from "./confirm-dialog.jsx";
 import OrderQuickView from "./order-quick-view.jsx";
+import {motion} from "framer-motion";
 
-const Order = ({order}) => {
+const Order = ({order, index = 0}) => {
 
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const [openQuickViewDialog, setOpenQuickViewDialog] = useState(false);
@@ -23,7 +24,13 @@ const Order = ({order}) => {
 
     return (
         <React.Fragment>
-            <TableRow>
+            <TableRow
+                component={motion.tr}
+                initial={{opacity: 0, y: 10}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.3, delay: Math.min(index * 0.04, 0.5), ease: "easeOut"}}
+                sx={{"&:hover": {backgroundColor: "action.hover"}}}
+            >
                 <TableCell>
                     <Tooltip title={`Detailed view of order ${order.number}`}>
                         <Link to={`/customers/${order.customer._id}`} style={{textDecoration: "none"}}>
@@ -60,21 +67,24 @@ const Order = ({order}) => {
                 </TableCell>
                 <TableCell>
                     <Stack direction="row" spacing={1} alignItems="center">
-                        <Tooltip title={`Quick view order ${order.number}`}>
-                            <VisibilityOutlined
-                                onClick={handleQuickViewClick}
-                                sx={{
-                                    padding: 0.4,
-                                    fontSize: 28,
-                                    borderWidth: 1,
-                                    borderStyle: "solid",
-                                    borderRadius: '25%',
-                                    borderColor: "light.green",
-                                    color: "icon.green",
-                                    backgroundColor: "light.green",
-                                    cursor: "pointer"
-                                }}
-                            />
+                        <Tooltip title={`View order ${order.number}`}>
+                            <Link to={`/orders/${order._id}`} style={{textDecoration: "none"}}>
+                                <VisibilityOutlined
+                                    sx={{
+                                        padding: 0.4,
+                                        fontSize: 28,
+                                        borderWidth: 1,
+                                        borderStyle: "solid",
+                                        borderRadius: 0,
+                                        borderColor: "light.green",
+                                        color: "icon.green",
+                                        backgroundColor: "light.green",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s ease",
+                                        "&:hover": {transform: "scale(1.15)"},
+                                    }}
+                                />
+                            </Link>
                         </Tooltip>
                         <Tooltip title={`Update order ${order.number}`}>
                             <Link to={`/orders/${order._id}/update`} style={{textDecoration: "none"}}>
@@ -84,11 +94,13 @@ const Order = ({order}) => {
                                         fontSize: 28,
                                         borderWidth: 1,
                                         borderStyle: "solid",
-                                        borderRadius: '25%',
+                                        borderRadius: 0,
                                         borderColor: "light.secondary",
                                         color: "secondary.main",
                                         backgroundColor: "light.secondary",
-                                        cursor: "pointer"
+                                        cursor: "pointer",
+                                        transition: "all 0.2s ease",
+                                        "&:hover": {transform: "scale(1.15)"},
                                     }}
                                 />
                             </Link>
@@ -101,7 +113,7 @@ const Order = ({order}) => {
                                     fontSize: 28,
                                     borderWidth: 1,
                                     borderStyle: "solid",
-                                    borderRadius: '25%',
+                                    borderRadius: 0,
                                     borderColor: "light.red",
                                     color: "icon.red",
                                     backgroundColor: "light.red",

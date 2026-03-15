@@ -1,214 +1,136 @@
+import React, {useState} from "react";
 import {
-    Box,
-    Button,
-    CardMedia,
-    Container,
-    FormControl,
-    FormHelperText,
-    Grid,
-    OutlinedInput,
-    Stack,
-    Typography
+    Alert, Box, Button, CardMedia, Container, Divider, Grid,
+    Stack, TextField, Typography
 } from "@mui/material";
 import {useFormik} from "formik";
 import * as yup from "yup";
-import {Link} from "react-router-dom";
-import loginBanner from "./../../assets/images/login-banner.jpg";
-import {useState} from "react";
-import {VisibilityOffOutlined, VisibilityOutlined} from "@mui/icons-material";
-import logo from "../../assets/images/logo.png";
+import {Link, useNavigate} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {login} from "../../redux/features/authentication/authentication-slice";
+import {VisibilityOffOutlined, VisibilityOutlined, LockOutlined} from "@mui/icons-material";
+import logo from "../../assets/images/logo/logo_image.png";
+import {motion} from "framer-motion";
 
 const LoginPage = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
     const formik = useFormik({
-        initialValues: {
-            username: "",
-            email: ""
-        },
-        validateOnChange: true,
-        validateOnBlur: true,
-        validationSchema: yup.object({}).shape({
-            username: yup.string().required("Username required"),
-            email: yup.string().required('Email required').email('Enter a valid email')
-        })
+        initialValues: {username: "", password: ""},
+        validationSchema: yup.object({
+            username: yup.string().required("Username is required"),
+            password: yup.string().required("Password is required"),
+        }),
+        onSubmit: async () => {
+            setLoading(true);
+            setError(null);
+            await new Promise(r => setTimeout(r, 800));
+            dispatch(login());
+            setLoading(false);
+            navigate("/");
+        }
     });
 
-    const [showPassword, setShowPassword] = useState(false);
-
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "row",
-                overflowX: "hidden",
-                overflowY: {xs: "auto", lg: "hidden"},
-                height: {xs: "100vh"}
+        <Box sx={{minHeight: "100vh", display: "flex", backgroundColor: "background.default"}}>
+            {/* Left — Branding Panel */}
+            <Box sx={{
+                display: {xs: "none", md: "flex"}, flexBasis: "45%",
+                background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%)",
+                flexDirection: "column", justifyContent: "center", alignItems: "center",
+                p: 6, position: "relative", overflow: "hidden",
             }}>
-            <Box sx={{flexBasis: {xs: "100%", lg: "70%", height: "100%"}, paddingBottom: 4, paddingTop: 4}}>
-                <Container sx={{height: "100%", display: "flex", flexDirection: "column"}}>
-                    <Stack justifyContent="center" direction="row">
-                        <Link to="/" style={{textDecoration: "none"}}>
-                            <CardMedia
-                                component="img"
-                                src={logo}
-                                sx={{height: 150, objectFit: "contain"}}
-                            />
-                        </Link>
+                <Box sx={{position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: 0, backgroundColor: "rgba(255,255,255,0.06)"}}/>
+                <Box sx={{position: "absolute", bottom: -80, left: -40, width: 250, height: 250, borderRadius: 0, backgroundColor: "rgba(255,255,255,0.04)"}}/>
+                <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{duration: 0.6}}>
+                    <Stack spacing={3} alignItems="center" sx={{position: "relative", zIndex: 1}}>
+                        <CardMedia component="img" src={logo} sx={{width: 64, height: 64, objectFit: "contain"}}/>
+                        <Typography sx={{color: "#fff", fontSize: 32, fontWeight: 800, letterSpacing: -0.5}}>StayUp</Typography>
+                        <Typography sx={{color: "rgba(255,255,255,0.7)", textAlign: "center", maxWidth: 300, fontSize: 14}}>
+                            Manage your store, track orders, and grow your business — all from one place.
+                        </Typography>
                     </Stack>
-                    <Box sx={{flexGrow: 1}}>
-                        <Grid sx={{height: "100%"}} container={true} justifyContent="center" alignItems="center">
-                            <Grid item={true} xs={12} md={8} lg={6}>
-                                <Stack
-                                    spacing={2}
-                                    sx={{height: "100%"}}
-                                    direction="column"
-                                    justifyContent="space-between">
-                                    <Box>
-                                        <Typography
-                                            variant="h3"
-                                            sx={{
-                                                color: "text.primary",
-                                                fontWeight: 700,
-                                                mb: 4,
-                                                fontSize: {xs: 32, lg: 48}
-                                            }}>
-                                            Log in to your account
-                                        </Typography>
+                </motion.div>
+            </Box>
 
-                                        <Box sx={{mb: 4}}>
-                                            <form onSubmit={formik.handleSubmit}>
-                                                <Stack sx={{mb: 4}} direction="column" spacing={2}>
-                                                    <FormControl fullWidth={true}>
-                                                        <OutlinedInput
-                                                            sx={{
-                                                                borderRadius: 4,
-                                                                backgroundColor: "background.paper"
-                                                            }}
-                                                            name="username"
-                                                            id="username"
-                                                            required={true}
-                                                            fullWidth={true}
-                                                            onChange={formik.handleChange}
-                                                            onBlur={formik.handleBlur}
-                                                            margin="none"
-                                                            size="medium"
-                                                            placeholder="Enter username"
-                                                            error={Boolean(formik.touched.username && formik.errors.username)}
-                                                            value={formik.values.username}
-                                                            variant="outlined"
-                                                            type="text"
-                                                        />
-                                                        {formik.touched.username && formik.errors.username && (
-                                                            <FormHelperText>
-                                                                {formik.errors.username}
-                                                            </FormHelperText>
-                                                        )}
-                                                    </FormControl>
+            {/* Right — Login Form */}
+            <Box sx={{flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: {xs: 3, sm: 6}}}>
+                <Container maxWidth="sm">
+                    <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{duration: 0.4}}>
+                        {/* Mobile Logo */}
+                        <Stack direction="row" spacing={1.5} alignItems="center" sx={{mb: 4, display: {xs: "flex", md: "none"}}}>
+                            <CardMedia component="img" src={logo} sx={{width: 32, height: 32, objectFit: "contain"}}/>
+                            <Typography sx={{color: "secondary.main", fontSize: 20, fontWeight: 800}}>StayUp</Typography>
+                        </Stack>
 
-                                                    <FormControl fullWidth={true}>
-                                                        <OutlinedInput
-                                                            sx={{
-                                                                borderRadius: 4,
-                                                                backgroundColor: "background.paper"
-                                                            }}
-                                                            name="password"
-                                                            id="password"
-                                                            required={true}
-                                                            fullWidth={true}
-                                                            onChange={formik.handleChange}
-                                                            onBlur={formik.handleBlur}
-                                                            margin="none"
-                                                            size="medium"
-                                                            placeholder="Enter password"
-                                                            error={Boolean(formik.touched.password && formik.errors.password)}
-                                                            value={formik.values.password}
-                                                            variant="outlined"
-                                                            type={showPassword ? "text" : "password"}
-                                                            endAdornment={showPassword ?
-                                                                <VisibilityOffOutlined
-                                                                    sx={{
-                                                                        color: "text.secondary",
-                                                                        fontSize: 28,
-                                                                        padding: 0.6,
-                                                                        borderRadius: "10%",
-                                                                        cursor: "pointer"
-                                                                    }}
-                                                                    onClick={() => setShowPassword(false)}
-                                                                /> : <VisibilityOutlined
-                                                                    sx={{
-                                                                        color: "text.secondary",
-                                                                        fontSize: 28,
-                                                                        padding: 0.6,
-                                                                        borderRadius: "10%",
-                                                                        cursor: "pointer",
-                                                                    }}
-                                                                    onClick={() => setShowPassword(true)}
-                                                                />
-                                                            }
-                                                        />
-                                                        {formik.touched.password && formik.errors.password && (
-                                                            <FormHelperText>
-                                                                {formik.errors.password}
-                                                            </FormHelperText>
-                                                        )}
-                                                    </FormControl>
-                                                </Stack>
+                        <Box sx={{mb: 1}}>
+                            <Box sx={{
+                                width: 44, height: 44, borderRadius: 0, mb: 2,
+                                background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                            }}>
+                                <LockOutlined sx={{color: "#fff", fontSize: 22}}/>
+                            </Box>
+                            <Typography variant="h4" sx={{fontWeight: 800, mb: 0.5}}>Welcome back</Typography>
+                            <Typography variant="body2" color="text.secondary">Sign in to your admin account to continue</Typography>
+                        </Box>
 
-                                                <Stack sx={{mb: 4}} direction="row" alignItems="center"
-                                                       justifyContent="center">
-                                                    <Link style={{textDecoration: "none"}} to="/auth/forgot-password">
-                                                        <Typography
-                                                            variant="body2"
-                                                            component="span"
-                                                            sx={{color: "secondary.main"}}>
-                                                            Forgot Password?
-                                                        </Typography>
-                                                    </Link>
-                                                </Stack>
+                        {error && <Alert severity="error" sx={{mb: 2}}>{error}</Alert>}
 
-
-                                                <Button
-                                                    disableElevation={true}
-                                                    size="large"
-                                                    color="secondary"
-                                                    variant="contained"
-                                                    fullWidth={true}
-                                                    sx={{
-                                                        textTransform: "capitalize",
-                                                        padding: 2,
-                                                        borderRadius: 3
-                                                    }}>
-                                                    Log In
-                                                </Button>
-                                            </form>
-                                        </Box>
-
-                                        <Typography align="center" variant="body2" sx={{color: "text.secondary"}}>
-                                            Don't have an account?{" "}
-                                            <Link style={{textDecoration: "none"}} to="/auth/register">
-                                                <Typography
-                                                    variant="body2"
-                                                    component="span"
-                                                    sx={{color: "secondary.main"}}>
-                                                    Sign up
-                                                </Typography>
-                                            </Link>
-                                        </Typography>
-                                    </Box>
+                        <form onSubmit={formik.handleSubmit}>
+                            <Stack spacing={2.5} sx={{mt: 3}}>
+                                <TextField
+                                    name="username" label="Username" fullWidth size="small"
+                                    value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                    error={Boolean(formik.touched.username && formik.errors.username)}
+                                    helperText={formik.touched.username && formik.errors.username}
+                                    placeholder="Enter your username"
+                                />
+                                <TextField
+                                    name="password" label="Password" fullWidth size="small"
+                                    type={showPassword ? "text" : "password"}
+                                    value={formik.values.password} onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                    error={Boolean(formik.touched.password && formik.errors.password)}
+                                    helperText={formik.touched.password && formik.errors.password}
+                                    placeholder="Enter your password"
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: (
+                                                <Box sx={{cursor: "pointer", display: "flex", color: "text.secondary"}} onClick={() => setShowPassword(!showPassword)}>
+                                                    {showPassword ? <VisibilityOffOutlined sx={{fontSize: 18}}/> : <VisibilityOutlined sx={{fontSize: 18}}/>}
+                                                </Box>
+                                            )
+                                        }
+                                    }}
+                                />
+                                <Stack direction="row" justifyContent="flex-end">
+                                    <Link to="/auth/forgot-password" style={{textDecoration: "none"}}>
+                                        <Typography variant="caption" sx={{color: "secondary.main", fontWeight: 600}}>Forgot password?</Typography>
+                                    </Link>
                                 </Stack>
-                            </Grid>
-                        </Grid>
-                    </Box>
+                                <Button type="submit" variant="contained" color="secondary" size="large" fullWidth disabled={loading} sx={{py: 1.25}}>
+                                    {loading ? "Signing in..." : "Sign In"}
+                                </Button>
+                            </Stack>
+                        </form>
+
+                        <Divider sx={{my: 3}}/>
+
+                        <Typography align="center" variant="body2" color="text.secondary">
+                            Have an invitation token?{" "}
+                            <Link to="/auth/invite/redeem" style={{textDecoration: "none"}}>
+                                <Typography variant="body2" component="span" sx={{color: "secondary.main", fontWeight: 600}}>Redeem here</Typography>
+                            </Link>
+                        </Typography>
+                    </motion.div>
                 </Container>
             </Box>
-            <Box sx={{flexBasis: {xs: "100%", lg: "30%"}, display: {xs: "none", lg: "block"}}}>
-                <CardMedia
-                    component="img"
-                    src={loginBanner}
-                    sx={{width: "100%", height: "100%", objectFit: "cover", objectPosition: "top"}}
-                />
-            </Box>
         </Box>
-    )
-}
+    );
+};
 
 export default LoginPage;

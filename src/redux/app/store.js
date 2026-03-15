@@ -20,6 +20,10 @@ import paymentGatewaysReducer from "./../features/payment-gateways/payment-gatew
 import shippingClassesReducer from "./../features/shipping-classes/shipping-classes-slice.js";
 import shippingMethodsReducer from "./../features/shipping-methods/shipping-methods-slice.js";
 import webhooksReducer from "./../features/webhooks/webhooks-slice.js";
+import subscribersReducer from "./../features/subscribers/subscribers-slice.js";
+import messagesReducer from "./../features/messages/messages-slice.js";
+import blogReducer from "./../features/blog/blog-slice.js";
+import testimonialsReducer from "./../features/testimonials/testimonials-slice.js";
 
 const store = configureStore({
     devTools: true,
@@ -45,6 +49,10 @@ const store = configureStore({
         shippingClasses: shippingClassesReducer,
         shippingMethods: shippingMethodsReducer,
         webhooks: webhooksReducer,
+        subscribers: subscribersReducer,
+        messages: messagesReducer,
+        blog: blogReducer,
+        testimonials: testimonialsReducer,
     }
 });
 

@@ -1,83 +1,29 @@
-// src/components/layout/MobileDrawer.jsx
-import {Box, CardMedia, Container, Divider, Stack, Typography} from "@mui/material";
+import {Avatar, Box, CardMedia, Chip, Divider, Stack, Typography} from "@mui/material";
 import {useDispatch, useSelector} from "react-redux";
 import {selectUI, UI_ACTION_CREATORS} from "../../redux/features/ui/ui-slice";
-import logo from "./../../assets/images/logo/logo_text.png";
-import {motion} from "framer-motion";
+import {selectAuth, logout} from "../../redux/features/authentication/authentication-slice";
+import logo from "./../../assets/images/logo/logo_image.png";
 import DrawerLink from "../shared/drawer-link.jsx";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {
-    AccountTree,
-    AccountTreeOutlined,
-    AdminPanelSettings,
-    AdminPanelSettingsOutlined,
-    AutoStories,
-    AutoStoriesOutlined,
-    Campaign,
-    CampaignOutlined,
-    Category,
-    CategoryOutlined,
-    Checkroom,
-    CheckroomOutlined,
-    Close,
-    Dashboard,
-    DashboardOutlined,
-    Face,
-    FaceOutlined,
-    Help,
-    HelpOutline,
-    Inventory,
-    Inventory2Outlined,
-    LocalShipping,
-    LocalShippingOutlined,
-    LogoutOutlined,
-    MonetizationOn,
-    MonetizationOnOutlined,
-    Percent,
-    PercentOutlined,
-    ReceiptLong,
-    ReceiptLongOutlined,
-    Settings,
-    SettingsOutlined,
-    SignalCellularAlt,
-    SignalCellularAltOutlined,
-    SupportAgent,
-    SupportAgentOutlined,
-    Tag,
-    TagOutlined,
-    Widgets,
-    WidgetsOutlined
+    CloseRounded, DashboardOutlined, BarChartOutlined, AccountBalanceWalletOutlined,
+    ReceiptLongOutlined, AutoStoriesOutlined, MonetizationOnOutlined,
+    StorefrontOutlined, CategoryOutlined, AccountTreeOutlined, TagOutlined,
+    LocalOfferOutlined, SupportAgentOutlined,
+    ArticleOutlined, FormatQuoteOutlined,
+    SubscriptionsOutlined, MailOutline,
+    PeopleOutline, ReceiptOutlined, LocalShippingOutlined,
+    AdminPanelSettingsOutlined, LinkOutlined, SettingsOutlined,
+    LogoutOutlined
 } from "@mui/icons-material";
 
-const container = {};
-const item = {};
-
 const MobileDrawer = () => {
-    const { sidebarExpanded } = useSelector(selectUI);
-    const { pathname } = useLocation();
+    const {pathname} = useLocation();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
+    const {user} = useSelector(selectAuth);
 
-    const activeStyle = {
-        borderWidth: 1,
-        borderStyle: "solid",
-        borderRadius: "100%",
-        borderColor: "light.secondary",
-        padding: 1,
-        fontSize: 36,
-        color: "secondary.main",
-        backgroundColor: "light.secondary"
-    };
-
-    const defaultStyle = {
-        padding: 1,
-        fontSize: 36,
-        borderWidth: 1,
-        borderStyle: "solid",
-        borderRadius: "100%",
-        borderColor: "light.default",
-        color: "icon.default",
-        backgroundColor: "light.default"
-    };
+    const handleClose = () => dispatch(UI_ACTION_CREATORS.toggleDrawer(false));
 
     const isActive = (basePath) => {
         if (!basePath) return false;
@@ -85,337 +31,165 @@ const MobileDrawer = () => {
         return pathname.startsWith(basePath);
     };
 
-    // helper to close drawer on link click
-    const handleClose = () => dispatch(UI_ACTION_CREATORS.toggleDrawer(false));
+    const activeStyle = {
+        borderRadius: 0, padding: 0.75, fontSize: 32,
+        color: "secondary.main", backgroundColor: "light.secondary"
+    };
+
+    const defaultStyle = {
+        borderRadius: 0, padding: 0.75, fontSize: 32,
+        color: "text.secondary", backgroundColor: "transparent"
+    };
+
+    const SectionLabel = ({label}) => (
+        <Typography variant="overline" sx={{
+            fontSize: 9, fontWeight: 700, letterSpacing: "0.1em",
+            color: "text.disabled", pt: 1.5, pb: 0.25, display: "block"
+        }}>
+            {label}
+        </Typography>
+    );
+
+    const L = ({label, path, Icon}) => (
+        <DrawerLink hasBadge={false} label={label} path={path}
+            icon={<Icon sx={isActive(path) ? activeStyle : defaultStyle}/>}/>
+    );
+
+    const initials = user?.firstName && user?.lastName
+        ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "AD";
 
     return (
-        <Box sx={{ width: "90vw" }}>
-            <Container sx={{ px: 6, py: 4 }}>
-                <Box
-                    sx={{ px: { xs: 0, lg: sidebarExpanded ? 8 : 0 } }}
-                    animate={{}}
-                    initial={{}}
-                    whileHover={{}}
-                    component={motion.div}
-                >
-                    <Stack sx={{ width: "100%" }} justifyContent="space-between" direction="row" component={motion.div}>
-                        <Stack spacing={3} direction="row" alignItems="center">
-                            <CardMedia component="img" sx={{ width: 30, height: 30, objectFit: "contain" }} alt="Logo" src={logo} />
-                        </Stack>
-
-                        <Close
-                            sx={{
-                                padding: 1,
-                                fontSize: 36,
-                                borderWidth: 2,
-                                borderStyle: "solid",
-                                borderRadius: "100%",
-                                borderColor: "light.secondary",
-                                color: "secondary.main",
-                                backgroundColor: "light.secondary",
-                                cursor: "pointer"
-                            }}
-                            onClick={() => dispatch(UI_ACTION_CREATORS.toggleDrawer(false))}
-                        />
+        <Box sx={{width: "85vw", maxWidth: 340, display: "flex", flexDirection: "column", height: "100%", backgroundColor: "background.paper"}}>
+            {/* Header */}
+            <Box sx={{px: 2.5, py: 2}}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Stack direction="row" spacing={1.5} alignItems="center" sx={{
+                        p: 1, borderRadius: 0,
+                        background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
+                        flex: 1, mr: 1.5,
+                    }}>
+                        <Box sx={{
+                            width: 32, height: 32, borderRadius: 0,
+                            backgroundColor: "rgba(255,255,255,0.2)",
+                            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                        }}>
+                            <CardMedia component="img" sx={{width: 18, height: 18, objectFit: "contain"}} alt="Logo" src={logo}/>
+                        </Box>
+                        <Box>
+                            <Typography sx={{color: "#fff", fontSize: 15, fontWeight: 800, letterSpacing: -0.3, lineHeight: 1.2}}>StayUp</Typography>
+                            <Typography sx={{color: "rgba(255,255,255,0.6)", fontSize: 9, fontWeight: 500}}>Admin Panel</Typography>
+                        </Box>
                     </Stack>
-                </Box>
-            </Container>
-
-            <Divider variant="fullWidth" />
-
-            <Container sx={{ py: 6, px: 6 }}>
-                <Stack component={motion.div} variants={container} sx={{ px: { xs: 0, lg: sidebarExpanded ? 8 : 0 } }} direction="column" spacing={4}>
-                    {/* Primary / core admin items */}
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Dashboard"
-                            path="/"
-                            onClick={handleClose}
-                            icon={isActive("/") || isActive("/overview") ? <Dashboard sx={activeStyle} /> : <DashboardOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Overview"
-                            path="/overview"
-                            onClick={handleClose}
-                            icon={isActive("/overview") ? <SignalCellularAlt sx={activeStyle} /> : <SignalCellularAltOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Orders"
-                            path="/orders"
-                            onClick={handleClose}
-                            icon={isActive("/orders") ? <ReceiptLong sx={activeStyle} /> : <ReceiptLongOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Order Actions"
-                            path="/order-actions"
-                            onClick={handleClose}
-                            icon={isActive("/order-actions") ? <Widgets sx={activeStyle} /> : <WidgetsOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Order Notes"
-                            path="/order-notes"
-                            onClick={handleClose}
-                            icon={isActive("/order-notes") ? <AutoStories sx={activeStyle} /> : <AutoStoriesOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Order Refunds"
-                            path="/order-refunds"
-                            onClick={handleClose}
-                            icon={isActive("/order-refunds") ? <MonetizationOn sx={activeStyle} /> : <MonetizationOnOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Products"
-                            path="/products"
-                            onClick={handleClose}
-                            icon={isActive("/products") ? <Checkroom sx={activeStyle} /> : <CheckroomOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Variations"
-                            path="/variations"
-                            onClick={handleClose}
-                            icon={isActive("/variations") ? <AutoStories sx={activeStyle} /> : <AutoStoriesOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Attributes"
-                            path="/attributes"
-                            onClick={handleClose}
-                            icon={isActive("/attributes") ? <Category sx={activeStyle} /> : <CategoryOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Categories"
-                            path="/categories"
-                            onClick={handleClose}
-                            icon={isActive("/categories") ? <Category sx={activeStyle} /> : <CategoryOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Tags"
-                            path="/tags"
-                            onClick={handleClose}
-                            icon={isActive("/tags") ? <Tag sx={activeStyle} /> : <TagOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Coupons"
-                            path="/attributes"
-                            onClick={handleClose}
-                            icon={isActive("/attributes") ? <Percent sx={activeStyle} /> : <PercentOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Customers"
-                            path="/customers"
-                            onClick={handleClose}
-                            icon={isActive("/customers") ? <Face sx={activeStyle} /> : <FaceOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Invitations"
-                            path="/invitations"
-                            onClick={handleClose}
-                            icon={isActive("/invitations") ? <Campaign sx={activeStyle} /> : <CampaignOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Reviews"
-                            path="/reviews"
-                            onClick={handleClose}
-                            icon={isActive("/reviews") ? <SupportAgent sx={activeStyle} /> : <SupportAgentOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Sales"
-                            path="/sales"
-                            onClick={handleClose}
-                            icon={isActive("/sales") ? <MonetizationOn sx={activeStyle} /> : <MonetizationOnOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Payment Gateways"
-                            path="/payment-gateways"
-                            onClick={handleClose}
-                            icon={isActive("/payment-gateways") ? <LocalShipping sx={activeStyle} /> : <LocalShippingOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Shipping Classes"
-                            path="/shipping-classes"
-                            onClick={handleClose}
-                            icon={isActive("/shipping-classes") ? <LocalShipping sx={activeStyle} /> : <LocalShippingOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Shipping Methods"
-                            path="/shipping-methods"
-                            onClick={handleClose}
-                            icon={isActive("/shipping-methods") ? <LocalShipping sx={activeStyle} /> : <LocalShippingOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Shipping Zone Methods"
-                            path="/shipping-zone-methods"
-                            onClick={handleClose}
-                            icon={isActive("/shipping-zone-methods") ? <LocalShipping sx={activeStyle} /> : <LocalShippingOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Stocks"
-                            path="/stocks"
-                            onClick={handleClose}
-                            icon={isActive("/stocks") ? <Inventory sx={activeStyle} /> : <Inventory2Outlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Payment Overview"
-                            path="/overview/payment"
-                            onClick={handleClose}
-                            icon={isActive("/overview/payment") ? <MonetizationOn sx={activeStyle} /> : <MonetizationOnOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-                </Stack>
-            </Container>
-
-            <Divider variant="fullWidth" />
-
-            <Container sx={{ py: 6, px: 6 }}>
-                <Stack component={motion.div} variants={container} sx={{ px: { xs: 0, lg: sidebarExpanded ? 8 : 0 } }} direction="column" spacing={4}>
-                    {/* Settings / System */}
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Settings"
-                            path="/settings"
-                            onClick={handleClose}
-                            icon={isActive("/settings") ? <Settings sx={activeStyle} /> : <SettingsOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Authentication"
-                            path="/authentication"
-                            onClick={handleClose}
-                            icon={isActive("/authentication") ? <AccountTree sx={activeStyle} /> : <AccountTreeOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Support"
-                            path="/support"
-                            onClick={handleClose}
-                            icon={isActive("/support") ? <Help sx={activeStyle} /> : <HelpOutline sx={defaultStyle} />}
-                        />
-                    </Box>
-
-                    <Box component={motion.div} variants={item}>
-                        <DrawerLink
-                            hasBadge={false}
-                            label="Users"
-                            path="/users"
-                            onClick={handleClose}
-                            icon={isActive("/users") ? <AdminPanelSettings sx={activeStyle} /> : <AdminPanelSettingsOutlined sx={defaultStyle} />}
-                        />
-                    </Box>
-                </Stack>
-            </Container>
-
-            <Divider variant="fullWidth" />
-
-            <Container sx={{ py: 6, px: 6 }}>
-                <Stack direction="row" spacing={2} alignItems="center">
-                    <LogoutOutlined
+                    <Box
+                        onClick={handleClose}
                         sx={{
-                            color: "text.red",
-                            backgroundColor: "light.red",
-                            borderWidth: 1,
-                            borderStyle: "solid",
-                            borderRadius: "100%",
-                            borderColor: "light.red",
-                            padding: 1,
-                            fontSize: 36
+                            width: 36, height: 36, borderRadius: 0,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            backgroundColor: "light.secondary", cursor: "pointer",
+                            transition: "all 0.2s", flexShrink: 0,
+                            "&:hover": {backgroundColor: "error.main", "& svg": {color: "#fff"}},
                         }}
-                    />
-                    <Typography sx={{ color: "text.red", fontSize: 12, textTransform: "uppercase", fontWeight: 500 }} size="body2">
-                        Logout
-                    </Typography>
+                    >
+                        <CloseRounded sx={{fontSize: 18, color: "secondary.main", transition: "color 0.2s"}}/>
+                    </Box>
                 </Stack>
-            </Container>
+            </Box>
+
+            {/* User Card */}
+            <Box sx={{px: 2.5, pb: 2}}>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{
+                    p: 1.5, borderRadius: 0,
+                    background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
+                }}>
+                    <Avatar src={user?.image} sx={{width: 40, height: 40, fontSize: 14, fontWeight: 700, bgcolor: "rgba(255,255,255,0.2)", color: "#fff"}}>
+                        {initials}
+                    </Avatar>
+                    <Box sx={{flex: 1, minWidth: 0}}>
+                        <Typography variant="body2" sx={{fontWeight: 600, fontSize: 13, color: "#fff"}} noWrap>
+                            {user?.firstName} {user?.lastName}
+                        </Typography>
+                        <Typography variant="caption" sx={{color: "rgba(255,255,255,0.7)", fontSize: 11}} noWrap>
+                            {user?.email}
+                        </Typography>
+                    </Box>
+                    <Chip label={user?.role?.replace("_", " ") || "Admin"} size="small" sx={{
+                        height: 20, fontSize: 9, fontWeight: 700, textTransform: "capitalize",
+                        backgroundColor: "rgba(255,255,255,0.2)", color: "#fff"
+                    }}/>
+                </Stack>
+            </Box>
+
+            <Divider/>
+
+            {/* Navigation */}
+            <Box sx={{flex: 1, overflowY: "auto", px: 2, py: 1.5}}>
+                <Stack direction="column" spacing={0.5}>
+                    <SectionLabel label="Overview"/>
+                    <L label="Dashboard" path="/" Icon={DashboardOutlined}/>
+                    <L label="Analytics" path="/analytics" Icon={BarChartOutlined}/>
+                    <L label="Revenue" path="/revenue" Icon={AccountBalanceWalletOutlined}/>
+
+                    <SectionLabel label="Orders"/>
+                    <L label="Orders" path="/orders" Icon={ReceiptLongOutlined}/>
+                    <L label="Order Notes" path="/order-notes" Icon={AutoStoriesOutlined}/>
+                    <L label="Refunds" path="/order-refunds" Icon={MonetizationOnOutlined}/>
+
+                    <SectionLabel label="Catalog"/>
+                    <L label="Products" path="/products" Icon={StorefrontOutlined}/>
+                    <L label="Categories" path="/categories" Icon={CategoryOutlined}/>
+                    <L label="Attributes" path="/attributes" Icon={AccountTreeOutlined}/>
+                    <L label="Tags" path="/tags" Icon={TagOutlined}/>
+
+                    <SectionLabel label="Marketing"/>
+                    <L label="Coupons" path="/coupons" Icon={LocalOfferOutlined}/>
+                    <L label="Reviews" path="/reviews" Icon={SupportAgentOutlined}/>
+
+                    <SectionLabel label="Content"/>
+                    <L label="Blog Posts" path="/blog" Icon={ArticleOutlined}/>
+                    <L label="Testimonials" path="/testimonials" Icon={FormatQuoteOutlined}/>
+
+                    <SectionLabel label="Engagement"/>
+                    <L label="Subscribers" path="/subscribers" Icon={SubscriptionsOutlined}/>
+                    <L label="Messages" path="/messages" Icon={MailOutline}/>
+
+                    <SectionLabel label="People"/>
+                    <L label="Customers" path="/customers" Icon={PeopleOutline}/>
+                    <L label="Invitations" path="/invitations" Icon={MonetizationOnOutlined}/>
+
+                    <SectionLabel label="Finance"/>
+                    <L label="Payment Gateways" path="/payment-gateways" Icon={MonetizationOnOutlined}/>
+                    <L label="Tax Rates" path="/tax-rates" Icon={ReceiptOutlined}/>
+                    <L label="Tax Classes" path="/tax-classes" Icon={ReceiptOutlined}/>
+
+                    <SectionLabel label="Shipping"/>
+                    <L label="Shipping Classes" path="/shipping-classes" Icon={LocalShippingOutlined}/>
+                    <L label="Shipping Methods" path="/shipping-methods" Icon={LocalShippingOutlined}/>
+
+                    <SectionLabel label="System"/>
+                    <L label="Admins" path="/admins" Icon={AdminPanelSettingsOutlined}/>
+                    <L label="Users" path="/users" Icon={PeopleOutline}/>
+                    <L label="Webhooks" path="/webhooks" Icon={LinkOutlined}/>
+                    <L label="Settings" path="/settings" Icon={SettingsOutlined}/>
+                </Stack>
+            </Box>
+
+            <Divider/>
+
+            {/* Logout */}
+            <Box sx={{px: 2.5, py: 2}}>
+                <Stack
+                    direction="row" spacing={1.5} alignItems="center"
+                    onClick={() => { handleClose(); dispatch(logout()); navigate("/auth/login"); }}
+                    sx={{
+                        cursor: "pointer", p: 1.5, borderRadius: 0,
+                        transition: "all 0.2s",
+                        "&:hover": {backgroundColor: "light.red"},
+                    }}
+                >
+                    <LogoutOutlined sx={{fontSize: 18, color: "text.red"}}/>
+                    <Typography sx={{color: "text.red", fontSize: 13, fontWeight: 500}}>Sign Out</Typography>
+                </Stack>
+            </Box>
         </Box>
     );
 };

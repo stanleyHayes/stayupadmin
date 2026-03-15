@@ -7,6 +7,8 @@ import {
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchShippingMethods, updateShippingMethod, selectShippingMethods} from "../../redux/features/shipping-methods/shipping-methods-slice";
+import {LocalShippingOutlined, CheckCircleOutlined, CancelOutlined} from "@mui/icons-material";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 
 const ShippingMethodsPage = () => {
     const dispatch = useDispatch();
@@ -27,6 +29,17 @@ const ShippingMethodsPage = () => {
                     <Grid container alignItems="center" justifyContent="space-between">
                         <Grid size={{xs: 12, md: "auto"}}>
                             <Typography variant="h4" sx={{color: "text.secondary"}}>Shipping Methods</Typography>
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Total Methods" value={shippingMethods?.length || 0} icon={<LocalShippingOutlined/>} iconColor="secondary" iconBg="secondary"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Enabled" value={shippingMethods?.filter(m => m.enabled).length || 0} icon={<CheckCircleOutlined/>} iconColor="text.green" iconBg="light.green"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 4}}>
+                            <KPIBox label="Disabled" value={shippingMethods?.filter(m => !m.enabled).length || 0} icon={<CancelOutlined/>} iconColor="text.red" iconBg="light.red"/>
                         </Grid>
                     </Grid>
                     <Divider sx={{my: 4}}/>

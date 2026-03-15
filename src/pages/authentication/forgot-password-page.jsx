@@ -1,150 +1,72 @@
-import {
-    Box,
-    Button,
-    CardMedia,
-    Container,
-    FormControl,
-    FormHelperText,
-    Grid,
-    Link as MUILink,
-    OutlinedInput,
-    Stack,
-    Typography
-} from "@mui/material";
+import React, {useState} from "react";
+import {Alert, Box, Button, CardMedia, Container, Stack, TextField, Typography} from "@mui/material";
 import {useFormik} from "formik";
 import * as yup from "yup";
 import {Link} from "react-router-dom";
-import logo from "../../assets/images/logo.png";
-import {OpenInNew} from "@mui/icons-material";
+import {MailOutlined, ArrowBack} from "@mui/icons-material";
+import logo from "../../assets/images/logo/logo_image.png";
+import {motion} from "framer-motion";
 
 const ForgotPasswordPage = () => {
+    const [loading, setLoading] = useState(false);
+    const [sent, setSent] = useState(false);
+
     const formik = useFormik({
-        initialValues: {
-            username: "",
-            email: ""
-        },
-        validateOnChange: true,
-        validateOnBlur: true,
-        validationSchema: yup.object({}).shape({
-            username: yup.string().required("Username required"),
-            email: yup.string().required('Email required').email('Enter a valid email')
-        })
+        initialValues: {email: ""},
+        validationSchema: yup.object({email: yup.string().email("Enter a valid email").required("Email is required")}),
+        onSubmit: async () => {
+            setLoading(true);
+            await new Promise(r => setTimeout(r, 800));
+            setLoading(false);
+            setSent(true);
+        }
     });
 
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "row",
-                overflowX: "hidden",
-                overflowY: {xs: "auto", lg: "hidden"},
-                height: {xs: "100vh"},
-                justifyContent: "center",
-                alignItems: "center"
-            }}>
-            <Box sx={{paddingBottom: 4}}>
-                <Container sx={{height: "100%", display: "flex", flexDirection: "column"}}>
-                    <Stack justifyContent="center" direction="row">
-                        <Link to="/" style={{textDecoration: "none"}}>
-                            <CardMedia
-                                component="img"
-                                src={logo}
-                                sx={{height: 150, objectFit: "contain"}}
-                            />
+        <Box sx={{minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "background.default", p: 3}}>
+            <Container maxWidth="xs">
+                <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{duration: 0.4}}>
+                    <Stack spacing={3} alignItems="center">
+                        <Link to="/auth/login" style={{textDecoration: "none"}}>
+                            <Stack direction="row" spacing={1.5} alignItems="center">
+                                <CardMedia component="img" src={logo} sx={{width: 32, height: 32, objectFit: "contain"}}/>
+                                <Typography sx={{color: "secondary.main", fontSize: 20, fontWeight: 800}}>StayUp</Typography>
+                            </Stack>
+                        </Link>
+
+                        <Box sx={{width: 56, height: 56, background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)", display: "flex", alignItems: "center", justifyContent: "center"}}>
+                            <MailOutlined sx={{color: "#fff", fontSize: 28}}/>
+                        </Box>
+
+                        <Box sx={{textAlign: "center"}}>
+                            <Typography variant="h5" sx={{fontWeight: 800, mb: 0.5}}>Forgot password?</Typography>
+                            <Typography variant="body2" color="text.secondary">Enter your email and we'll send you a reset link.</Typography>
+                        </Box>
+
+                        {sent ? (
+                            <Alert severity="success" sx={{width: "100%"}}>Password reset link sent. Check your inbox.</Alert>
+                        ) : (
+                            <form onSubmit={formik.handleSubmit} style={{width: "100%"}}>
+                                <Stack spacing={2.5}>
+                                    <TextField name="email" label="Email Address" fullWidth size="small" type="email" value={formik.values.email} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.email && formik.errors.email)} helperText={formik.touched.email && formik.errors.email} placeholder="admin@stayup.com"/>
+                                    <Button type="submit" variant="contained" color="secondary" size="large" fullWidth disabled={loading} sx={{py: 1.25}}>
+                                        {loading ? "Sending..." : "Send Reset Link"}
+                                    </Button>
+                                </Stack>
+                            </form>
+                        )}
+
+                        <Link to="/auth/login" style={{textDecoration: "none"}}>
+                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                <ArrowBack sx={{fontSize: 14, color: "secondary.main"}}/>
+                                <Typography variant="body2" sx={{color: "secondary.main", fontWeight: 600}}>Back to sign in</Typography>
+                            </Stack>
                         </Link>
                     </Stack>
-                    <Grid
-                        sx={{height: "100%"}}
-                        container={true}
-                        justifyContent="center">
-                        <Grid sx={{height: "100%"}} item={true} xs={12} md={12} lg={10}>
-                            <Stack
-                                spacing={2}
-                                sx={{height: "100%"}}
-                                direction="column"
-                                justifyContent="space-between">
-                                <Box>
-                                    <Typography
-                                        variant="h4"
-                                        sx={{
-                                            color: "text.primary",
-                                            fontWeight: 700,
-                                            mb: 4,
-                                            fontSize: {xs: 32, lg: 44}
-                                        }}>
-                                        Reset your password
-                                    </Typography>
-
-                                    <Typography
-                                        variant="body1"
-                                        sx={{color: "text.secondary", mb: 4, fontWeight: 500}}>
-                                        If you signed up with a username and password, reset your password below.
-                                    </Typography>
-
-                                    <Box sx={{mb: 4}}>
-                                        <form onSubmit={formik.handleSubmit}>
-                                            <Stack sx={{mb: 4}} direction="column" spacing={2}>
-                                                <FormControl fullWidth={true}>
-                                                    <OutlinedInput
-                                                        sx={{
-                                                            borderRadius: 4,
-                                                            backgroundColor: "background.paper"
-                                                        }}
-                                                        name="username"
-                                                        id="username"
-                                                        required={true}
-                                                        fullWidth={true}
-                                                        onChange={formik.handleChange}
-                                                        onBlur={formik.handleBlur}
-                                                        margin="none"
-                                                        size="medium"
-                                                        placeholder="Enter username"
-                                                        error={Boolean(formik.touched.username && formik.errors.username)}
-                                                        value={formik.values.username}
-                                                        variant="outlined"
-                                                        type= "text"
-                                                    />
-                                                    {formik.touched.username && formik.errors.username && (
-                                                        <FormHelperText>
-                                                            {formik.errors.username}
-                                                        </FormHelperText>
-                                                    )}
-                                                </FormControl>
-                                            </Stack>
-
-                                            <Button
-                                                disableElevation={true}
-                                                size="large"
-                                                color="secondary"
-                                                variant="contained"
-                                                fullWidth={true}
-                                                sx={{
-                                                    textTransform: "capitalize",
-                                                    padding: 2,
-                                                    mb: 4,
-                                                    borderRadius: 4
-                                                }}>
-                                                Reset password
-                                            </Button>
-                                        </form>
-                                    </Box>
-
-                                    <Button
-                                        color="secondary"
-                                        fullWidth={true}
-                                        startIcon={<OpenInNew/>}>
-                                        <MUILink color="secondary" href="" underline="none" target="_blank">
-                                            Back to Login
-                                        </MUILink>
-                                    </Button>
-                                </Box>
-                            </Stack>
-                        </Grid>
-                    </Grid>
-                </Container>
-            </Box>
+                </motion.div>
+            </Container>
         </Box>
-    )
-}
+    );
+};
 
 export default ForgotPasswordPage;

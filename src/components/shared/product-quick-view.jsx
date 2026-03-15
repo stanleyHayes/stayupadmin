@@ -51,7 +51,7 @@ const ProductQuickView = ({product, open, handleClose}) => {
                                             fontSize: 36,
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: '30%',
+                                            borderRadius: 0,
                                             borderColor: "light.secondary",
                                             color: "secondary.main",
                                             backgroundColor: "light.secondary",

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {
     Alert, AlertTitle, Box, Button, Chip, Container, Divider, Grid,
     LinearProgress, Paper, Stack, Table, TableBody, TableCell,
@@ -8,8 +8,10 @@ import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchOrderRefunds, deleteOrderRefund, selectOrderRefunds} from "../../redux/features/order-refunds/order-refunds-slice";
-import {SearchOutlined, VisibilityOutlined, DeleteForeverOutlined, Add} from "@mui/icons-material";
+import {VisibilityOutlined, DeleteForeverOutlined, MoneyOffOutlined, CheckCircleOutlined, PendingOutlined, AttachMoneyOutlined} from "@mui/icons-material";
+import PageHeader from "../../components/shared/page-header.jsx";
 import moment from "moment";
+import KPIBox from "../../components/shared/kpi-box.jsx";
 
 const statusColor = (s) => s === "PROCESSED" ? "success" : s === "PENDING" ? "warning" : s === "FAILED" ? "error" : "default";
 
@@ -20,7 +22,15 @@ const OrderRefundsPage = () => {
 
     useEffect(() => { dispatch(fetchOrderRefunds()); }, [dispatch]);
 
-    const handleSearch = () => dispatch(fetchOrderRefunds({search: query}));
+    const filteredRefunds = useMemo(() => {
+        if (!Array.isArray(orderRefunds)) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return orderRefunds;
+        return orderRefunds.filter(item =>
+            [item.reason, item.order_number].join(" ").toLowerCase().includes(q)
+        );
+    }, [orderRefunds, query]);
+
     const handleDelete = async (refund) => {
         if (!window.confirm("Delete this order refund? This cannot be undone.")) return;
         await dispatch(deleteOrderRefund(refund._id));
@@ -32,33 +42,30 @@ const OrderRefundsPage = () => {
             <Box sx={{pt: 4, pb: 6}}>
                 {orderRefundError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{orderRefundError}</AlertTitle></Alert>}
                 <Container>
-                    <Grid spacing={4} container alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Typography variant="h4" sx={{color: "text.secondary"}}>Order Refunds</Typography>
-                                </Grid>
-                                <Grid size={{xs: 12, md: "auto"}}>
-                                    <Link to="/order-refund/new" style={{textDecoration: "none"}}>
-                                        <Button startIcon={<Add/>} size="small" color="secondary" variant="outlined">Add Refund</Button>
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                    <PageHeader
+                        title="Order Refunds"
+                        query={query}
+                        onQueryChange={setQuery}
+                        searchPlaceholder="Search refunds..."
+                    />
+                    <Divider variant="fullWidth" sx={{my: 3}}/>
+                    {(() => { const totalAmount = orderRefunds ? orderRefunds.reduce((sum, r) => sum + Number(r.amount || 0), 0) : 0; return (
+                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Refunds" value={orderRefunds?.length || 0} icon={<MoneyOffOutlined/>} iconColor="secondary.main" iconBg="light.secondary" trend={-5}/>
                         </Grid>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid size={{xs: 12, md: 8}}>
-                                    <Stack direction="row" spacing={1} sx={{backgroundColor: "background.paper", p: 1, borderRadius: 2}}>
-                                        <TextField value={query} size="small" placeholder="Search refunds..." onChange={e => setQuery(e.target.value)} variant="standard" slotProps={{ input: { disableUnderline: true } }} fullWidth/>
-                                        <SearchOutlined onClick={handleSearch} sx={{cursor: "pointer", alignSelf: "center"}}/>
-                                    </Stack>
-                                </Grid>
-                                <Grid size={{xs: 12, md: 4}}>
-                                    <Button size="small" color="secondary" variant="outlined" fullWidth onClick={handleSearch}>Search</Button>
-                                </Grid>
-                            </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Completed" value={orderRefunds?.filter(r => r.status === "completed").length || 0} icon={<CheckCircleOutlined/>} iconColor="text.green" iconBg="light.green" trend={3}/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Pending" value={orderRefunds?.filter(r => r.status === "pending").length || 0} icon={<PendingOutlined/>} iconColor="text.orange" iconBg="light.orange"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total Amount" value={`GHS ${totalAmount.toLocaleString()}`} icon={<AttachMoneyOutlined/>} iconColor="text.red" iconBg="light.red" trend={-8}/>
                         </Grid>
                     </Grid>
+                    ); })()}
+
                     <Divider sx={{my: 4}}/>
                     <Paper elevation={0}>
                         <TableContainer>
@@ -75,14 +82,14 @@ const OrderRefundsPage = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {orderRefunds && orderRefunds.length === 0 && (
+                                    {filteredRefunds.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={7}>
                                                 <Typography variant="body2" color="text.secondary" align="center">No refunds found</Typography>
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {orderRefunds && orderRefunds.map((refund, i) => (
+                                    {filteredRefunds.map((refund, i) => (
                                         <TableRow key={refund._id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>
@@ -109,14 +116,14 @@ const OrderRefundsPage = () => {
                                                     <Tooltip title="View Order Refund">
                                                         <Link to={`/order-refunds/${refund._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Order Refund">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(refund)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: "25%", borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>
