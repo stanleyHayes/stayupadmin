@@ -10,6 +10,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {useFormik} from "formik";
 import * as Yup from "yup";
+import MarkdownEditor from "../../components/shared/markdown-editor.jsx";
 
 const validationSchema = Yup.object({
     title: Yup.string().required("Title is required"),
@@ -36,10 +37,10 @@ const UpdateBlogPostPage = () => {
             title: post?.title || "",
             excerpt: post?.excerpt || "",
             content: post?.content || "",
-            tag: post?.tag || "",
-            image: post?.image || "",
-            author_name: post?.author?.name || "",
-            author_avatar: post?.author?.avatar || "",
+            tag: post?.tag || (Array.isArray(post?.tags) ? post.tags.join(", ") : "") || post?.category || "",
+            image: (typeof post?.image === "object" ? (post.image?.secure_url || post.image?.url || post.image?.src) : post?.image) || "",
+            author_name: post?.author?.name || post?.author?.display_name || (post?.author?.first_name ? `${post.author.first_name} ${post.author.last_name || ""}`.trim() : "") || "",
+            author_avatar: post?.author?.avatar_url || post?.author?.avatar || "",
             featured: post?.featured || false,
         },
         validationSchema,
@@ -48,13 +49,10 @@ const UpdateBlogPostPage = () => {
                 title: values.title,
                 excerpt: values.excerpt,
                 content: values.content,
-                tag: values.tag,
-                image: values.image,
+                tags: values.tag ? values.tag.split(",").map(t => t.trim()).filter(Boolean) : [],
+                category: values.tag ? values.tag.split(",")[0]?.trim() : "",
+                image: values.image ? {name: values.title, src: values.image, alt: values.title} : undefined,
                 featured: values.featured,
-                author: {
-                    name: values.author_name,
-                    avatar: values.author_avatar
-                }
             };
             const result = await dispatch(updatePost({id: postID, data}));
             if (!result.error) navigate(`/blog/${postID}`);
@@ -82,7 +80,13 @@ const UpdateBlogPostPage = () => {
                                     <TextField fullWidth label="Excerpt" name="excerpt" value={formik.values.excerpt} onChange={formik.handleChange} error={formik.touched.excerpt && Boolean(formik.errors.excerpt)} helperText={formik.touched.excerpt && formik.errors.excerpt} size="small" multiline rows={2}/>
                                 </Grid>
                                 <Grid size={{xs: 12}}>
-                                    <TextField fullWidth label="Content" name="content" value={formik.values.content} onChange={formik.handleChange} error={formik.touched.content && Boolean(formik.errors.content)} helperText={formik.touched.content && formik.errors.content} size="small" multiline rows={6}/>
+                                    <Typography variant="caption" color={formik.touched.content && formik.errors.content ? "error" : "text.secondary"} sx={{mb: 0.5, display: "block", fontWeight: 600}}>Content</Typography>
+                                    <MarkdownEditor
+                                        value={formik.values.content}
+                                        onChange={(val) => formik.setFieldValue("content", val)}
+                                        error={formik.touched.content && Boolean(formik.errors.content)}
+                                        helperText={formik.touched.content && formik.errors.content}
+                                    />
                                 </Grid>
                                 <Grid size={{xs: 12, sm: 6}}>
                                     <TextField fullWidth label="Tag" name="tag" value={formik.values.tag} onChange={formik.handleChange} error={formik.touched.tag && Boolean(formik.errors.tag)} helperText={formik.touched.tag && formik.errors.tag} size="small"/>

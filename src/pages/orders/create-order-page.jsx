@@ -67,7 +67,7 @@ const CreateOrderPage = () => {
                     {orderError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{orderError}</AlertTitle></Alert>}
                     <form onSubmit={formik.handleSubmit}>
                         <Grid container spacing={3}>
-                            <Grid item size={{xs: 12, md: 8}}>
+                            <Grid size={{xs: 12, md: 8}}>
                                 <Paper elevation={0} sx={{p: 3, mb: 2}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Order Items</Typography>
                                     <Stack spacing={2}>
@@ -99,7 +99,7 @@ const CreateOrderPage = () => {
                                     </Stack>
                                 </Paper>
                             </Grid>
-                            <Grid item size={{xs: 12, md: 4}}>
+                            <Grid size={{xs: 12, md: 4}}>
                                 <Paper elevation={0} sx={{p: 3, mb: 2}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Order Status</Typography>
                                     <FormControl size="small" fullWidth>

@@ -24,9 +24,13 @@ const Layout = ({children}) => {
             <Box
                 sx={{
                     flexBasis: {
-                        xs: "0%",
-                        md: sidebarExpanded ? '30%' : '10%',
-                        lg: sidebarExpanded ? '25%' : '5%'
+                        xs: 0,
+                        md: sidebarExpanded ? 240 : 64,
+                        lg: sidebarExpanded ? 260 : 68,
+                    },
+                    maxWidth: {
+                        md: sidebarExpanded ? 240 : 64,
+                        lg: sidebarExpanded ? 260 : 68,
                     },
                     flexShrink: 0,
                     display: {xs: "none", "md": "block"},
@@ -41,17 +45,14 @@ const Layout = ({children}) => {
                     overflowX: "hidden",
                     transition: "flex-basis 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                     "&::-webkit-scrollbar": { width: 4 },
-                    "&::-webkit-scrollbar-thumb": { backgroundColor: "divider", borderRadius: 0 }
+                    "&::-webkit-scrollbar-thumb": { backgroundColor: "divider", borderRadius: 1 }
                 }}>
                 <Sidebar/>
             </Box>
             <Box
                 sx={{
-                    flexBasis: {
-                        xs: "100%",
-                        md: sidebarExpanded ? '70%' : '90%',
-                        lg: sidebarExpanded ? '75%' : '95%'
-                    },
+                    flex: 1,
+                    minWidth: 0,
                     minHeight: "100vh",
                     backgroundColor: "background.default",
                     transition: "flex-basis 0.3s cubic-bezier(0.4, 0, 0.2, 1)"

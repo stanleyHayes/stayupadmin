@@ -12,11 +12,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BlockIcon from "@mui/icons-material/Block";
 import moment from "moment";
+import {DetailSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const InfoRow = ({label, value}) => (
     <Box sx={{display: "flex", gap: 1, alignItems: "flex-start", py: 0.5}}>
         <Typography variant="caption" color="text.secondary" sx={{minWidth: 140, fontWeight: 600}}>{label}</Typography>
-        <Typography variant="body2">{value ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{value ?? "—"}</Typography>
     </Box>
 );
 
@@ -44,6 +45,8 @@ const TestimonialDetailPage = () => {
         await dispatch(deleteTestimonial(testimonialID));
         navigate("/testimonials");
     };
+
+    if (testimonialLoading && !testimonial) return <Layout><Box sx={{pt: 4, pb: 6}}><DetailSkeleton/></Box></Layout>;
 
     const t = testimonial || {};
 

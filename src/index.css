@@ -260,7 +260,7 @@
 
 body {
   margin: 0;
-  font-family: "EuclidCircularA", "EuclidCircularB", "Outfit", sans-serif;
+  font-family: "GoogleSans", "EuclidCircularA", "EuclidCircularB", "Outfit", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

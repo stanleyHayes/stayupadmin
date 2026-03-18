@@ -19,7 +19,7 @@ const SidebarLink = ({path, label, count, icon, hasBadge = false}) => {
                 whileHover={{x: sidebarExpanded ? 4 : 0, transition: {duration: 0.15}}}
                 whileTap={{scale: 0.97}}
                 sx={{
-                    borderRadius: 0,
+                    borderRadius: 1,
                     px: sidebarExpanded ? 1 : 0,
                     py: 0.25,
                     backgroundColor: active ? "light.secondary" : "transparent",
@@ -43,7 +43,14 @@ const SidebarLink = ({path, label, count, icon, hasBadge = false}) => {
                                     size="body2">{label}</Typography>
                             </Stack>
 
-                            {hasBadge && count > 0 && (<Badge variant="standard" max={9} badgeContent={count}/>)}
+                            {hasBadge && count > 0 && (
+                                <Box sx={{
+                                    minWidth: 20, height: 20, borderRadius: 1, px: 0.5,
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    backgroundColor: "secondary.main", color: "#fff",
+                                    fontSize: 10, fontWeight: 700,
+                                }}>{count > 99 ? "99+" : count}</Box>
+                            )}
                         </Stack>
                     )}
                 </AnimatePresence>
@@ -58,7 +65,12 @@ const SidebarLink = ({path, label, count, icon, hasBadge = false}) => {
                             component={motion.div}
                             exit={{}}>
                             {hasBadge && count > 0 ? (
-                                <Badge variant="dot" badgeContent={count}>{icon}</Badge>
+                                <Badge
+                                    badgeContent={count}
+                                    max={9}
+                                    color="error"
+                                    sx={{"& .MuiBadge-badge": {fontSize: 9, height: 16, minWidth: 16, fontWeight: 700}}}
+                                >{icon}</Badge>
                             ) : icon}
                         </Stack>
                     )}

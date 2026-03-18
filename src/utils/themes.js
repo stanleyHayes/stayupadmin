@@ -1,5 +1,7 @@
 import { createTheme } from "@mui/material";
 
+const R = 10; // global border radius
+
 const sharedComponents = {
     MuiButton: {
         defaultProps: {
@@ -11,7 +13,7 @@ const sharedComponents = {
             root: {
                 textTransform: "capitalize",
                 fontWeight: 600,
-                borderRadius: 0,
+                borderRadius: R - 2,
                 letterSpacing: "0.01em",
                 transition: "all 0.2s ease",
             },
@@ -55,7 +57,7 @@ const sharedComponents = {
         },
         styleOverrides: {
             root: {
-                borderRadius: 0,
+                borderRadius: R,
             },
         },
     },
@@ -63,41 +65,41 @@ const sharedComponents = {
         styleOverrides: {
             root: {
                 fontWeight: 500,
-                borderRadius: 0,
+                borderRadius: R - 4,
             },
         },
     },
     MuiCard: {
-        styleOverrides: { root: { borderRadius: 0 } },
+        styleOverrides: { root: { borderRadius: R } },
     },
     MuiDialog: {
-        styleOverrides: { paper: { borderRadius: 0 } },
+        styleOverrides: { paper: { borderRadius: R + 2 } },
     },
     MuiAlert: {
-        styleOverrides: { root: { borderRadius: 0 } },
+        styleOverrides: { root: { borderRadius: R - 2 } },
     },
     MuiOutlinedInput: {
-        styleOverrides: { root: { borderRadius: 0 } },
+        styleOverrides: { root: { borderRadius: R - 2 } },
     },
     MuiInputBase: {
-        styleOverrides: { root: { borderRadius: "0 !important" } },
+        styleOverrides: { root: { borderRadius: `${R - 2}px !important` } },
     },
     MuiMenu: {
-        styleOverrides: { paper: { borderRadius: "0 !important" } },
+        styleOverrides: { paper: { borderRadius: `${R}px !important` } },
     },
     MuiPopover: {
-        styleOverrides: { paper: { borderRadius: "0 !important" } },
+        styleOverrides: { paper: { borderRadius: `${R}px !important` } },
     },
     MuiAvatar: {
-        styleOverrides: { root: { borderRadius: 0 } },
+        styleOverrides: { root: { borderRadius: "50%" } },
     },
     MuiSnackbarContent: {
-        styleOverrides: { root: { borderRadius: 0 } },
+        styleOverrides: { root: { borderRadius: R - 2 } },
     },
 };
 
 const sharedTypography = {
-    fontFamily: "'Inconsolata', 'EuclidCircularA', 'EuclidCircularB', 'Outfit', monospace",
+    fontFamily: "'GoogleSans', 'EuclidCircularA', 'EuclidCircularB', 'Outfit', sans-serif",
     h1: { fontWeight: 700 },
     h2: { fontWeight: 700 },
     h3: { fontWeight: 700 },
@@ -109,7 +111,7 @@ const sharedTypography = {
     button: { fontWeight: 500 },
 };
 
-const sharedShape = { borderRadius: 0 };
+const sharedShape = { borderRadius: R };
 
 const lightTheme = createTheme({
     components: sharedComponents,

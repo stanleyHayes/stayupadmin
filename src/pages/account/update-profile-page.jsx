@@ -7,9 +7,11 @@ import {useNavigate} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {selectAuth, updateUser} from "../../redux/features/authentication/authentication-slice";
+import {STAY_UP_ADMIN_CONSTANTS} from "../../utils/constants.js";
 import {ArrowBack, SaveOutlined, CameraAltOutlined} from "@mui/icons-material";
 import {useFormik} from "formik";
 import * as Yup from "yup";
+import axios from "axios";
 
 const UpdateProfilePage = () => {
     const navigate = useNavigate();
@@ -17,34 +19,45 @@ const UpdateProfilePage = () => {
     const {user} = useSelector(selectAuth);
     const [loading, setLoading] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [error, setError] = useState(null);
+
+    const name = user?.display_name || user?.name || (user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "");
+    const initials = user?.first_name && user?.last_name
+        ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
+        : name[0]?.toUpperCase() || "A";
 
     const formik = useFormik({
         initialValues: {
-            firstName: user?.firstName || "",
-            lastName: user?.lastName || "",
+            first_name: user?.first_name || "",
+            last_name: user?.last_name || "",
+            phone: user?.phone || "",
+            avatar_url: user?.avatar_url || "",
             email: user?.email || "",
             username: user?.username || "",
-            phone: user?.phone || "",
         },
         enableReinitialize: true,
         validationSchema: Yup.object({
-            firstName: Yup.string().required("First name is required"),
-            lastName: Yup.string().required("Last name is required"),
+            first_name: Yup.string().required("First name is required"),
+            last_name: Yup.string().required("Last name is required"),
             email: Yup.string().email("Enter a valid email").required("Email is required"),
             username: Yup.string().required("Username is required"),
         }),
         onSubmit: async (values) => {
             setLoading(true);
-            await new Promise(r => setTimeout(r, 600));
-            dispatch(updateUser(values));
-            setLoading(false);
-            setSaved(true);
+            setError(null);
+            try {
+                const { first_name, last_name, email, username, phone, avatar_url } = values;
+                const { data } = await axios.put(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/auth/profile`, { first_name, last_name, email, username, phone, avatar_url });
+                dispatch(updateUser(data.data ?? data));
+                setSaved(true);
+                setTimeout(() => navigate("/profile"), 1200);
+            } catch (err) {
+                setError(err?.response?.data?.message || err.message || "Failed to update profile");
+            } finally {
+                setLoading(false);
+            }
         }
     });
-
-    const initials = user?.firstName && user?.lastName
-        ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-        : "AD";
 
     const field = (name, label, opts = {}) => (
         <TextField
@@ -66,7 +79,6 @@ const UpdateProfilePage = () => {
             {loading && <LinearProgress variant="query" color="secondary"/>}
             <Box sx={{pt: 4, pb: 6}}>
                 <Container>
-                    {/* Header */}
                     <Stack direction={{xs: "column", sm: "row"}} spacing={2} alignItems={{xs: "flex-start", sm: "center"}} justifyContent="space-between" sx={{mb: 3}}>
                         <Stack direction="row" spacing={1.5} alignItems="center">
                             <Button startIcon={<ArrowBack/>} onClick={() => navigate(-1)} variant="outlined" size="small" color="inherit">Back</Button>
@@ -84,35 +96,53 @@ const UpdateProfilePage = () => {
                         </Button>
                     </Stack>
 
+                    {error && <Alert severity="error" sx={{mb: 2}}>{error}</Alert>}
                     <Divider sx={{mb: 3}}/>
 
                     <form onSubmit={formik.handleSubmit}>
                         <Grid container spacing={3}>
-                            {/* Left - Avatar & Actions */}
                             <Grid size={{xs: 12, md: 4}}>
                                 <Paper elevation={0} sx={{p: 3, textAlign: "center"}}>
                                     <Box sx={{position: "relative", display: "inline-block", mb: 2}}>
                                         <Avatar
-                                            src={user?.image}
-                                            sx={{
-                                                width: 100, height: 100, fontSize: 32, fontWeight: 700,
-                                                bgcolor: "secondary.main", color: "#fff"
-                                            }}>
+                                            src={formik.values.avatar_url || user?.avatar_url || user?.image}
+                                            sx={{width: 100, height: 100, fontSize: 32, fontWeight: 700, bgcolor: "secondary.main", color: "#fff"}}>
                                             {initials}
                                         </Avatar>
-                                        <Box sx={{
-                                            position: "absolute", bottom: 0, right: 0,
-                                            width: 32, height: 32, borderRadius: 0,
-                                            backgroundColor: "secondary.main", color: "#fff",
-                                            display: "flex", alignItems: "center", justifyContent: "center",
-                                            border: "3px solid", borderColor: "background.paper",
-                                            cursor: "pointer"
-                                        }}>
-                                            <CameraAltOutlined sx={{fontSize: 14}}/>
-                                        </Box>
+                                        <input
+                                            id="avatar-upload"
+                                            type="file"
+                                            accept="image/*"
+                                            style={{display: "none"}}
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (!file) return;
+                                                // Preview immediately
+                                                const reader = new FileReader();
+                                                reader.onload = () => formik.setFieldValue("avatar_url", reader.result);
+                                                reader.readAsDataURL(file);
+                                                // TODO: upload to server and get URL back
+                                                // For now, sets a data URL preview. Replace with real upload endpoint.
+                                            }}
+                                        />
+                                        <label htmlFor="avatar-upload">
+                                            <Box sx={{
+                                                position: "absolute", bottom: 0, right: 0,
+                                                width: 32, height: 32, borderRadius: 1,
+                                                backgroundColor: "secondary.main", color: "#fff",
+                                                display: "flex", alignItems: "center", justifyContent: "center",
+                                                border: "3px solid", borderColor: "background.paper", cursor: "pointer",
+                                                transition: "all 0.2s",
+                                                "&:hover": {transform: "scale(1.1)"},
+                                            }}>
+                                                <CameraAltOutlined sx={{fontSize: 14}}/>
+                                            </Box>
+                                        </label>
                                     </Box>
-                                    <Typography variant="subtitle2" sx={{fontWeight: 600}}>{user?.firstName} {user?.lastName}</Typography>
-                                    <Typography variant="caption" color="text.secondary">@{user?.username}</Typography>
+                                    <Typography variant="subtitle2" sx={{fontWeight: 600}}>{name}</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        {user?.username ? `@${user.username}` : user?.email || ""}
+                                    </Typography>
 
                                     <Divider sx={{my: 2}}/>
 
@@ -121,14 +151,7 @@ const UpdateProfilePage = () => {
                                     </Typography>
 
                                     <Stack spacing={1.5}>
-                                        <Button
-                                            type="submit"
-                                            variant="contained"
-                                            color="secondary"
-                                            fullWidth
-                                            disabled={loading || !formik.dirty}
-                                            startIcon={<SaveOutlined/>}
-                                        >
+                                        <Button type="submit" variant="contained" color="secondary" fullWidth disabled={loading || !formik.dirty} startIcon={<SaveOutlined/>}>
                                             Save Changes
                                         </Button>
                                         <Button variant="outlined" color="inherit" fullWidth onClick={() => navigate("/profile")}>
@@ -138,42 +161,26 @@ const UpdateProfilePage = () => {
                                 </Paper>
                             </Grid>
 
-                            {/* Right - Form Fields */}
                             <Grid size={{xs: 12, md: 8}}>
                                 <Paper elevation={0} sx={{p: 3, mb: 2}}>
-                                    <Typography variant="subtitle2" sx={{
-                                        fontWeight: 600, mb: 2, color: "text.secondary",
-                                        textTransform: "uppercase", fontSize: 11, letterSpacing: 1
-                                    }}>
+                                    <Typography variant="subtitle2" sx={{fontWeight: 600, mb: 2, color: "text.secondary", textTransform: "uppercase", fontSize: 11, letterSpacing: 1}}>
                                         Personal Information
                                     </Typography>
                                     <Grid container spacing={2}>
-                                        <Grid size={{xs: 12, sm: 6}}>
-                                            {field("firstName", "First Name")}
-                                        </Grid>
-                                        <Grid size={{xs: 12, sm: 6}}>
-                                            {field("lastName", "Last Name")}
-                                        </Grid>
-                                        <Grid size={{xs: 12}}>
-                                            {field("email", "Email Address", {type: "email"})}
-                                        </Grid>
+                                        <Grid size={{xs: 12, sm: 6}}>{field("first_name", "First Name")}</Grid>
+                                        <Grid size={{xs: 12, sm: 6}}>{field("last_name", "Last Name")}</Grid>
+                                        <Grid size={{xs: 12, sm: 6}}>{field("phone", "Phone Number")}</Grid>
+                                        <Grid size={{xs: 12, sm: 6}}>{field("avatar_url", "Avatar URL")}</Grid>
                                     </Grid>
                                 </Paper>
 
                                 <Paper elevation={0} sx={{p: 3}}>
-                                    <Typography variant="subtitle2" sx={{
-                                        fontWeight: 600, mb: 2, color: "text.secondary",
-                                        textTransform: "uppercase", fontSize: 11, letterSpacing: 1
-                                    }}>
+                                    <Typography variant="subtitle2" sx={{fontWeight: 600, mb: 2, color: "text.secondary", textTransform: "uppercase", fontSize: 11, letterSpacing: 1}}>
                                         Account Details
                                     </Typography>
                                     <Grid container spacing={2}>
-                                        <Grid size={{xs: 12, sm: 6}}>
-                                            {field("username", "Username")}
-                                        </Grid>
-                                        <Grid size={{xs: 12, sm: 6}}>
-                                            {field("phone", "Phone Number")}
-                                        </Grid>
+                                        <Grid size={{xs: 12, sm: 6}}>{field("email", "Email Address", {type: "email"})}</Grid>
+                                        <Grid size={{xs: 12, sm: 6}}>{field("username", "Username")}</Grid>
                                     </Grid>
                                 </Paper>
                             </Grid>

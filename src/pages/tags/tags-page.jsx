@@ -29,6 +29,7 @@ import KPIBox from "../../components/shared/kpi-box.jsx";
 import CreateTagDialog from "../../components/dialogs/create-tag-dialog.jsx";
 import ViewTagDialog from "../../components/dialogs/view-tag-dialog.jsx";
 import UpdateTagDialog from "../../components/dialogs/update-tag-dialog.jsx";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 
 const TagsPage = () => {
@@ -69,6 +70,8 @@ const TagsPage = () => {
         if (!window.confirm(`Delete tag "${t.name}"? This cannot be undone.`)) return;
         await dispatch(deleteTag(t.id));
     };
+
+    if (loading && tags.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={5}/></Box></Layout>;
 
     return (
         <Layout>
@@ -137,19 +140,19 @@ const TagsPage = () => {
                                                     <Tooltip title="View Tag">
                                                         <VisibilityOutlined
                                                             onClick={() => openView(t)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Edit Tag">
                                                         <EditOutlined
                                                             onClick={() => openEdit(t)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Delete Tag">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(t)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

@@ -1,91 +1,52 @@
-// src/redux/features/attributes/attributes-slice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { attributes } from "./attributes.js";
+import axios from "axios";
+import { STAY_UP_ADMIN_CONSTANTS } from "../../../utils/constants.js";
 
-// In-memory fake API — replace with your backend / WooCommerce endpoints when ready.
-let _attributes = [...attributes];
-const fakeApi = {
-    list: async (params = {}) => {
-        await new Promise(r => setTimeout(r, 80));
-        let res = [..._attributes];
-        if (params.search) {
-            const q = String(params.search).toLowerCase();
-            res = res.filter(a => a.name.toLowerCase().includes(q) || (a.slug || "").toLowerCase().includes(q));
-        }
-        return res;
-    },
-    get: async (id) => {
-        await new Promise(r => setTimeout(r, 60));
-        return _attributes.find(a => Number(a.id) === Number(id)) || null;
-    },
-    create: async (payload) => {
-        await new Promise(r => setTimeout(r, 80));
-        const id = _attributes.length ? Math.max(..._attributes.map(a => a.id)) + 1 : 1;
-        const slug = payload.slug || (payload.name || "").toLowerCase().replace(/\s+/g, "-");
-        const newAttr = { id, ...payload, slug, terms_count: payload.terms_count ?? 0 };
-        _attributes = [newAttr, ..._attributes];
-        return newAttr;
-    },
-    update: async (id, payload) => {
-        await new Promise(r => setTimeout(r, 80));
-        _attributes = _attributes.map(a => (Number(a.id) === Number(id) ? { ...a, ...payload, id: Number(id) } : a));
-        return _attributes.find(a => Number(a.id) === Number(id));
-    },
-    remove: async (id) => {
-        await new Promise(r => setTimeout(r, 80));
-        const removed = _attributes.find(a => Number(a.id) === Number(id));
-        _attributes = _attributes.filter(a => Number(a.id) !== Number(id));
-        return removed || null;
-    }
-};
-
-// Thunks
-export const fetchAttributes = createAsyncThunk("attributes/fetchAttributes", async (params, { rejectWithValue }) => {
+export const fetchAttributes = createAsyncThunk("attributes/fetchAttributes", async (params = {}, { rejectWithValue }) => {
     try {
-        const res = await fakeApi.list(params);
-        return res;
-    } catch (e) {
-        return rejectWithValue(String(e));
+        const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/attributes`, { params });
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch attributes");
     }
 });
 
 export const fetchAttribute = createAsyncThunk("attributes/fetchAttribute", async (id, { rejectWithValue }) => {
     try {
-        const res = await fakeApi.get(id);
-        return res;
-    } catch (e) {
-        return rejectWithValue(String(e));
+        const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/attributes/${id}`);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch attribute");
     }
 });
 
 export const createAttribute = createAsyncThunk("attributes/createAttribute", async (payload, { rejectWithValue }) => {
     try {
-        const res = await fakeApi.create(payload);
-        return res;
-    } catch (e) {
-        return rejectWithValue(String(e));
+        const { data } = await axios.post(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/attributes`, payload);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to create attribute");
     }
 });
 
-export const updateAttribute = createAsyncThunk("attributes/updateAttribute", async ({ id, data }, { rejectWithValue }) => {
+export const updateAttribute = createAsyncThunk("attributes/updateAttribute", async ({ id, data: payload }, { rejectWithValue }) => {
     try {
-        const res = await fakeApi.update(id, data);
-        return res;
-    } catch (e) {
-        return rejectWithValue(String(e));
+        const { data } = await axios.put(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/attributes/${id}`, payload);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to update attribute");
     }
 });
 
 export const deleteAttribute = createAsyncThunk("attributes/deleteAttribute", async (id, { rejectWithValue }) => {
     try {
-        const res = await fakeApi.remove(id);
-        return res;
-    } catch (e) {
-        return rejectWithValue(String(e));
+        const { data } = await axios.delete(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/attributes/${id}`);
+        return { id, data };
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to delete attribute");
     }
 });
 
-// Slice
 const attributesSlice = createSlice({
     name: "attributes",
     initialState: {
@@ -95,38 +56,54 @@ const attributesSlice = createSlice({
         error: null
     },
     reducers: {
-        clearAttribute(state) {
-            state.attribute = null;
-        }
+        clearAttribute(state) { state.attribute = null; }
     },
     extraReducers: builder => {
         builder
             .addCase(fetchAttributes.pending, (s) => { s.loading = true; s.error = null; })
-            .addCase(fetchAttributes.fulfilled, (s, a) => { s.loading = false; s.attributes = a.payload; })
+            .addCase(fetchAttributes.fulfilled, (s, a) => {
+                s.loading = false;
+                if (Array.isArray(a.payload)) {
+                    s.attributes = a.payload;
+                } else if (a.payload && Array.isArray(a.payload.data)) {
+                    s.attributes = a.payload.data;
+                } else {
+                    s.attributes = a.payload ? [a.payload] : [];
+                }
+            })
             .addCase(fetchAttributes.rejected, (s, a) => { s.loading = false; s.error = a.payload || a.error.message; })
 
             .addCase(fetchAttribute.pending, (s) => { s.loading = true; s.error = null; })
-            .addCase(fetchAttribute.fulfilled, (s, a) => { s.loading = false; s.attribute = a.payload; })
+            .addCase(fetchAttribute.fulfilled, (s, a) => { s.loading = false; s.attribute = a.payload?.data ?? a.payload; })
             .addCase(fetchAttribute.rejected, (s, a) => { s.loading = false; s.error = a.payload || a.error.message; })
 
             .addCase(createAttribute.pending, (s) => { s.loading = true; s.error = null; })
-            .addCase(createAttribute.fulfilled, (s, a) => { s.loading = false; s.attributes.unshift(a.payload); })
+            .addCase(createAttribute.fulfilled, (s, a) => {
+                s.loading = false;
+                const created = a.payload?.data ?? a.payload;
+                if (created) s.attributes.unshift(created);
+            })
             .addCase(createAttribute.rejected, (s, a) => { s.loading = false; s.error = a.payload || a.error.message; })
 
             .addCase(updateAttribute.pending, (s) => { s.loading = true; s.error = null; })
             .addCase(updateAttribute.fulfilled, (s, a) => {
                 s.loading = false;
-                s.attributes = s.attributes.map(x => (Number(x.id) === Number(a.payload.id) ? a.payload : x));
-                if (s.attribute && Number(s.attribute.id) === Number(a.payload.id)) s.attribute = a.payload;
+                const updated = a.payload?.data ?? a.payload;
+                if (updated && (updated._id || updated.id)) {
+                    const id = updated._id ?? updated.id;
+                    s.attributes = s.attributes.map(x => (x._id ?? x.id) === id ? { ...x, ...updated } : x);
+                    if (s.attribute && (s.attribute._id ?? s.attribute.id) === id) s.attribute = { ...s.attribute, ...updated };
+                }
             })
             .addCase(updateAttribute.rejected, (s, a) => { s.loading = false; s.error = a.payload || a.error.message; })
 
             .addCase(deleteAttribute.pending, (s) => { s.loading = true; s.error = null; })
             .addCase(deleteAttribute.fulfilled, (s, a) => {
                 s.loading = false;
-                if (a.payload && a.payload.id) {
-                    s.attributes = s.attributes.filter(t => Number(t.id) !== Number(a.payload.id));
-                    if (s.attribute && Number(s.attribute.id) === Number(a.payload.id)) s.attribute = null;
+                const id = a.payload?.id;
+                if (id) {
+                    s.attributes = s.attributes.filter(x => (x._id ?? x.id) !== id);
+                    if (s.attribute && (s.attribute._id ?? s.attribute.id) === id) s.attribute = null;
                 }
             })
             .addCase(deleteAttribute.rejected, (s, a) => { s.loading = false; s.error = a.payload || a.error.message; });

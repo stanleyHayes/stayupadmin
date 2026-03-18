@@ -12,11 +12,12 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EmailIcon from "@mui/icons-material/Email";
+import {DetailSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const InfoRow = ({label, value}) => (
     <Box sx={{display: "flex", gap: 1, alignItems: "flex-start", py: 0.5}}>
         <Typography variant="caption" color="text.secondary" sx={{minWidth: 130, fontWeight: 600}}>{label}</Typography>
-        <Typography variant="body2">{value ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{value ?? "—"}</Typography>
     </Box>
 );
 
@@ -43,6 +44,8 @@ const InvitationDetailPage = () => {
         navigate("/invitations");
     };
 
+    if (invitationLoading && !invitation) return <Layout><Box sx={{pt: 4, pb: 6}}><DetailSkeleton/></Box></Layout>;
+
     const inv = invitation || {};
 
     return (
@@ -65,7 +68,7 @@ const InvitationDetailPage = () => {
                     </Stack>
 
                     <Grid container spacing={3}>
-                        <Grid item size={{xs: 12, md: 4}}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Paper elevation={0} sx={{p: 3, textAlign: "center"}}>
                                 <EmailIcon sx={{fontSize: 56, color: "secondary.main", mb: 1}}/>
                                 <Typography variant="h6" sx={{wordBreak: "break-all"}}>{inv.email || "—"}</Typography>
@@ -76,13 +79,13 @@ const InvitationDetailPage = () => {
                             </Paper>
                         </Grid>
 
-                        <Grid item size={{xs: 12, md: 8}}>
+                        <Grid size={{xs: 12, md: 8}}>
                             <Paper elevation={0} sx={{p: 3}}>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Invitation Information</Typography>
                                 <InfoRow label="Email" value={inv.email}/>
                                 <InfoRow label="Role" value={(inv.role || "").replace("_", " ")}/>
                                 <InfoRow label="Status" value={inv.status}/>
-                                <InfoRow label="Invited by" value={inv.invited_by}/>
+                                <InfoRow label="Invited by" value={typeof inv.invited_by === "object" ? (inv.invited_by?.display_name || inv.invited_by?.name || (inv.invited_by?.first_name ? `${inv.invited_by.first_name} ${inv.invited_by.last_name || ""}`.trim() : inv.invited_by?.email || "—")) : (inv.invited_by || "—")}/>
                                 <Divider sx={{my: 2}}/>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Token & Expiry</Typography>
                                 <InfoRow label="Token" value={inv.token}/>

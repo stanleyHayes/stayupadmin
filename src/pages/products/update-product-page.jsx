@@ -9,7 +9,7 @@ import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
 import {useDispatch, useSelector} from "react-redux";
-import {fetchProduct, updateLocalProduct, selectProducts} from "../../redux/features/products/products-slice";
+import {fetchProduct, updateProduct, selectProducts} from "../../redux/features/products/products-slice";
 import Layout from "../../components/shared/layout.jsx";
 import Autocomplete from "@mui/material/Autocomplete";
 import {FieldArray, Form, Formik} from "formik";
@@ -41,7 +41,7 @@ const CategoryDialog = ({open, onClose, onCreate}) => {
     const [slug, setSlug] = useState("");
     useEffect(() => { if (!open) { setName(""); setSlug(""); } }, [open]);
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs" PaperProps={{sx: {borderRadius: 0}}}>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs" PaperProps={{sx: {borderRadius: 1}}}>
             <DialogTitle sx={{fontWeight: 600}}>Create Category</DialogTitle>
             <DialogContent>
                 <Stack spacing={2} sx={{mt: 1}}>
@@ -71,7 +71,7 @@ function cartesianAttributes(attributes) {
 
 const SectionHeader = ({icon, title, subtitle}) => (
     <Stack direction="row" spacing={1.5} alignItems="center" sx={{mb: 2}}>
-        <Box sx={{width: 36, height: 36, borderRadius: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "light.secondary", color: "secondary.main", flexShrink: 0}}>
+        <Box sx={{width: 36, height: 36, borderRadius: 1, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "light.secondary", color: "secondary.main", flexShrink: 0}}>
             {React.cloneElement(icon, {sx: {fontSize: 18}})}
         </Box>
         <Box>
@@ -169,7 +169,7 @@ const UpdateProductPage = () => {
                                     sale: {...values.sale, price: {...values.sale.price, amount: Number(values.sale.price.amount) || 0}, start_date: values.sale.start_date ? moment(values.sale.start_date).toISOString() : null, end_date: values.sale.end_date ? moment(values.sale.end_date).toISOString() : null},
                                     images: imagesUploaded, gallery: galleryUploaded, variations: variationsPrepared
                                 };
-                                dispatch(updateLocalProduct(payload));
+                                await dispatch(updateProduct({ id: product._id ?? product.id ?? product.sku, data: payload })).unwrap();
                                 setSaved(true);
                                 setTimeout(() => navigate("/products"), 1200);
                             } catch (err) { console.error(err); } finally { setSubmitting(false); }
@@ -204,7 +204,7 @@ const UpdateProductPage = () => {
                                         {/* Product Image Preview */}
                                         {values._mainImage && (
                                             <motion.div initial={{opacity: 0, y: 16}} animate={{opacity: 1, y: 0}} transition={{duration: 0.4}}>
-                                                <Paper elevation={0} sx={{mb: 2.5, overflow: "hidden", borderRadius: 0}}>
+                                                <Paper elevation={0} sx={{mb: 2.5, overflow: "hidden", borderRadius: 1}}>
                                                     <CardMedia component="img" image={values._mainImage} alt={values.title} sx={{height: 260, objectFit: "cover"}}/>
                                                 </Paper>
                                             </motion.div>
@@ -258,8 +258,8 @@ const UpdateProductPage = () => {
                                                     <Typography variant="caption" color="text.secondary" sx={{mb: 1, display: "block", fontWeight: 600}}>Primary Images</Typography>
                                                     <Stack direction="row" spacing={1.5} sx={{flexWrap: "wrap", gap: 1.5}}>
                                                         {(values.images || []).map((img, i) => (
-                                                            <Box key={i} sx={{position: "relative", borderRadius: 0, overflow: "hidden", border: "1px solid", borderColor: "divider"}}>
-                                                                <Avatar variant="rounded" src={img.preview || img.secure_url} sx={{width: 80, height: 80, borderRadius: 0}}/>
+                                                            <Box key={i} sx={{position: "relative", borderRadius: 1, overflow: "hidden", border: "1px solid", borderColor: "divider"}}>
+                                                                <Avatar variant="rounded" src={img.preview || img.secure_url} sx={{width: 80, height: 80, borderRadius: 1}}/>
                                                                 <IconButton size="small" onClick={() => { const next = [...(values.images || [])]; next.splice(i, 1); setFieldValue("images", next); }} sx={{position: "absolute", top: 2, right: 2, width: 22, height: 22, bgcolor: "rgba(0,0,0,0.5)", color: "#fff", "&:hover": {bgcolor: "rgba(0,0,0,0.7)"}}}>
                                                                     <CloseRounded sx={{fontSize: 14}}/>
                                                                 </IconButton>
@@ -267,7 +267,7 @@ const UpdateProductPage = () => {
                                                         ))}
                                                         <input id="primary-image-file" type="file" accept="image/*" style={{display: "none"}} onChange={async e => { const file = e.target.files?.[0]; if (!file) return; const preview = await readFileAsDataURL(file); setFieldValue("images", [...(values.images || []), {file, preview, alt: file.name}]); }}/>
                                                         <label htmlFor="primary-image-file">
-                                                            <Box sx={{width: 80, height: 80, borderRadius: 0, border: "2px dashed", borderColor: "divider", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s", "&:hover": {borderColor: "secondary.main", backgroundColor: "light.secondary"}}}>
+                                                            <Box sx={{width: 80, height: 80, borderRadius: 1, border: "2px dashed", borderColor: "divider", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s", "&:hover": {borderColor: "secondary.main", backgroundColor: "light.secondary"}}}>
                                                                 <CloudUploadOutlined sx={{fontSize: 20, color: "text.secondary", mb: 0.25}}/>
                                                                 <Typography variant="caption" color="text.secondary" sx={{fontSize: 9}}>Upload</Typography>
                                                             </Box>
@@ -279,8 +279,8 @@ const UpdateProductPage = () => {
                                                     <Typography variant="caption" color="text.secondary" sx={{mb: 1, display: "block", fontWeight: 600}}>Gallery</Typography>
                                                     <Stack direction="row" spacing={1.5} sx={{flexWrap: "wrap", gap: 1.5}}>
                                                         {(values.gallery || []).map((img, i) => (
-                                                            <Box key={i} sx={{position: "relative", borderRadius: 0, overflow: "hidden", border: "1px solid", borderColor: "divider"}}>
-                                                                <Avatar variant="rounded" src={img.preview || img.secure_url} sx={{width: 72, height: 72, borderRadius: 0}}/>
+                                                            <Box key={i} sx={{position: "relative", borderRadius: 1, overflow: "hidden", border: "1px solid", borderColor: "divider"}}>
+                                                                <Avatar variant="rounded" src={img.preview || img.secure_url} sx={{width: 72, height: 72, borderRadius: 1}}/>
                                                                 <IconButton size="small" onClick={() => { const next = [...(values.gallery || [])]; next.splice(i, 1); setFieldValue("gallery", next); }} sx={{position: "absolute", top: 2, right: 2, width: 20, height: 20, bgcolor: "rgba(0,0,0,0.5)", color: "#fff", "&:hover": {bgcolor: "rgba(0,0,0,0.7)"}}}>
                                                                     <CloseRounded sx={{fontSize: 12}}/>
                                                                 </IconButton>
@@ -288,7 +288,7 @@ const UpdateProductPage = () => {
                                                         ))}
                                                         <input id="gallery-file" type="file" accept="image/*" multiple style={{display: "none"}} onChange={async e => { const files = Array.from(e.target.files || []); const next = [...(values.gallery || [])]; for (const f of files) { const preview = await readFileAsDataURL(f); next.push({file: f, preview, alt: f.name}); } setFieldValue("gallery", next); }}/>
                                                         <label htmlFor="gallery-file">
-                                                            <Box sx={{width: 72, height: 72, borderRadius: 0, border: "2px dashed", borderColor: "divider", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s", "&:hover": {borderColor: "secondary.main", backgroundColor: "light.secondary"}}}>
+                                                            <Box sx={{width: 72, height: 72, borderRadius: 1, border: "2px dashed", borderColor: "divider", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s", "&:hover": {borderColor: "secondary.main", backgroundColor: "light.secondary"}}}>
                                                                 <CloudUploadOutlined sx={{fontSize: 18, color: "text.secondary", mb: 0.25}}/>
                                                                 <Typography variant="caption" color="text.secondary" sx={{fontSize: 9}}>Add</Typography>
                                                             </Box>
@@ -306,7 +306,7 @@ const UpdateProductPage = () => {
                                                         <Button size="small" variant="outlined" color="secondary" startIcon={<AddOutlined/>} onClick={() => push({name: "", values: [""]})}>Add Attribute</Button>
                                                         <Stack spacing={1.5} sx={{mt: 2}}>
                                                             {values.attributes && values.attributes.map((attr, idx) => (
-                                                                <Paper key={idx} elevation={0} sx={{p: 2, backgroundColor: "background.default", borderRadius: 0}}>
+                                                                <Paper key={idx} elevation={0} sx={{p: 2, backgroundColor: "background.default", borderRadius: 1}}>
                                                                     <Grid container spacing={1.5} alignItems="center">
                                                                         <Grid size={{xs: 12, sm: 3}}>
                                                                             <TextField size="small" label="Attribute" fullWidth value={attr.name} onChange={e => { const next = [...values.attributes]; next[idx].name = e.target.value; setFieldValue("attributes", next); }}/>
@@ -334,7 +334,7 @@ const UpdateProductPage = () => {
                                                             <Stack spacing={1} sx={{mt: 2}}>
                                                                 <Typography variant="caption" color="text.secondary" sx={{fontWeight: 600}}>{values.variations.length} Variation(s)</Typography>
                                                                 {values.variations.map((v, vi) => (
-                                                                    <Paper key={v.id || vi} elevation={0} sx={{p: 2, backgroundColor: "background.default", borderRadius: 0}}>
+                                                                    <Paper key={v.id || vi} elevation={0} sx={{p: 2, backgroundColor: "background.default", borderRadius: 1}}>
                                                                         <Stack direction="row" spacing={1} alignItems="center" sx={{mb: 1}}>
                                                                             {v.attributes.map((a, ai) => <Chip key={ai} label={`${a.name}: ${a.value}`} size="small" color="secondary" variant="outlined"/>)}
                                                                         </Stack>

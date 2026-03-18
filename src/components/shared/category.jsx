@@ -9,7 +9,7 @@ const actionIcon = (colorKey, bgKey) => ({
     fontSize: 28,
     borderWidth: 1,
     borderStyle: "solid",
-    borderRadius: 0,
+    borderRadius: 1,
     borderColor: bgKey,
     color: colorKey,
     backgroundColor: bgKey,
@@ -79,7 +79,7 @@ const Category = ({ category, index, categories = [], onView, onEdit, onDelete }
 
                 <TableCell>
                     <Typography variant="body2" sx={{ color: "text.primary" }}>
-                        {category?.product_count ?? 0}
+                        {category?.count ?? category?.product_count ?? 0}
                     </Typography>
                 </TableCell>
 

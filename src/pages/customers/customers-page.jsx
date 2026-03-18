@@ -24,25 +24,28 @@ import {
     Typography
 } from "@mui/material";
 import {Link} from "react-router-dom";
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import Empty from "../../components/shared/empty.jsx";
 import {motion} from "framer-motion";
 import {Close, PeopleOutlined, PersonAddOutlined, BlockOutlined, VerifiedUserOutlined} from "@mui/icons-material";
 import PageHeader from "../../components/shared/page-header.jsx";
 import KPIBox from "../../components/shared/kpi-box.jsx";
 import Customer from "../../components/shared/customer.jsx";
-import {selectCustomer} from "../../redux/features/customers/customers-slice";
+import {fetchCustomers, selectCustomer} from "../../redux/features/customers/customers-slice";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const CustomersPage = () => {
-
+    const dispatch = useDispatch();
     const [query, setQuery] = useState("");
     const [status, setStatus] = useState("all");
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
-    const {customers, customerLoading, customerError} = useSelector(selectCustomer)
+    const {customers, customerLoading, customerError} = useSelector(selectCustomer);
+
+    useEffect(() => { dispatch(fetchCustomers()); }, [dispatch]);
 
     const totalCustomers = customers?.length || 0;
     const activeCustomers = customers?.filter(c => (c.status || "ACTIVE") === "ACTIVE").length || 0;
@@ -60,9 +63,11 @@ const CustomersPage = () => {
                 if (endDate && d.isAfter(moment(endDate).endOf("day"))) return false;
             }
             if (!q) return true;
-            return [c.name, c.email, c.username, c.phone].join(" ").toLowerCase().includes(q);
+            return [c.display_name, c.name, c.first_name, c.last_name, c.email, c.username, c.phone].join(" ").toLowerCase().includes(q);
         });
     }, [customers, query, status, startDate, endDate]);
+
+    if (customerLoading && customers.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={5}/></Box></Layout>;
 
     return (
         <Layout>
@@ -169,10 +174,9 @@ const CustomersPage = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>#</TableCell>
-                                    <TableCell>Name</TableCell>
+                                    <TableCell>Customer</TableCell>
                                     <TableCell>Phone</TableCell>
                                     <TableCell>Username</TableCell>
-                                    <TableCell>Email</TableCell>
                                     <TableCell>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -190,7 +194,7 @@ const CustomersPage = () => {
                                                 fontSize: 36,
                                                 borderWidth: 1,
                                                 borderStyle: "solid",
-                                                borderRadius: 0,
+                                                borderRadius: 1,
                                                 borderColor: "light.secondary",
                                                 color: "secondary.main",
                                                 backgroundColor: "light.secondary",

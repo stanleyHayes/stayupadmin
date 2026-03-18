@@ -10,7 +10,7 @@ import {Link} from "react-router-dom";
 const iconBtn = {
     padding: 0.6,
     fontSize: 28,
-    borderRadius: 0,
+    borderRadius: 1,
     color: "text.secondary",
     cursor: "pointer",
     transition: "all 0.2s ease",
@@ -25,8 +25,8 @@ const MobileHeader = () => {
     const {theme} = useSelector(selectUI);
     const {user} = useSelector(selectAuth);
 
-    const initials = user?.firstName && user?.lastName
-        ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "AD";
+    const initials = user?.first_name && user?.last_name
+        ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase() : "A";
 
     return (
         <Toolbar
@@ -54,7 +54,7 @@ const MobileHeader = () => {
                 {/* Right — Actions */}
                 <Stack direction="row" spacing={0.5} alignItems="center">
                     <Link to="/profile" style={{textDecoration: "none"}}>
-                        <Avatar src={user?.image} sx={{width: 28, height: 28, fontSize: 10, fontWeight: 700, bgcolor: "secondary.main", color: "#fff"}}>
+                        <Avatar src={user?.avatar_url || user?.image} sx={{width: 28, height: 28, fontSize: 10, fontWeight: 700, bgcolor: "secondary.main", color: "#fff"}}>
                             {initials}
                         </Avatar>
                     </Link>
@@ -79,7 +79,7 @@ const MobileHeader = () => {
                     <Box
                         onClick={() => dispatch(UI_ACTION_CREATORS.toggleDrawer(true))}
                         sx={{
-                            width: 32, height: 32, borderRadius: 0,
+                            width: 32, height: 32, borderRadius: 1,
                             display: "flex", alignItems: "center", justifyContent: "center",
                             backgroundColor: "light.secondary", cursor: "pointer",
                             transition: "all 0.2s",

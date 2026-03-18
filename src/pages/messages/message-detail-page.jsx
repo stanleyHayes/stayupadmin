@@ -14,7 +14,7 @@ import moment from "moment";
 const InfoRow = ({label, value}) => (
     <Box sx={{display: "flex", gap: 1, alignItems: "flex-start", py: 0.5}}>
         <Typography variant="caption" color="text.secondary" sx={{minWidth: 140, fontWeight: 600}}>{label}</Typography>
-        <Typography variant="body2">{value ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{value ?? "—"}</Typography>
     </Box>
 );
 

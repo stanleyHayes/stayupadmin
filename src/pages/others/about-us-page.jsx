@@ -30,7 +30,7 @@ const AboutUsPage = () => {
                                     <Stack direction="row" spacing={2} alignItems="flex-start">
                                         <Box sx={{
                                             display: "flex", alignItems: "center", justifyContent: "center",
-                                            width: 40, height: 40, borderRadius: 0,
+                                            width: 40, height: 40, borderRadius: 1,
                                             backgroundColor: bg, color: color, flexShrink: 0
                                         }}>
                                             {icon}

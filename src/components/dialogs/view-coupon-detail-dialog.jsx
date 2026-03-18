@@ -15,7 +15,7 @@ import moment from "moment";
 const Row = ({ label, children }) => (
     <Stack spacing={0.5} sx={{ mb: 1 }}>
         <Typography variant="caption" color="text.secondary">{label}</Typography>
-        <Typography variant="body2">{children ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{children ?? "—"}</Typography>
     </Stack>
 );
 
@@ -65,13 +65,13 @@ const ViewCouponDialog = ({ open, coupon, onClose }) => {
                         <Divider sx={{ my: 1.5 }} />
 
                         <Stack spacing={0.5} sx={{ mb: 1 }}>
-                            <Typography variant="caption" color="text.secondary">Included Emails</Typography>
-                            <Stack direction="row" flexWrap="wrap">{renderList(coupon.included_emails)}</Stack>
+                            <Typography variant="caption" color="text.secondary">Email Restrictions</Typography>
+                            <Stack direction="row" flexWrap="wrap">{renderList(coupon.email_restrictions)}</Stack>
                         </Stack>
 
-                        <Row label="Included Products">{(coupon.included_products || []).join(", ") || "—"}</Row>
-                        <Row label="Excluded Products">{(coupon.excluded_products || []).join(", ") || "—"}</Row>
-                        <Row label="Included Categories">{(coupon.included_product_categories || []).join(", ") || "—"}</Row>
+                        <Row label="Product IDs">{(coupon.product_ids || []).join(", ") || "—"}</Row>
+                        <Row label="Excluded Product IDs">{(coupon.excluded_product_ids || []).join(", ") || "—"}</Row>
+                        <Row label="Product Categories">{(coupon.product_categories || []).join(", ") || "—"}</Row>
                         <Row label="Excluded Categories">{(coupon.excluded_product_categories || []).join(", ") || "—"}</Row>
                     </>
                 ) : (

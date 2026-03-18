@@ -1,75 +1,56 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { paymentGateways as seedPaymentGateways } from "./payment-gateways";
+import axios from "axios";
+import { STAY_UP_ADMIN_CONSTANTS } from "../../../utils/constants.js";
 
-let _paymentGateways = [...seedPaymentGateways];
-
-const fakeApi = {
-    list: async (params = {}) => {
-        await new Promise(r => setTimeout(r, 80));
-        let res = [..._paymentGateways];
-        if (params.enabled !== undefined) {
-            res = res.filter(g => g.enabled === params.enabled);
-        }
-        if (params.search) {
-            const q = params.search.toLowerCase();
-            res = res.filter(g =>
-                (g.title || "").toLowerCase().includes(q) ||
-                (g.description || "").toLowerCase().includes(q)
-            );
-        }
-        return res;
-    },
-    get: async (id) => {
-        await new Promise(r => setTimeout(r, 60));
-        return _paymentGateways.find(g => String(g._id) === String(id)) || null;
-    },
-    create: async (payload) => {
-        await new Promise(r => setTimeout(r, 80));
-        const newGateway = { ...payload, _id: `pg${Date.now()}`, order: _paymentGateways.length + 1 };
-        _paymentGateways.push(newGateway);
-        return newGateway;
-    },
-    update: async (id, payload) => {
-        await new Promise(r => setTimeout(r, 80));
-        _paymentGateways = _paymentGateways.map(g => String(g._id) === String(id) ? { ...g, ...payload, _id: g._id } : g);
-        return _paymentGateways.find(g => String(g._id) === String(id));
-    },
-    remove: async (id) => {
-        await new Promise(r => setTimeout(r, 60));
-        _paymentGateways = _paymentGateways.filter(g => String(g._id) !== String(id));
-        return id;
+export const fetchPaymentGateways = createAsyncThunk("paymentGateways/fetchPaymentGateways", async (params = {}, { rejectWithValue }) => {
+    try {
+        const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/payment-gateways`, { params });
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch payment gateways");
     }
-};
-
-export const fetchPaymentGateways = createAsyncThunk("paymentGateways/fetchPaymentGateways", async (params, { rejectWithValue }) => {
-    try { return await fakeApi.list(params); }
-    catch (e) { return rejectWithValue(String(e)); }
 });
 
 export const fetchPaymentGateway = createAsyncThunk("paymentGateways/fetchPaymentGateway", async (id, { rejectWithValue }) => {
-    try { return await fakeApi.get(id); }
-    catch (e) { return rejectWithValue(String(e)); }
+    try {
+        const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/payment-gateways/${id}`);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch payment gateway");
+    }
 });
 
-export const createPaymentGateway = createAsyncThunk("paymentGateways/createPaymentGateway", async (data, { rejectWithValue }) => {
-    try { return await fakeApi.create(data); }
-    catch (e) { return rejectWithValue(String(e)); }
+export const createPaymentGateway = createAsyncThunk("paymentGateways/createPaymentGateway", async (payload, { rejectWithValue }) => {
+    try {
+        const { data } = await axios.post(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/payment-gateways`, payload);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to create payment gateway");
+    }
 });
 
-export const updatePaymentGateway = createAsyncThunk("paymentGateways/updatePaymentGateway", async ({ id, data }, { rejectWithValue }) => {
-    try { return await fakeApi.update(id, data); }
-    catch (e) { return rejectWithValue(String(e)); }
+export const updatePaymentGateway = createAsyncThunk("paymentGateways/updatePaymentGateway", async ({ id, data: payload }, { rejectWithValue }) => {
+    try {
+        const { data } = await axios.put(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/payment-gateways/${id}`, payload);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to update payment gateway");
+    }
 });
 
 export const deletePaymentGateway = createAsyncThunk("paymentGateways/deletePaymentGateway", async (id, { rejectWithValue }) => {
-    try { return await fakeApi.remove(id); }
-    catch (e) { return rejectWithValue(String(e)); }
+    try {
+        const { data } = await axios.delete(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/payment-gateways/${id}`);
+        return { id, data };
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to delete payment gateway");
+    }
 });
 
 const paymentGatewaysSlice = createSlice({
     name: "paymentGateways",
     initialState: {
-        paymentGateways: [..._paymentGateways],
+        paymentGateways: [],
         paymentGateway: null,
         paymentGatewayLoading: false,
         paymentGatewayError: null
@@ -81,33 +62,50 @@ const paymentGatewaysSlice = createSlice({
     extraReducers: builder => {
         builder
             .addCase(fetchPaymentGateways.pending, s => { s.paymentGatewayLoading = true; s.paymentGatewayError = null; })
-            .addCase(fetchPaymentGateways.fulfilled, (s, a) => { s.paymentGatewayLoading = false; s.paymentGateways = a.payload; })
+            .addCase(fetchPaymentGateways.fulfilled, (s, a) => {
+                s.paymentGatewayLoading = false;
+                if (Array.isArray(a.payload)) {
+                    s.paymentGateways = a.payload;
+                } else if (a.payload && Array.isArray(a.payload.data)) {
+                    s.paymentGateways = a.payload.data;
+                } else {
+                    s.paymentGateways = a.payload ? [a.payload] : [];
+                }
+            })
             .addCase(fetchPaymentGateways.rejected, (s, a) => { s.paymentGatewayLoading = false; s.paymentGatewayError = a.payload || a.error.message; })
 
             .addCase(fetchPaymentGateway.pending, s => { s.paymentGatewayLoading = true; s.paymentGatewayError = null; })
-            .addCase(fetchPaymentGateway.fulfilled, (s, a) => { s.paymentGatewayLoading = false; s.paymentGateway = a.payload; })
+            .addCase(fetchPaymentGateway.fulfilled, (s, a) => { s.paymentGatewayLoading = false; s.paymentGateway = a.payload?.data ?? a.payload; })
             .addCase(fetchPaymentGateway.rejected, (s, a) => { s.paymentGatewayLoading = false; s.paymentGatewayError = a.payload || a.error.message; })
 
             .addCase(createPaymentGateway.pending, s => { s.paymentGatewayLoading = true; s.paymentGatewayError = null; })
             .addCase(createPaymentGateway.fulfilled, (s, a) => {
                 s.paymentGatewayLoading = false;
-                s.paymentGateways.push(a.payload);
+                const created = a.payload?.data ?? a.payload;
+                if (created) s.paymentGateways.unshift(created);
             })
             .addCase(createPaymentGateway.rejected, (s, a) => { s.paymentGatewayLoading = false; s.paymentGatewayError = a.payload || a.error.message; })
 
             .addCase(updatePaymentGateway.pending, s => { s.paymentGatewayLoading = true; s.paymentGatewayError = null; })
             .addCase(updatePaymentGateway.fulfilled, (s, a) => {
                 s.paymentGatewayLoading = false;
-                s.paymentGateways = s.paymentGateways.map(x => String(x._id) === String(a.payload._id) ? a.payload : x);
-                if (s.paymentGateway && String(s.paymentGateway._id) === String(a.payload._id)) s.paymentGateway = a.payload;
+                const updated = a.payload?.data ?? a.payload;
+                if (updated && (updated._id || updated.id)) {
+                    const id = updated._id ?? updated.id;
+                    s.paymentGateways = s.paymentGateways.map(x => (x._id ?? x.id) === id ? { ...x, ...updated } : x);
+                    if (s.paymentGateway && (s.paymentGateway._id ?? s.paymentGateway.id) === id) s.paymentGateway = { ...s.paymentGateway, ...updated };
+                }
             })
             .addCase(updatePaymentGateway.rejected, (s, a) => { s.paymentGatewayLoading = false; s.paymentGatewayError = a.payload || a.error.message; })
 
             .addCase(deletePaymentGateway.pending, s => { s.paymentGatewayLoading = true; s.paymentGatewayError = null; })
             .addCase(deletePaymentGateway.fulfilled, (s, a) => {
                 s.paymentGatewayLoading = false;
-                s.paymentGateways = s.paymentGateways.filter(x => String(x._id) !== String(a.payload));
-                if (s.paymentGateway && String(s.paymentGateway._id) === String(a.payload)) s.paymentGateway = null;
+                const id = a.payload?.id;
+                if (id) {
+                    s.paymentGateways = s.paymentGateways.filter(x => (x._id ?? x.id) !== id);
+                    if (s.paymentGateway && (s.paymentGateway._id ?? s.paymentGateway.id) === id) s.paymentGateway = null;
+                }
             })
             .addCase(deletePaymentGateway.rejected, (s, a) => { s.paymentGatewayLoading = false; s.paymentGatewayError = a.payload || a.error.message; });
     }

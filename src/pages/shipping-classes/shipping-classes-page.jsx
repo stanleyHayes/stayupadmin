@@ -13,7 +13,7 @@ import KPIBox from "../../components/shared/kpi-box.jsx";
 const ShippingClassesPage = () => {
     const dispatch = useDispatch();
     const {shippingClasses, shippingClassLoading, shippingClassError} = useSelector(selectShippingClasses);
-    const [form, setForm] = useState({name: "", slug: "", description: ""});
+    const [form, setForm] = useState({name: ""});
     const [showForm, setShowForm] = useState(false);
 
     useEffect(() => { dispatch(fetchShippingClasses()); }, [dispatch]);
@@ -25,7 +25,7 @@ const ShippingClassesPage = () => {
         if (!form.name.trim()) return;
         const result = await dispatch(createShippingClass({...form}));
         if (!result.error) {
-            setForm({name: "", slug: "", description: ""});
+            setForm({name: ""});
             setShowForm(false);
         }
     };
@@ -70,16 +70,14 @@ const ShippingClassesPage = () => {
                                     <TableRow>
                                         <TableCell>#</TableCell>
                                         <TableCell>Name</TableCell>
-                                        <TableCell>Slug</TableCell>
-                                        <TableCell>Description</TableCell>
-                                        <TableCell>Products</TableCell>
+                                        <TableCell>Created</TableCell>
                                         <TableCell>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {shippingClasses && shippingClasses.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={6}>
+                                            <TableCell colSpan={4}>
                                                 <Typography variant="body2" color="text.secondary" align="center">No shipping classes found</Typography>
                                             </TableCell>
                                         </TableRow>
@@ -87,10 +85,8 @@ const ShippingClassesPage = () => {
                                     {shippingClasses && shippingClasses.map((sc, i) => (
                                         <TableRow key={sc._id}>
                                             <TableCell>{i + 1}</TableCell>
-                                            <TableCell><Typography variant="body2">{sc.name}</Typography></TableCell>
-                                            <TableCell><Typography variant="body2" color="text.secondary">{sc.slug || "—"}</Typography></TableCell>
-                                            <TableCell><Typography variant="body2" color="text.secondary" sx={{maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"}}>{sc.description || "—"}</Typography></TableCell>
-                                            <TableCell><Typography variant="body2">{sc.count ?? 0}</Typography></TableCell>
+                                            <TableCell><Typography variant="body2" sx={{fontWeight: 500}}>{sc.name}</Typography></TableCell>
+                                            <TableCell><Typography variant="body2" color="text.secondary">{sc.created_at ? new Date(sc.created_at).toLocaleDateString() : "—"}</Typography></TableCell>
                                             <TableCell>
                                                 <Tooltip title={`Delete ${sc.name}`}>
                                                     <DeleteForeverOutlined
@@ -100,7 +96,7 @@ const ShippingClassesPage = () => {
                                                             fontSize: 28,
                                                             borderWidth: 1,
                                                             borderStyle: "solid",
-                                                            borderRadius: 0,
+                                                            borderRadius: 1,
                                                             borderColor: "light.red",
                                                             color: "text.red",
                                                             backgroundColor: "light.red",
@@ -113,12 +109,10 @@ const ShippingClassesPage = () => {
                                     ))}
                                     {showForm && (
                                         <TableRow>
-                                            <TableCell colSpan={6}>
+                                            <TableCell colSpan={4}>
                                                 <form onSubmit={handleAdd}>
                                                     <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{py: 1}}>
-                                                        <TextField name="name" label="Name" value={form.name} onChange={handleChange} size="small" required sx={{minWidth: 180}}/>
-                                                        <TextField name="slug" label="Slug" value={form.slug} onChange={handleChange} size="small" sx={{minWidth: 140}}/>
-                                                        <TextField name="description" label="Description" value={form.description} onChange={handleChange} size="small" sx={{minWidth: 220}}/>
+                                                        <TextField name="name" label="Shipping class name" value={form.name} onChange={handleChange} size="small" required sx={{minWidth: 280}}/>
                                                         <Button type="submit" variant="contained" color="secondary" size="small" disabled={shippingClassLoading}>Add</Button>
                                                         <Button variant="outlined" size="small" onClick={() => setShowForm(false)}>Cancel</Button>
                                                     </Stack>

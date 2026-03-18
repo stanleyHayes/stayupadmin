@@ -16,7 +16,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 const InfoRow = ({label, value}) => (
     <Box sx={{display: "flex", gap: 1, alignItems: "flex-start", py: 0.5}}>
         <Typography variant="caption" color="text.secondary" sx={{minWidth: 130, fontWeight: 600}}>{label}</Typography>
-        <Typography variant="body2">{value ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{value ?? "—"}</Typography>
     </Box>
 );
 
@@ -58,7 +58,7 @@ const CategoryDetailPage = () => {
                     </Stack>
 
                     <Grid container spacing={3}>
-                        <Grid item size={{xs: 12, md: 4}}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Paper elevation={0} sx={{p: 3, textAlign: "center"}}>
                                 <CategoryIcon sx={{fontSize: 56, color: "secondary.main", mb: 1}}/>
                                 <Typography variant="h6" sx={{mb: 0.5}}>{c.name || "—"}</Typography>
@@ -70,14 +70,14 @@ const CategoryDetailPage = () => {
                             </Paper>
                         </Grid>
 
-                        <Grid item size={{xs: 12, md: 8}}>
+                        <Grid size={{xs: 12, md: 8}}>
                             <Paper elevation={0} sx={{p: 3}}>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Category Information</Typography>
                                 <InfoRow label="Name" value={c.name}/>
                                 <InfoRow label="Slug" value={c.slug}/>
                                 <InfoRow label="Description" value={c.description}/>
                                 <InfoRow label="Parent" value={c.parent || "None (Top Level)"}/>
-                                <InfoRow label="Product count" value={c.product_count != null ? String(c.product_count) : null}/>
+                                <InfoRow label="Product count" value={String(c.count ?? c.product_count ?? 0)}/>
                                 <Divider sx={{my: 2}}/>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>SEO</Typography>
                                 <InfoRow label="SEO title" value={c.meta?.seo_title}/>

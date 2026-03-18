@@ -32,12 +32,12 @@ const MobileDrawer = () => {
     };
 
     const activeStyle = {
-        borderRadius: 0, padding: 0.75, fontSize: 32,
+        borderRadius: 1, padding: 0.75, fontSize: 32,
         color: "secondary.main", backgroundColor: "light.secondary"
     };
 
     const defaultStyle = {
-        borderRadius: 0, padding: 0.75, fontSize: 32,
+        borderRadius: 1, padding: 0.75, fontSize: 32,
         color: "text.secondary", backgroundColor: "transparent"
     };
 
@@ -55,8 +55,8 @@ const MobileDrawer = () => {
             icon={<Icon sx={isActive(path) ? activeStyle : defaultStyle}/>}/>
     );
 
-    const initials = user?.firstName && user?.lastName
-        ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "AD";
+    const initials = user?.first_name && user?.last_name
+        ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase() : "A";
 
     return (
         <Box sx={{width: "85vw", maxWidth: 340, display: "flex", flexDirection: "column", height: "100%", backgroundColor: "background.paper"}}>
@@ -64,12 +64,12 @@ const MobileDrawer = () => {
             <Box sx={{px: 2.5, py: 2}}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Stack direction="row" spacing={1.5} alignItems="center" sx={{
-                        p: 1, borderRadius: 0,
+                        p: 1, borderRadius: 1,
                         background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
                         flex: 1, mr: 1.5,
                     }}>
                         <Box sx={{
-                            width: 32, height: 32, borderRadius: 0,
+                            width: 32, height: 32, borderRadius: 1,
                             backgroundColor: "rgba(255,255,255,0.2)",
                             display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                         }}>
@@ -83,7 +83,7 @@ const MobileDrawer = () => {
                     <Box
                         onClick={handleClose}
                         sx={{
-                            width: 36, height: 36, borderRadius: 0,
+                            width: 36, height: 36, borderRadius: 1,
                             display: "flex", alignItems: "center", justifyContent: "center",
                             backgroundColor: "light.secondary", cursor: "pointer",
                             transition: "all 0.2s", flexShrink: 0,
@@ -98,15 +98,15 @@ const MobileDrawer = () => {
             {/* User Card */}
             <Box sx={{px: 2.5, pb: 2}}>
                 <Stack direction="row" spacing={1.5} alignItems="center" sx={{
-                    p: 1.5, borderRadius: 0,
+                    p: 1.5, borderRadius: 1,
                     background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
                 }}>
-                    <Avatar src={user?.image} sx={{width: 40, height: 40, fontSize: 14, fontWeight: 700, bgcolor: "rgba(255,255,255,0.2)", color: "#fff"}}>
+                    <Avatar src={user?.avatar_url || user?.image} sx={{width: 40, height: 40, fontSize: 14, fontWeight: 700, bgcolor: "rgba(255,255,255,0.2)", color: "#fff"}}>
                         {initials}
                     </Avatar>
                     <Box sx={{flex: 1, minWidth: 0}}>
                         <Typography variant="body2" sx={{fontWeight: 600, fontSize: 13, color: "#fff"}} noWrap>
-                            {user?.firstName} {user?.lastName}
+                            {user?.first_name || user?.display_name || user?.email}{user?.last_name ? ` ${user.last_name}` : ""}
                         </Typography>
                         <Typography variant="caption" sx={{color: "rgba(255,255,255,0.7)", fontSize: 11}} noWrap>
                             {user?.email}
@@ -167,8 +167,6 @@ const MobileDrawer = () => {
 
                     <SectionLabel label="System"/>
                     <L label="Admins" path="/admins" Icon={AdminPanelSettingsOutlined}/>
-                    <L label="Users" path="/users" Icon={PeopleOutline}/>
-                    <L label="Webhooks" path="/webhooks" Icon={LinkOutlined}/>
                     <L label="Settings" path="/settings" Icon={SettingsOutlined}/>
                 </Stack>
             </Box>
@@ -181,7 +179,7 @@ const MobileDrawer = () => {
                     direction="row" spacing={1.5} alignItems="center"
                     onClick={() => { handleClose(); dispatch(logout()); navigate("/auth/login"); }}
                     sx={{
-                        cursor: "pointer", p: 1.5, borderRadius: 0,
+                        cursor: "pointer", p: 1.5, borderRadius: 1,
                         transition: "all 0.2s",
                         "&:hover": {backgroundColor: "light.red"},
                     }}

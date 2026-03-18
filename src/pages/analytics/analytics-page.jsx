@@ -22,15 +22,17 @@ import {
 } from "@mui/icons-material";
 
 const STATUS_COLORS = {
-    completed: "#22C55E", processing: "#3B82F6", "pending payment": "#F59E0B",
-    "on-hold": "#F59E0B", refunded: "#06B6D4", cancelled: "#6B7280", failed: "#EF4444",
+    pending: "#F59E0B", processing: "#3B82F6", "on-hold": "#F59E0B",
+    shipped: "#8B5CF6", "in-transit": "#6366F1", delivered: "#10B981",
+    completed: "#22C55E", refunded: "#06B6D4", cancelled: "#6B7280", failed: "#EF4444",
+    "pending payment": "#F59E0B",
 };
 
 const statusChipColor = (s) => {
-    if (s === "completed") return "success";
-    if (s === "processing") return "info";
+    if (s === "completed" || s === "delivered") return "success";
+    if (s === "processing" || s === "shipped" || s === "in-transit") return "info";
     if (s === "failed" || s === "cancelled") return "error";
-    if (s === "on-hold" || s === "pending payment") return "warning";
+    if (s === "on-hold" || s === "pending" || s === "pending payment") return "warning";
     return "default";
 };
 
@@ -66,15 +68,15 @@ const AnalyticsPage = () => {
             : period === "30d" ? now.clone().subtract(30, "days")
             : period === "90d" ? now.clone().subtract(90, "days")
             : now.clone().subtract(1, "year");
-        return orders.filter(o => moment(o.createdAt).isAfter(cutoff));
+        return orders.filter(o => moment(o.date_created || o.created_at || o.createdAt).isAfter(cutoff));
     }, [orders, period]);
 
-    const totalRevenue = filteredOrders.reduce((s, o) => s + Number(o.total?.amount || 0), 0);
+    const totalRevenue = filteredOrders.reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
     const totalOrders = filteredOrders.length;
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
     const customerSet = new Set(filteredOrders.map(o => o.customer?._id).filter(Boolean));
-    const completedOrders = filteredOrders.filter(o => o.status === "completed").length;
-    const completedRevenue = filteredOrders.filter(o => o.status === "completed").reduce((s, o) => s + Number(o.total?.amount || 0), 0);
+    const completedOrders = filteredOrders.filter(o => o.status === "completed" || o.status === "delivered").length;
+    const completedRevenue = filteredOrders.filter(o => o.status === "completed" || o.status === "delivered").reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
     const conversionRate = totalOrders > 0 ? ((completedOrders / totalOrders) * 100).toFixed(1) : "0.0";
 
     // Status breakdown
@@ -83,7 +85,7 @@ const AnalyticsPage = () => {
         const s = o.status || "unknown";
         if (!statusGroups[s]) statusGroups[s] = {count: 0, total: 0};
         statusGroups[s].count += 1;
-        statusGroups[s].total += Number(o.total?.amount || 0);
+        statusGroups[s].total += Number(o.total?.amount ?? o.total ?? 0);
     });
 
     const pieData = Object.entries(statusGroups).map(([status, data], i) => ({
@@ -96,8 +98,8 @@ const AnalyticsPage = () => {
         const months = Array(12).fill(0);
         const monthOrders = Array(12).fill(0);
         (orders || []).forEach(o => {
-            const m = moment(o.createdAt).month();
-            months[m] += Number(o.total?.amount || 0);
+            const m = moment(o.date_created || o.created_at || o.createdAt).month();
+            months[m] += Number(o.total?.amount ?? o.total ?? 0);
             monthOrders[m] += 1;
         });
         return {revenue: months, orders: monthOrders};
@@ -113,8 +115,8 @@ const AnalyticsPage = () => {
         for (let i = 13; i >= 0; i--) {
             const d = moment().subtract(i, "days");
             days.push(d.format("MM/DD"));
-            const dayOrders = (orders || []).filter(o => moment(o.createdAt).isSame(d, "day"));
-            revenue.push(dayOrders.reduce((s, o) => s + Number(o.total?.amount || 0), 0));
+            const dayOrders = (orders || []).filter(o => moment(o.date_created || o.created_at || o.createdAt).isSame(d, "day"));
+            revenue.push(dayOrders.reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0));
             orderCounts.push(dayOrders.length);
         }
         return {days, revenue, orders: orderCounts};
@@ -224,7 +226,7 @@ const AnalyticsPage = () => {
                                 <Stack spacing={0.5} sx={{mt: 1.5}}>
                                     {pieData.map(d => (
                                         <Stack key={d.id} direction="row" spacing={1} alignItems="center">
-                                            <Box sx={{width: 8, height: 8, borderRadius: 0, bgcolor: d.color, flexShrink: 0}}/>
+                                            <Box sx={{width: 8, height: 8, borderRadius: 1, bgcolor: d.color, flexShrink: 0}}/>
                                             <Typography variant="caption" sx={{textTransform: "capitalize", flex: 1}}>{d.label}</Typography>
                                             <Typography variant="caption" fontWeight={600}>{d.value}</Typography>
                                         </Stack>
@@ -310,7 +312,7 @@ const AnalyticsPage = () => {
                                             ) : productRevenue.map((p, i) => (
                                                 <TableRow key={i}>
                                                     <TableCell>
-                                                        <Box sx={{width: 24, height: 24, borderRadius: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: i === 0 ? "light.yellow" : i === 1 ? "light.secondary" : i === 2 ? "light.orange" : "light.default", color: i === 0 ? "text.yellow" : i === 1 ? "secondary.main" : i === 2 ? "text.orange" : "text.secondary"}}>
+                                                        <Box sx={{width: 24, height: 24, borderRadius: 1, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: i === 0 ? "light.yellow" : i === 1 ? "light.secondary" : i === 2 ? "light.orange" : "light.default", color: i === 0 ? "text.yellow" : i === 1 ? "secondary.main" : i === 2 ? "text.orange" : "text.secondary"}}>
                                                             <Typography variant="caption" sx={{fontWeight: 700, fontSize: 10}}>{i + 1}</Typography>
                                                         </Box>
                                                     </TableCell>
@@ -362,7 +364,7 @@ const AnalyticsPage = () => {
                                                     <TableCell><Chip label={order.status} size="small" color={statusChipColor(order.status)} sx={{textTransform: "capitalize"}}/></TableCell>
                                                     <TableCell><Typography variant="body2" color="text.secondary">{order.billing?.method || "—"}</Typography></TableCell>
                                                     <TableCell align="right"><Typography variant="body2" sx={{fontWeight: 600}}>£{Number(order.total?.amount || 0).toFixed(2)}</Typography></TableCell>
-                                                    <TableCell><Typography variant="body2" color="text.secondary">{moment(order.createdAt).format("ll")}</Typography></TableCell>
+                                                    <TableCell><Typography variant="body2" color="text.secondary">{moment(order.date_created || order.created_at || order.createdAt).format("ll")}</Typography></TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

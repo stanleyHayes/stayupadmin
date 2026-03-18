@@ -1,80 +1,56 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { orderRefunds as seedOrderRefunds } from "./order-refunds";
+import axios from "axios";
+import { STAY_UP_ADMIN_CONSTANTS } from "../../../utils/constants.js";
 
-let _orderRefunds = [...seedOrderRefunds];
-
-const fakeApi = {
-    list: async (params = {}) => {
-        await new Promise(r => setTimeout(r, 80));
-        let res = [..._orderRefunds];
-        if (params.order_id) {
-            res = res.filter(r => String(r.order_id) === String(params.order_id));
-        }
-        if (params.status && params.status !== "all") {
-            res = res.filter(r => r.status === params.status);
-        }
-        if (params.search) {
-            const q = params.search.toLowerCase();
-            res = res.filter(r =>
-                (r.reason || "").toLowerCase().includes(q) ||
-                (r.order_id || "").toLowerCase().includes(q)
-            );
-        }
-        return res;
-    },
-    get: async (id) => {
-        await new Promise(r => setTimeout(r, 60));
-        return _orderRefunds.find(r => String(r._id) === String(id)) || null;
-    },
-    create: async (payload) => {
-        await new Promise(r => setTimeout(r, 80));
-        const _id = `ref${Date.now()}`;
-        const newRefund = { _id, status: "PENDING", created_at: new Date().toISOString(), ...payload };
-        _orderRefunds = [newRefund, ..._orderRefunds];
-        return newRefund;
-    },
-    update: async (id, payload) => {
-        await new Promise(r => setTimeout(r, 80));
-        _orderRefunds = _orderRefunds.map(r => String(r._id) === String(id) ? { ...r, ...payload, _id: r._id } : r);
-        return _orderRefunds.find(r => String(r._id) === String(id));
-    },
-    remove: async (id) => {
-        await new Promise(r => setTimeout(r, 80));
-        const removed = _orderRefunds.find(r => String(r._id) === String(id));
-        _orderRefunds = _orderRefunds.filter(r => String(r._id) !== String(id));
-        return removed || null;
+export const fetchOrderRefunds = createAsyncThunk("orderRefunds/fetchOrderRefunds", async (params = {}, { rejectWithValue }) => {
+    try {
+        const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/order-refunds`, { params });
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch order refunds");
     }
-};
-
-export const fetchOrderRefunds = createAsyncThunk("orderRefunds/fetchOrderRefunds", async (params, { rejectWithValue }) => {
-    try { return await fakeApi.list(params); }
-    catch (e) { return rejectWithValue(String(e)); }
 });
 
 export const fetchOrderRefund = createAsyncThunk("orderRefunds/fetchOrderRefund", async (id, { rejectWithValue }) => {
-    try { return await fakeApi.get(id); }
-    catch (e) { return rejectWithValue(String(e)); }
+    try {
+        const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/order-refunds/${id}`);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch order refund");
+    }
 });
 
 export const createOrderRefund = createAsyncThunk("orderRefunds/createOrderRefund", async (payload, { rejectWithValue }) => {
-    try { return await fakeApi.create(payload); }
-    catch (e) { return rejectWithValue(String(e)); }
+    try {
+        const { data } = await axios.post(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/order-refunds`, payload);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to create order refund");
+    }
 });
 
-export const updateOrderRefund = createAsyncThunk("orderRefunds/updateOrderRefund", async ({ id, data }, { rejectWithValue }) => {
-    try { return await fakeApi.update(id, data); }
-    catch (e) { return rejectWithValue(String(e)); }
+export const updateOrderRefund = createAsyncThunk("orderRefunds/updateOrderRefund", async ({ id, data: payload }, { rejectWithValue }) => {
+    try {
+        const { data } = await axios.put(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/order-refunds/${id}`, payload);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to update order refund");
+    }
 });
 
 export const deleteOrderRefund = createAsyncThunk("orderRefunds/deleteOrderRefund", async (id, { rejectWithValue }) => {
-    try { return await fakeApi.remove(id); }
-    catch (e) { return rejectWithValue(String(e)); }
+    try {
+        const { data } = await axios.delete(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/order-refunds/${id}`);
+        return { id, data };
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to delete order refund");
+    }
 });
 
 const orderRefundsSlice = createSlice({
     name: "orderRefunds",
     initialState: {
-        orderRefunds: [..._orderRefunds],
+        orderRefunds: [],
         orderRefund: null,
         orderRefundLoading: false,
         orderRefundError: null
@@ -86,31 +62,49 @@ const orderRefundsSlice = createSlice({
     extraReducers: builder => {
         builder
             .addCase(fetchOrderRefunds.pending, s => { s.orderRefundLoading = true; s.orderRefundError = null; })
-            .addCase(fetchOrderRefunds.fulfilled, (s, a) => { s.orderRefundLoading = false; s.orderRefunds = a.payload; })
+            .addCase(fetchOrderRefunds.fulfilled, (s, a) => {
+                s.orderRefundLoading = false;
+                if (Array.isArray(a.payload)) {
+                    s.orderRefunds = a.payload;
+                } else if (a.payload && Array.isArray(a.payload.data)) {
+                    s.orderRefunds = a.payload.data;
+                } else {
+                    s.orderRefunds = a.payload ? [a.payload] : [];
+                }
+            })
             .addCase(fetchOrderRefunds.rejected, (s, a) => { s.orderRefundLoading = false; s.orderRefundError = a.payload || a.error.message; })
 
             .addCase(fetchOrderRefund.pending, s => { s.orderRefundLoading = true; s.orderRefundError = null; })
-            .addCase(fetchOrderRefund.fulfilled, (s, a) => { s.orderRefundLoading = false; s.orderRefund = a.payload; })
+            .addCase(fetchOrderRefund.fulfilled, (s, a) => { s.orderRefundLoading = false; s.orderRefund = a.payload?.data ?? a.payload; })
             .addCase(fetchOrderRefund.rejected, (s, a) => { s.orderRefundLoading = false; s.orderRefundError = a.payload || a.error.message; })
 
             .addCase(createOrderRefund.pending, s => { s.orderRefundLoading = true; s.orderRefundError = null; })
-            .addCase(createOrderRefund.fulfilled, (s, a) => { s.orderRefundLoading = false; s.orderRefunds.unshift(a.payload); })
+            .addCase(createOrderRefund.fulfilled, (s, a) => {
+                s.orderRefundLoading = false;
+                const created = a.payload?.data ?? a.payload;
+                if (created) s.orderRefunds.unshift(created);
+            })
             .addCase(createOrderRefund.rejected, (s, a) => { s.orderRefundLoading = false; s.orderRefundError = a.payload || a.error.message; })
 
             .addCase(updateOrderRefund.pending, s => { s.orderRefundLoading = true; s.orderRefundError = null; })
             .addCase(updateOrderRefund.fulfilled, (s, a) => {
                 s.orderRefundLoading = false;
-                s.orderRefunds = s.orderRefunds.map(x => String(x._id) === String(a.payload._id) ? a.payload : x);
-                if (s.orderRefund && String(s.orderRefund._id) === String(a.payload._id)) s.orderRefund = a.payload;
+                const updated = a.payload?.data ?? a.payload;
+                if (updated && (updated._id || updated.id)) {
+                    const id = updated._id ?? updated.id;
+                    s.orderRefunds = s.orderRefunds.map(x => (x._id ?? x.id) === id ? { ...x, ...updated } : x);
+                    if (s.orderRefund && (s.orderRefund._id ?? s.orderRefund.id) === id) s.orderRefund = { ...s.orderRefund, ...updated };
+                }
             })
             .addCase(updateOrderRefund.rejected, (s, a) => { s.orderRefundLoading = false; s.orderRefundError = a.payload || a.error.message; })
 
             .addCase(deleteOrderRefund.pending, s => { s.orderRefundLoading = true; s.orderRefundError = null; })
             .addCase(deleteOrderRefund.fulfilled, (s, a) => {
                 s.orderRefundLoading = false;
-                if (a.payload && a.payload._id) {
-                    s.orderRefunds = s.orderRefunds.filter(x => String(x._id) !== String(a.payload._id));
-                    if (s.orderRefund && String(s.orderRefund._id) === String(a.payload._id)) s.orderRefund = null;
+                const id = a.payload?.id;
+                if (id) {
+                    s.orderRefunds = s.orderRefunds.filter(x => (x._id ?? x.id) !== id);
+                    if (s.orderRefund && (s.orderRefund._id ?? s.orderRefund.id) === id) s.orderRefund = null;
                 }
             })
             .addCase(deleteOrderRefund.rejected, (s, a) => { s.orderRefundLoading = false; s.orderRefundError = a.payload || a.error.message; });

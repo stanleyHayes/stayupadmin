@@ -1,4 +1,5 @@
 import {Avatar, Stack, Typography} from "@mui/material";
+import {productImageUrl} from "../../utils/helpers.js";
 
 const ProductProfile = ({product}) => {
     return (
@@ -9,7 +10,7 @@ const ProductProfile = ({product}) => {
             spacing={2}
             alignItems="center">
             <Avatar
-                src={product?.image?.secure_url}
+                src={productImageUrl(product)}
                 variant="circular"
                 sx={{width: 30, height: 30}}
             />
@@ -18,7 +19,7 @@ const ProductProfile = ({product}) => {
                 display="inline"
                 component="span"
                 sx={{color: "text.primary"}}>
-                {product?.title}
+                {product?.title || product?.name}
             </Typography>
         </Stack>
     )

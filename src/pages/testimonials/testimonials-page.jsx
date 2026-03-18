@@ -3,7 +3,7 @@ import {
     Alert, AlertTitle, Avatar, Box, Button, Chip, Container, Divider, FormControl,
     Grid, InputLabel, LinearProgress, MenuItem, Paper, Select,
     Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    TextField, Tooltip, Typography
+    Tooltip, Typography
 } from "@mui/material";
 import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
@@ -16,48 +16,43 @@ import {
 import PageHeader from "../../components/shared/page-header.jsx";
 import KPIBox from "../../components/shared/kpi-box.jsx";
 import moment from "moment";
-
-const statusColor = (s) => s === "approved" ? "success" : s === "pending" ? "warning" : "default";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const renderStars = (rating) => {
     const r = Number(rating) || 0;
-    const full = Math.floor(r);
-    const half = r % 1 >= 0.5 ? 1 : 0;
-    return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(Math.max(0, 5 - full - half));
+    return "★".repeat(Math.floor(r)) + "☆".repeat(Math.max(0, 5 - Math.floor(r)));
 };
 
 const TestimonialsPage = () => {
     const dispatch = useDispatch();
     const {testimonials, testimonialLoading, testimonialError} = useSelector(selectTestimonials);
     const [query, setQuery] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
+    const [filter, setFilter] = useState("all");
 
     useEffect(() => { dispatch(fetchTestimonials()); }, [dispatch]);
 
-    const filteredTestimonials = useMemo(() => {
+    const filtered = useMemo(() => {
         if (!Array.isArray(testimonials)) return [];
+        let result = [...testimonials];
+        if (filter === "active") result = result.filter(t => t.is_active);
+        if (filter === "inactive") result = result.filter(t => !t.is_active);
+        if (filter === "verified") result = result.filter(t => t.is_verified);
         const q = query.trim().toLowerCase();
-        if (!q) return testimonials;
-        return testimonials.filter(item =>
-            [item.name, item.content, item.company].join(" ").toLowerCase().includes(q)
-        );
-    }, [testimonials, query]);
+        if (q) result = result.filter(t => [t.name, t.content, t.product, t.location, t.role].join(" ").toLowerCase().includes(q));
+        return result;
+    }, [testimonials, query, filter]);
 
-    const handleStatusFilter = (e) => {
-        const s = e.target.value;
-        setStatusFilter(s);
-        dispatch(fetchTestimonials({search: query, status: s}));
-    };
     const handleDelete = async (t) => {
-        if (!window.confirm(`Delete testimonial by ${t.name}? This cannot be undone.`)) return;
+        if (!window.confirm(`Delete testimonial by ${t.name}?`)) return;
         await dispatch(deleteTestimonial(t._id));
     };
 
     const total = testimonials?.length || 0;
-    const approvedCount = testimonials?.filter(t => t.status === "approved").length || 0;
-    const pendingCount = testimonials?.filter(t => t.status === "pending").length || 0;
-    const avgRating = total > 0 ? (testimonials.reduce((sum, t) => sum + (t.rating || 0), 0) / total).toFixed(1) : "0.0";
+    const activeCount = testimonials?.filter(t => t.is_active).length || 0;
     const verifiedCount = testimonials?.filter(t => t.is_verified).length || 0;
+    const avgRating = total > 0 ? (testimonials.reduce((sum, t) => sum + (Number(t.rating) || 0), 0) / total).toFixed(1) : "0.0";
+
+    if (testimonialLoading && (!testimonials || testimonials.length === 0)) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={7}/></Box></Layout>;
 
     return (
         <Layout>
@@ -67,49 +62,38 @@ const TestimonialsPage = () => {
                 <Container>
                     <PageHeader
                         title="Testimonials"
-                        subtitle="Manage customer testimonials displayed on the website"
                         query={query}
                         onQueryChange={setQuery}
                         searchPlaceholder="Search testimonials..."
-                        action={
-                            <Link to="/testimonial/new" style={{textDecoration: "none"}}>
-                                <Button size="small" color="secondary" variant="contained">Add Testimonial</Button>
-                            </Link>
-                        }
                     />
-                    <Divider variant="fullWidth" sx={{my: 3}}/>
-
-                    {/* KPI Stats */}
-                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
-                        <Grid size={{xs: 6, sm: 3}}>
-                            <KPIBox label="Total" value={total} icon={<FormatQuoteOutlined fontSize="small"/>} iconColor="secondary.main" iconBg="light.secondary" trend={15}/>
-                        </Grid>
-                        <Grid size={{xs: 6, sm: 3}}>
-                            <KPIBox label="Avg. Rating" value={`${avgRating} ★`} icon={<ThumbUpOutlined fontSize="small"/>} iconColor="text.yellow" iconBg="light.yellow"/>
-                        </Grid>
-                        <Grid size={{xs: 6, sm: 3}}>
-                            <KPIBox label="Approved" value={approvedCount} icon={<VerifiedOutlined fontSize="small"/>} iconColor="text.green" iconBg="light.green" trend={10}/>
-                        </Grid>
-                        <Grid size={{xs: 6, sm: 3}}>
-                            <KPIBox label="Pending" value={pendingCount} icon={<PendingOutlined fontSize="small"/>} iconColor="text.orange" iconBg="light.orange"/>
-                        </Grid>
-                    </Grid>
-
-                    {/* Filters */}
-                    <Grid spacing={2} container alignItems="center" justifyContent="flex-end" sx={{mb: 2}}>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <FormControl size="small" sx={{minWidth: 130}}>
-                                <InputLabel>Status</InputLabel>
-                                <Select value={statusFilter} onChange={handleStatusFilter} label="Status">
-                                    <MenuItem value="all">All</MenuItem>
-                                    <MenuItem value="approved">Approved</MenuItem>
-                                    <MenuItem value="pending">Pending</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                    </Grid>
-
                     <Divider sx={{my: 3}}/>
+
+                    <Grid container spacing={2} sx={{mb: 4}}>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Total" value={total} icon={<FormatQuoteOutlined fontSize="small"/>} iconColor="secondary.main" iconBg="light.secondary"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Avg Rating" value={`${avgRating} ★`} icon={<ThumbUpOutlined fontSize="small"/>} iconColor="text.yellow" iconBg="light.yellow"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Active" value={activeCount} icon={<VerifiedOutlined fontSize="small"/>} iconColor="text.green" iconBg="light.green"/>
+                        </Grid>
+                        <Grid size={{xs: 6, sm: 3}}>
+                            <KPIBox label="Verified" value={verifiedCount} icon={<PendingOutlined fontSize="small"/>} iconColor="text.blue" iconBg="light.blue"/>
+                        </Grid>
+                    </Grid>
+
+                    <Stack direction="row" spacing={2} sx={{mb: 3}}>
+                        <FormControl size="small" sx={{minWidth: 120}}>
+                            <InputLabel>Filter</InputLabel>
+                            <Select value={filter} onChange={e => setFilter(e.target.value)} label="Filter">
+                                <MenuItem value="all">All</MenuItem>
+                                <MenuItem value="active">Active</MenuItem>
+                                <MenuItem value="inactive">Inactive</MenuItem>
+                                <MenuItem value="verified">Verified</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Stack>
 
                     <Paper elevation={0}>
                         <TableContainer>
@@ -126,49 +110,49 @@ const TestimonialsPage = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {filteredTestimonials.length === 0 && (
+                                    {filtered.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={7}>
                                                 <Typography variant="body2" color="text.secondary" align="center">No testimonials found</Typography>
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {filteredTestimonials.map((t, i) => (
-                                        <TableRow key={t._id}>
+                                    {filtered.map((t, i) => (
+                                        <TableRow key={t._id} hover>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>
-                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                    <Avatar src={t.avatar} sx={{width: 28, height: 28}}/>
+                                                <Stack direction="row" spacing={1.5} alignItems="center">
+                                                    <Avatar src={t.avatar_url} sx={{width: 32, height: 32}}>{(t.name || "?")[0].toUpperCase()}</Avatar>
                                                     <Box>
-                                                        <Typography variant="body2" sx={{fontWeight: 500}}>{t.name}</Typography>
-                                                        <Typography variant="caption" color="text.secondary">{t.location}</Typography>
+                                                        <Typography variant="body2" sx={{fontWeight: 500}}>{t.name || "—"}</Typography>
+                                                        <Typography variant="caption" color="text.secondary">{t.role || t.location || ""}</Typography>
                                                     </Box>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="body2">{t.product || "—"}</Typography>
+                                                <Typography variant="body2" color="text.secondary">{t.product || "—"}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" sx={{fontFamily: "monospace", letterSpacing: 1, color: "text.yellow"}}>{renderStars(t.rating)}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Stack direction="row" spacing={0.5} alignItems="center">
-                                                    <Chip label={t.status} size="small" color={statusColor(t.status)}/>
+                                                    <Chip label={t.is_active ? "Active" : "Inactive"} size="small" color={t.is_active ? "success" : "default"}/>
                                                     {t.is_verified && <Chip label="Verified" size="small" variant="outlined" color="info" sx={{fontSize: 10}}/>}
                                                 </Stack>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="body2" color="text.secondary">{t.created_at ? moment(t.created_at).format("ll") : "—"}</Typography>
+                                                <Typography variant="body2" color="text.secondary">{(t.created_at || t.date_created) ? moment(t.created_at || t.date_created).format("ll") : "—"}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Stack direction="row" spacing={1} alignItems="center">
                                                     <Tooltip title="View">
                                                         <Link to={`/testimonials/${t._id}`} style={{textDecoration: "none"}}>
-                                                            <VisibilityOutlined sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}/>
+                                                            <VisibilityOutlined sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}/>
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete">
-                                                        <DeleteForeverOutlined onClick={() => handleDelete(t)} sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}/>
+                                                        <DeleteForeverOutlined onClick={() => handleDelete(t)} sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}/>
                                                     </Tooltip>
                                                 </Stack>
                                             </TableCell>

@@ -192,7 +192,7 @@ const PaymentGatewaysPage = () => {
             </Box>
 
             {/* Add Gateway Dialog */}
-            <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth PaperProps={{sx: {borderRadius: 0}}}>
+            <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth PaperProps={{sx: {borderRadius: 1}}}>
                 <DialogTitle sx={{fontWeight: 600}}>Add Payment Gateway</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2.5} sx={{mt: 1}}>

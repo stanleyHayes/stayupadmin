@@ -47,6 +47,7 @@ import {
 import CreateCategoryDialog from "../../components/dialogs/create-category-dialog.jsx";
 import UpdateCategoryDialog from "../../components/dialogs/update-category-dialog.jsx";
 import ViewCategoryDialog from "../../components/dialogs/view-category-dialog.jsx";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 // Dialogs (place these files under src/components/categories/)
 
@@ -67,7 +68,7 @@ const CategoriesPage = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
-        //dispatch(fetchCategories());
+        dispatch(fetchCategories());
     }, [dispatch]);
 
     // client-side filtered list
@@ -138,6 +139,8 @@ const CategoriesPage = () => {
         if (!window.confirm(`Delete category "${category.name}"?`)) return;
         dispatch(deleteCategory(category._id ?? category.id ?? category.slug));
     };
+
+    if (categoryLoading && categories.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={6}/></Box></Layout>;
 
     return (
         <Layout>

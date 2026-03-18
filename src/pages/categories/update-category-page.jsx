@@ -59,17 +59,17 @@ const UpdateCategoryPage = () => {
                     {categoryError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{categoryError}</AlertTitle></Alert>}
                     <form onSubmit={formik.handleSubmit}>
                         <Grid container spacing={3}>
-                            <Grid item size={{xs: 12, md: 8}}>
+                            <Grid size={{xs: 12, md: 8}}>
                                 <Paper elevation={0} sx={{p: 3}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Category Details</Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item size={{xs: 12}}>{field("name", "Category name")}</Grid>
-                                        <Grid item size={{xs: 12}}>{field("slug", "Slug")}</Grid>
-                                        <Grid item size={{xs: 12}}>{field("description", "Description", {multiline: true, rows: 3})}</Grid>
+                                        <Grid size={{xs: 12}}>{field("name", "Category name")}</Grid>
+                                        <Grid size={{xs: 12}}>{field("slug", "Slug")}</Grid>
+                                        <Grid size={{xs: 12}}>{field("description", "Description", {multiline: true, rows: 3})}</Grid>
                                     </Grid>
                                 </Paper>
                             </Grid>
-                            <Grid item size={{xs: 12, md: 4}}>
+                            <Grid size={{xs: 12, md: 4}}>
                                 <Paper elevation={0} sx={{p: 3, mb: 2}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Status</Typography>
                                     <Stack spacing={2}>

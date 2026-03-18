@@ -22,7 +22,7 @@ const NavItem = ({label, path, ActiveIcon, InactiveIcon, active, onClick}) => (
         {active && (
             <Box sx={{
                 position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-                width: 20, height: 3, borderRadius: 0,
+                width: 20, height: 3, borderRadius: 1,
                 backgroundColor: "secondary.main",
             }}/>
         )}

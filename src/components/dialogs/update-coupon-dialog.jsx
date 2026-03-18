@@ -50,10 +50,10 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
             individual_use: !!coupon.individual_use,
             minimum_amount: coupon.minimum_amount ?? "",
             maximum_amount: coupon.maximum_amount ?? "",
-            included_emails: (coupon.included_emails || []).join(", "),
-            included_products: (coupon.included_products || []).join(", "),
-            excluded_products: (coupon.excluded_products || []).join(", "),
-            included_product_categories: (coupon.included_product_categories || []).join(", "),
+            email_restrictions: (coupon.email_restrictions || []).join(", "),
+            product_ids: (coupon.product_ids || []).join(", "),
+            excluded_product_ids: (coupon.excluded_product_ids || []).join(", "),
+            product_categories: (coupon.product_categories || []).join(", "),
             excluded_product_categories: (coupon.excluded_product_categories || []).join(", ")
         });
     }, [coupon]);
@@ -94,10 +94,10 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
         individual_use: !!form.individual_use,
         minimum_amount: form.minimum_amount === "" ? null : Number(form.minimum_amount),
         maximum_amount: form.maximum_amount === "" ? null : Number(form.maximum_amount),
-        included_emails: form.included_emails ? form.included_emails.split(",").map(s => s.trim()).filter(Boolean) : [],
-        included_products: form.included_products ? form.included_products.split(",").map(s => s.trim()).filter(Boolean) : [],
-        excluded_products: form.excluded_products ? form.excluded_products.split(",").map(s => s.trim()).filter(Boolean) : [],
-        included_product_categories: form.included_product_categories ? form.included_product_categories.split(",").map(s => s.trim()).filter(Boolean) : [],
+        email_restrictions: form.email_restrictions ? form.email_restrictions.split(",").map(s => s.trim()).filter(Boolean) : [],
+        product_ids: form.product_ids ? form.product_ids.split(",").map(s => s.trim()).filter(Boolean) : [],
+        excluded_product_ids: form.excluded_product_ids ? form.excluded_product_ids.split(",").map(s => s.trim()).filter(Boolean) : [],
+        product_categories: form.product_categories ? form.product_categories.split(",").map(s => s.trim()).filter(Boolean) : [],
         excluded_product_categories: form.excluded_product_categories ? form.excluded_product_categories.split(",").map(s => s.trim()).filter(Boolean) : []
     });
 
@@ -142,10 +142,9 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                                 value={form.discount_type}
                                 onChange={e => setForm({ ...form, discount_type: e.target.value })}
                             >
-                                <MenuItem value="percent">Percent</MenuItem>
-                                <MenuItem value="fixed_at">Fixed At</MenuItem>
-                                <MenuItem value="fixed_cart">Fixed Cart</MenuItem>
-                                <MenuItem value="fixed_product">Fixed Product</MenuItem>
+                                <MenuItem value="percent">Percentage</MenuItem>
+                                <MenuItem value="fixed_cart">Fixed cart discount</MenuItem>
+                                <MenuItem value="fixed_product">Fixed product discount</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
@@ -198,8 +197,8 @@ const UpdateCouponDialog = ({ open, coupon, onClose, onUpdate }) => {
                             label="Included emails (comma separated)"
                             fullWidth
                             size="small"
-                            value={form.included_emails}
-                            onChange={e => setForm({ ...form, included_emails: e.target.value })}
+                            value={form.email_restrictions}
+                            onChange={e => setForm({ ...form, email_restrictions: e.target.value })}
                         />
                     </Grid>
 

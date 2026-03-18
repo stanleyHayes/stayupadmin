@@ -13,7 +13,7 @@ import LinkIcon from "@mui/icons-material/Link";
 const MetaRow = ({ label, value }) => (
     <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap", mb: 1 }}>
         <Typography variant="caption" color="text.secondary" sx={{ minWidth: 120 }}>{label}</Typography>
-        <Typography variant="body2">{value ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{value ?? "—"}</Typography>
     </Box>
 );
 
@@ -43,7 +43,7 @@ const AttributeDetailPage = () => {
                 </Stack>
 
                 <Grid container spacing={2}>
-                    <Grid item size={{ xs: 12, md: 4 }}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Card elevation={0}>
                             <CardHeader title={attribute?.name || "—"} subheader={attribute?.slug || "—"} />
                             <CardContent>
@@ -72,7 +72,7 @@ const AttributeDetailPage = () => {
                         </Card>
                     </Grid>
 
-                    <Grid item size={{ xs: 12, md: 8 }}>
+                    <Grid size={{ xs: 12, md: 8 }}>
                         <Card elevation={0}>
                             <CardContent>
                                 <Typography variant="subtitle1">Meta</Typography>

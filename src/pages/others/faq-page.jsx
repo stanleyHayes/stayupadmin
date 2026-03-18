@@ -122,7 +122,7 @@ const FaqPage = () => {
                                 <Typography variant="subtitle1" sx={{fontWeight: 600, mb: 2, color: "text.secondary"}}>
                                     {category}
                                 </Typography>
-                                <Paper elevation={0} sx={{borderRadius: 0, overflow: "hidden"}}>
+                                <Paper elevation={0} sx={{borderRadius: 1, overflow: "hidden"}}>
                                     {items.map(({q, a}, i) => {
                                         const panel = `${category}-${i}`;
                                         return (

@@ -8,7 +8,7 @@ const InfoCard = ({icon, title, lines, color = "secondary.main", bg = "light.sec
         <Stack spacing={2}>
             <Box sx={{
                 display: "flex", alignItems: "center", justifyContent: "center",
-                width: 40, height: 40, borderRadius: 0,
+                width: 40, height: 40, borderRadius: 1,
                 backgroundColor: bg, color: color
             }}>
                 {icon}

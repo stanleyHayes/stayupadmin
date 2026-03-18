@@ -1,82 +1,56 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { posts as seedPosts } from "./posts";
+import axios from "axios";
+import { STAY_UP_ADMIN_CONSTANTS } from "../../../utils/constants.js";
 
-let _posts = [...seedPosts];
-
-const fakeApi = {
-    list: async (params = {}) => {
-        await new Promise(r => setTimeout(r, 80));
-        let res = [..._posts];
-        if (params.search) {
-            const q = params.search.toLowerCase();
-            res = res.filter(p =>
-                (p.title || "").toLowerCase().includes(q) ||
-                (p.tag || "").toLowerCase().includes(q) ||
-                (p.author?.name || "").toLowerCase().includes(q)
-            );
-        }
-        if (params.status && params.status !== "all") {
-            res = res.filter(p => p.status === params.status);
-        }
-        if (params.tag && params.tag !== "all") {
-            res = res.filter(p => p.tag === params.tag);
-        }
-        return res;
-    },
-    get: async (id) => {
-        await new Promise(r => setTimeout(r, 60));
-        return _posts.find(p => String(p._id) === String(id)) || null;
-    },
-    create: async (payload) => {
-        await new Promise(r => setTimeout(r, 80));
-        const _id = `post${Date.now()}`;
-        const now = new Date().toISOString();
-        const newPost = { _id, status: "draft", featured: false, created_at: now, updated_at: now, ...payload };
-        _posts = [newPost, ..._posts];
-        return newPost;
-    },
-    update: async (id, payload) => {
-        await new Promise(r => setTimeout(r, 80));
-        _posts = _posts.map(p => String(p._id) === String(id) ? { ...p, ...payload, _id: p._id, updated_at: new Date().toISOString() } : p);
-        return _posts.find(p => String(p._id) === String(id));
-    },
-    remove: async (id) => {
-        await new Promise(r => setTimeout(r, 80));
-        const removed = _posts.find(p => String(p._id) === String(id));
-        _posts = _posts.filter(p => String(p._id) !== String(id));
-        return removed || null;
+export const fetchPosts = createAsyncThunk("blog/fetchPosts", async (params = {}, { rejectWithValue }) => {
+    try {
+        const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/posts`, { params });
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch posts");
     }
-};
-
-export const fetchPosts = createAsyncThunk("blog/fetchPosts", async (params, { rejectWithValue }) => {
-    try { return await fakeApi.list(params); }
-    catch (e) { return rejectWithValue(String(e)); }
 });
 
 export const fetchPost = createAsyncThunk("blog/fetchPost", async (id, { rejectWithValue }) => {
-    try { return await fakeApi.get(id); }
-    catch (e) { return rejectWithValue(String(e)); }
+    try {
+        const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/posts/${id}`);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch post");
+    }
 });
 
 export const createPost = createAsyncThunk("blog/createPost", async (payload, { rejectWithValue }) => {
-    try { return await fakeApi.create(payload); }
-    catch (e) { return rejectWithValue(String(e)); }
+    try {
+        const { data } = await axios.post(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/posts`, payload);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to create post");
+    }
 });
 
-export const updatePost = createAsyncThunk("blog/updatePost", async ({ id, data }, { rejectWithValue }) => {
-    try { return await fakeApi.update(id, data); }
-    catch (e) { return rejectWithValue(String(e)); }
+export const updatePost = createAsyncThunk("blog/updatePost", async ({ id, data: payload }, { rejectWithValue }) => {
+    try {
+        const { data } = await axios.put(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/posts/${id}`, payload);
+        return data;
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to update post");
+    }
 });
 
 export const deletePost = createAsyncThunk("blog/deletePost", async (id, { rejectWithValue }) => {
-    try { return await fakeApi.remove(id); }
-    catch (e) { return rejectWithValue(String(e)); }
+    try {
+        const { data } = await axios.delete(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/posts/${id}`);
+        return { id, data };
+    } catch (err) {
+        return rejectWithValue(err?.response?.data?.message || err.message || "Failed to delete post");
+    }
 });
 
 const blogSlice = createSlice({
     name: "blog",
     initialState: {
-        posts: [..._posts],
+        posts: [],
         post: null,
         postLoading: false,
         postError: null
@@ -88,31 +62,49 @@ const blogSlice = createSlice({
     extraReducers: builder => {
         builder
             .addCase(fetchPosts.pending, s => { s.postLoading = true; s.postError = null; })
-            .addCase(fetchPosts.fulfilled, (s, a) => { s.postLoading = false; s.posts = a.payload; })
+            .addCase(fetchPosts.fulfilled, (s, a) => {
+                s.postLoading = false;
+                if (Array.isArray(a.payload)) {
+                    s.posts = a.payload;
+                } else if (a.payload && Array.isArray(a.payload.data)) {
+                    s.posts = a.payload.data;
+                } else {
+                    s.posts = a.payload ? [a.payload] : [];
+                }
+            })
             .addCase(fetchPosts.rejected, (s, a) => { s.postLoading = false; s.postError = a.payload || a.error.message; })
 
             .addCase(fetchPost.pending, s => { s.postLoading = true; s.postError = null; })
-            .addCase(fetchPost.fulfilled, (s, a) => { s.postLoading = false; s.post = a.payload; })
+            .addCase(fetchPost.fulfilled, (s, a) => { s.postLoading = false; s.post = a.payload?.data ?? a.payload; })
             .addCase(fetchPost.rejected, (s, a) => { s.postLoading = false; s.postError = a.payload || a.error.message; })
 
             .addCase(createPost.pending, s => { s.postLoading = true; s.postError = null; })
-            .addCase(createPost.fulfilled, (s, a) => { s.postLoading = false; s.posts.unshift(a.payload); })
+            .addCase(createPost.fulfilled, (s, a) => {
+                s.postLoading = false;
+                const created = a.payload?.data ?? a.payload;
+                if (created) s.posts.unshift(created);
+            })
             .addCase(createPost.rejected, (s, a) => { s.postLoading = false; s.postError = a.payload || a.error.message; })
 
             .addCase(updatePost.pending, s => { s.postLoading = true; s.postError = null; })
             .addCase(updatePost.fulfilled, (s, a) => {
                 s.postLoading = false;
-                s.posts = s.posts.map(x => String(x._id) === String(a.payload._id) ? a.payload : x);
-                if (s.post && String(s.post._id) === String(a.payload._id)) s.post = a.payload;
+                const updated = a.payload?.data ?? a.payload;
+                if (updated && (updated._id || updated.id)) {
+                    const id = updated._id ?? updated.id;
+                    s.posts = s.posts.map(x => (x._id ?? x.id) === id ? { ...x, ...updated } : x);
+                    if (s.post && (s.post._id ?? s.post.id) === id) s.post = { ...s.post, ...updated };
+                }
             })
             .addCase(updatePost.rejected, (s, a) => { s.postLoading = false; s.postError = a.payload || a.error.message; })
 
             .addCase(deletePost.pending, s => { s.postLoading = true; s.postError = null; })
             .addCase(deletePost.fulfilled, (s, a) => {
                 s.postLoading = false;
-                if (a.payload && a.payload._id) {
-                    s.posts = s.posts.filter(x => String(x._id) !== String(a.payload._id));
-                    if (s.post && String(s.post._id) === String(a.payload._id)) s.post = null;
+                const id = a.payload?.id;
+                if (id) {
+                    s.posts = s.posts.filter(x => (x._id ?? x.id) !== id);
+                    if (s.post && (s.post._id ?? s.post.id) === id) s.post = null;
                 }
             })
             .addCase(deletePost.rejected, (s, a) => { s.postLoading = false; s.postError = a.payload || a.error.message; });

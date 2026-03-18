@@ -11,6 +11,7 @@ import {fetchTaxRates, deleteTaxRate, selectTaxRates} from "../../redux/features
 import {VisibilityOutlined, EditOutlined, DeleteForeverOutlined, ReceiptOutlined, PercentOutlined, PublicOutlined, CheckCircleOutlined} from "@mui/icons-material";
 import PageHeader from "../../components/shared/page-header.jsx";
 import KPIBox from "../../components/shared/kpi-box.jsx";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const TaxRatesPage = () => {
     const dispatch = useDispatch();
@@ -32,6 +33,8 @@ const TaxRatesPage = () => {
         if (!window.confirm(`Delete tax rate "${rate.name}"? This cannot be undone.`)) return;
         await dispatch(deleteTaxRate(rate._id));
     };
+
+    if (taxRateLoading && taxRates.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={6}/></Box></Layout>;
 
     return (
         <Layout>
@@ -105,21 +108,21 @@ const TaxRatesPage = () => {
                                                     <Tooltip title="View Tax Rate">
                                                         <Link to={`/tax-rates/${rate._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Edit Tax Rate">
                                                         <Link to={`/tax-rates/${rate._id}/update`} style={{textDecoration: "none"}}>
                                                             <EditOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Tax Rate">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(rate)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

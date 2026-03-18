@@ -12,6 +12,7 @@ import {VisibilityOutlined, DeleteForeverOutlined, MoneyOffOutlined, CheckCircle
 import PageHeader from "../../components/shared/page-header.jsx";
 import moment from "moment";
 import KPIBox from "../../components/shared/kpi-box.jsx";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const statusColor = (s) => s === "PROCESSED" ? "success" : s === "PENDING" ? "warning" : s === "FAILED" ? "error" : "default";
 
@@ -26,15 +27,18 @@ const OrderRefundsPage = () => {
         if (!Array.isArray(orderRefunds)) return [];
         const q = query.trim().toLowerCase();
         if (!q) return orderRefunds;
-        return orderRefunds.filter(item =>
-            [item.reason, item.order_number].join(" ").toLowerCase().includes(q)
-        );
+        return orderRefunds.filter(item => {
+            const orderStr = typeof item.order_id === "object" ? (item.order_id?.number || "") : (item.order_id || "");
+            return [item.reason, orderStr].join(" ").toLowerCase().includes(q);
+        });
     }, [orderRefunds, query]);
 
     const handleDelete = async (refund) => {
         if (!window.confirm("Delete this order refund? This cannot be undone.")) return;
         await dispatch(deleteOrderRefund(refund._id));
     };
+
+    if (orderRefundLoading && orderRefunds.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={7}/></Box></Layout>;
 
     return (
         <Layout>
@@ -89,12 +93,15 @@ const OrderRefundsPage = () => {
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {filteredRefunds.map((refund, i) => (
+                                    {filteredRefunds.map((refund, i) => {
+                                        const orderId = typeof refund.order_id === "object" ? (refund.order_id?._id || refund.order_id?.id) : refund.order_id;
+                                        const orderNum = typeof refund.order_id === "object" ? (refund.order_id?.number || orderId) : refund.order_id;
+                                        return (
                                         <TableRow key={refund._id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>
-                                                <Link to={`/orders/${refund.order_id}`} style={{textDecoration: "none"}}>
-                                                    <Typography variant="body2" color="secondary">#{refund.order_id}</Typography>
+                                                <Link to={`/orders/${orderId}`} style={{textDecoration: "none"}}>
+                                                    <Typography variant="body2" color="secondary">#{orderNum}</Typography>
                                                 </Link>
                                             </TableCell>
                                             <TableCell>
@@ -116,20 +123,20 @@ const OrderRefundsPage = () => {
                                                     <Tooltip title="View Order Refund">
                                                         <Link to={`/order-refunds/${refund._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Order Refund">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(refund)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    );})}
                                 </TableBody>
                             </Table>
                         </TableContainer>

@@ -1,9 +1,8 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {
-    Alert, AlertTitle, Avatar, Box, Button, Chip, Container, Divider, FormControl,
-    Grid, InputLabel, LinearProgress, MenuItem, Paper, Select,
-    Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    TextField, Tooltip, Typography
+    Alert, AlertTitle, Avatar, Box, Button, CardMedia, Chip, Container, Divider,
+    FormControl, Grid, InputLabel, LinearProgress, MenuItem, Paper, Select,
+    Stack, Tooltip, Typography
 } from "@mui/material";
 import {Link} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
@@ -11,13 +10,40 @@ import {useDispatch, useSelector} from "react-redux";
 import {fetchPosts, deletePost, selectBlog} from "../../redux/features/blog/blog-slice";
 import {
     VisibilityOutlined, DeleteForeverOutlined, EditOutlined,
-    ArticleOutlined, PublishOutlined, DraftsOutlined, StarOutlined
+    ArticleOutlined, PublishOutlined, DraftsOutlined, StarOutlined, Star
 } from "@mui/icons-material";
 import PageHeader from "../../components/shared/page-header.jsx";
 import KPIBox from "../../components/shared/kpi-box.jsx";
 import moment from "moment";
+import {CardGridSkeleton} from "../../components/shared/page-skeleton.jsx";
 
-const statusColor = (s) => s === "published" ? "success" : s === "draft" ? "warning" : "default";
+const statusColor = (s) => s === "published" ? "success" : s === "draft" ? "warning" : s === "archived" ? "default" : "default";
+
+const authorName = (a) => {
+    if (!a) return "Unknown";
+    if (typeof a === "string") return a;
+    return a.display_name || a.name || (a.first_name ? `${a.first_name} ${a.last_name || ""}`.trim() : a.email || "Unknown");
+};
+
+const authorAvatar = (a) => {
+    if (!a || typeof a === "string") return null;
+    return a.avatar_url || a.avatar || a.image || null;
+};
+
+const postTag = (p) => {
+    if (p.tag) return typeof p.tag === "string" ? p.tag : null;
+    if (Array.isArray(p.tags) && p.tags.length > 0) return p.tags[0];
+    if (p.category) return p.category;
+    return null;
+};
+
+const postImage = (p) => {
+    if (!p.image) return null;
+    if (typeof p.image === "string") return p.image;
+    return p.image.secure_url || p.image.url || p.image.src || null;
+};
+
+const postDate = (p) => p.date_created || p.created_at || p.createdAt;
 
 const BlogPostsPage = () => {
     const dispatch = useDispatch();
@@ -30,25 +56,18 @@ const BlogPostsPage = () => {
 
     const filteredPosts = useMemo(() => {
         if (!Array.isArray(posts)) return [];
+        let result = [...posts];
+        if (statusFilter !== "all") result = result.filter(p => p.status === statusFilter);
+        if (tagFilter !== "all") result = result.filter(p => postTag(p) === tagFilter);
         const q = query.trim().toLowerCase();
-        if (!q) return posts;
-        return posts.filter(item =>
-            [item.title, item.author, item.content, item.excerpt].join(" ").toLowerCase().includes(q)
+        if (q) result = result.filter(p =>
+            [p.title, authorName(p.author), p.content, p.excerpt, postTag(p)].join(" ").toLowerCase().includes(q)
         );
-    }, [posts, query]);
+        return result;
+    }, [posts, query, statusFilter, tagFilter]);
 
-    const handleStatusFilter = (e) => {
-        const s = e.target.value;
-        setStatusFilter(s);
-        dispatch(fetchPosts({search: query, status: s, tag: tagFilter}));
-    };
-    const handleTagFilter = (e) => {
-        const t = e.target.value;
-        setTagFilter(t);
-        dispatch(fetchPosts({search: query, status: statusFilter, tag: t}));
-    };
     const handleDelete = async (post) => {
-        if (!window.confirm(`Delete "${post.title}"? This cannot be undone.`)) return;
+        if (!window.confirm(`Delete "${post.title}"?`)) return;
         await dispatch(deletePost(post._id));
     };
 
@@ -56,7 +75,9 @@ const BlogPostsPage = () => {
     const publishedCount = posts?.filter(p => p.status === "published").length || 0;
     const draftCount = posts?.filter(p => p.status === "draft").length || 0;
     const featuredCount = posts?.filter(p => p.featured).length || 0;
-    const tags = [...new Set(posts?.map(p => p.tag).filter(Boolean) || [])];
+    const allTags = [...new Set((posts || []).map(p => postTag(p)).filter(Boolean))];
+
+    if (postLoading && (!posts || posts.length === 0)) return <Layout><Box sx={{pt: 4, pb: 6}}><CardGridSkeleton cards={6}/></Box></Layout>;
 
     return (
         <Layout>
@@ -66,25 +87,23 @@ const BlogPostsPage = () => {
                 <Container>
                     <PageHeader
                         title="Blog Posts"
-                        subtitle="Manage your blog content and articles"
                         query={query}
                         onQueryChange={setQuery}
                         searchPlaceholder="Search posts..."
                         action={
                             <Link to="/blog/new" style={{textDecoration: "none"}}>
-                                <Button size="small" color="secondary" variant="contained">Add Post</Button>
+                                <Button size="small" color="secondary" variant="contained">New Post</Button>
                             </Link>
                         }
                     />
-                    <Divider variant="fullWidth" sx={{my: 3}}/>
+                    <Divider sx={{my: 3}}/>
 
-                    {/* KPI Stats */}
-                    <Grid container spacing={2} sx={{mt: 3, mb: 4}}>
+                    <Grid container spacing={2} sx={{mb: 4}}>
                         <Grid size={{xs: 6, sm: 3}}>
-                            <KPIBox label="Total Posts" value={totalPosts} icon={<ArticleOutlined fontSize="small"/>} iconColor="secondary.main" iconBg="light.secondary" trend={12}/>
+                            <KPIBox label="Total" value={totalPosts} icon={<ArticleOutlined fontSize="small"/>} iconColor="secondary.main" iconBg="light.secondary"/>
                         </Grid>
                         <Grid size={{xs: 6, sm: 3}}>
-                            <KPIBox label="Published" value={publishedCount} icon={<PublishOutlined fontSize="small"/>} iconColor="text.green" iconBg="light.green" trend={8}/>
+                            <KPIBox label="Published" value={publishedCount} icon={<PublishOutlined fontSize="small"/>} iconColor="text.green" iconBg="light.green"/>
                         </Grid>
                         <Grid size={{xs: 6, sm: 3}}>
                             <KPIBox label="Drafts" value={draftCount} icon={<DraftsOutlined fontSize="small"/>} iconColor="text.orange" iconBg="light.orange"/>
@@ -95,99 +114,112 @@ const BlogPostsPage = () => {
                     </Grid>
 
                     {/* Filters */}
-                    <Grid spacing={2} container alignItems="center" justifyContent="flex-end" sx={{mb: 2}}>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <FormControl size="small" sx={{minWidth: 120}}>
-                                <InputLabel>Status</InputLabel>
-                                <Select value={statusFilter} onChange={handleStatusFilter} label="Status">
-                                    <MenuItem value="all">All</MenuItem>
-                                    <MenuItem value="published">Published</MenuItem>
-                                    <MenuItem value="draft">Draft</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid size={{xs: 12, md: "auto"}}>
-                            <FormControl size="small" sx={{minWidth: 120}}>
+                    <Stack direction="row" spacing={2} sx={{mb: 3}} flexWrap="wrap">
+                        <FormControl size="small" sx={{minWidth: 110}}>
+                            <InputLabel>Status</InputLabel>
+                            <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} label="Status">
+                                <MenuItem value="all">All</MenuItem>
+                                <MenuItem value="published">Published</MenuItem>
+                                <MenuItem value="draft">Draft</MenuItem>
+                                <MenuItem value="archived">Archived</MenuItem>
+                            </Select>
+                        </FormControl>
+                        {allTags.length > 0 && (
+                            <FormControl size="small" sx={{minWidth: 110}}>
                                 <InputLabel>Tag</InputLabel>
-                                <Select value={tagFilter} onChange={handleTagFilter} label="Tag">
+                                <Select value={tagFilter} onChange={e => setTagFilter(e.target.value)} label="Tag">
                                     <MenuItem value="all">All</MenuItem>
-                                    {tags.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+                                    {allTags.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
                                 </Select>
                             </FormControl>
+                        )}
+                    </Stack>
+
+                    {/* Post Cards */}
+                    {filteredPosts.length === 0 ? (
+                        <Paper elevation={0} sx={{p: 6, textAlign: "center"}}>
+                            <Typography variant="body2" color="text.secondary">No posts found</Typography>
+                        </Paper>
+                    ) : (
+                        <Grid container spacing={3}>
+                            {filteredPosts.map((post) => {
+                                const img = postImage(post);
+                                const tag = postTag(post);
+                                const date = postDate(post);
+                                const author = post.author;
+                                return (
+                                    <Grid key={post._id} size={{xs: 12, sm: 6, lg: 4}}>
+                                        <Paper elevation={0} sx={{
+                                            overflow: "hidden", height: "100%", display: "flex", flexDirection: "column",
+                                            transition: "all 0.2s", "&:hover": {borderColor: "secondary.main", transform: "translateY(-2px)", boxShadow: "0 8px 24px rgba(0,0,0,0.08)"}
+                                        }}>
+                                            {/* Image */}
+                                            <Link to={`/blog/${post._id}`} style={{textDecoration: "none"}}>
+                                                <Box sx={{position: "relative", backgroundColor: "background.alternative", height: 180}}>
+                                                    {img ? (
+                                                        <Box component="img" src={img} alt={post.title} sx={{width: "100%", height: "100%", objectFit: "cover", display: "block"}}/>
+                                                    ) : (
+                                                        <Box sx={{width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                                            <ArticleOutlined sx={{fontSize: 40, color: "action.disabled"}}/>
+                                                        </Box>
+                                                    )}
+                                                    {post.featured && <Star sx={{position: "absolute", top: 10, right: 10, fontSize: 20, color: "#F59E0B"}}/>}
+                                                    <Chip label={post.status || "draft"} size="small" color={statusColor(post.status)} sx={{position: "absolute", top: 10, left: 10, height: 22, fontSize: 10, textTransform: "capitalize", fontWeight: 600}}/>
+                                                </Box>
+                                            </Link>
+
+                                            {/* Content */}
+                                            <Box sx={{p: 2.5, flex: 1, display: "flex", flexDirection: "column"}}>
+                                                {tag && <Chip label={tag} size="small" variant="outlined" color="secondary" sx={{alignSelf: "flex-start", mb: 1, height: 20, fontSize: 10}}/>}
+
+                                                <Link to={`/blog/${post._id}`} style={{textDecoration: "none", color: "inherit"}}>
+                                                    <Typography variant="subtitle2" sx={{fontWeight: 700, mb: 0.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden"}}>
+                                                        {post.title || "Untitled"}
+                                                    </Typography>
+                                                </Link>
+
+                                                {post.excerpt && (
+                                                    <Typography variant="caption" color="text.secondary" sx={{mb: 2, lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", flex: 1}}>
+                                                        {post.excerpt}
+                                                    </Typography>
+                                                )}
+
+                                                <Divider sx={{my: 1.5}}/>
+
+                                                {/* Footer */}
+                                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                        <Avatar src={authorAvatar(author)} sx={{width: 24, height: 24, fontSize: 11}}>
+                                                            {(authorName(author)?.[0] || "?").toUpperCase()}
+                                                        </Avatar>
+                                                        <Box>
+                                                            <Typography variant="caption" sx={{fontWeight: 600, lineHeight: 1.2, display: "block"}}>{authorName(author)}</Typography>
+                                                            <Typography variant="caption" color="text.muted" sx={{fontSize: 10}}>{date ? moment(date).format("MMM D, YYYY") : "—"}</Typography>
+                                                        </Box>
+                                                    </Stack>
+                                                    <Stack direction="row" spacing={0.5}>
+                                                        <Tooltip title="View">
+                                                            <Link to={`/blog/${post._id}`}>
+                                                                <VisibilityOutlined sx={{fontSize: 20, color: "icon.green", cursor: "pointer", "&:hover": {transform: "scale(1.15)"}}}/>
+                                                            </Link>
+                                                        </Tooltip>
+                                                        <Tooltip title="Edit">
+                                                            <Link to={`/blog/${post._id}/update`}>
+                                                                <EditOutlined sx={{fontSize: 20, color: "secondary.main", cursor: "pointer", "&:hover": {transform: "scale(1.15)"}}}/>
+                                                            </Link>
+                                                        </Tooltip>
+                                                        <Tooltip title="Delete">
+                                                            <DeleteForeverOutlined onClick={() => handleDelete(post)} sx={{fontSize: 20, color: "icon.red", cursor: "pointer", "&:hover": {transform: "scale(1.15)"}}}/>
+                                                        </Tooltip>
+                                                    </Stack>
+                                                </Stack>
+                                            </Box>
+                                        </Paper>
+                                    </Grid>
+                                );
+                            })}
                         </Grid>
-                    </Grid>
-
-                    <Divider sx={{my: 3}}/>
-
-                    <Paper elevation={0}>
-                        <TableContainer>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>#</TableCell>
-                                        <TableCell>Title</TableCell>
-                                        <TableCell>Author</TableCell>
-                                        <TableCell>Tag</TableCell>
-                                        <TableCell>Status</TableCell>
-                                        <TableCell>Date</TableCell>
-                                        <TableCell>Actions</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {filteredPosts.length === 0 && (
-                                        <TableRow>
-                                            <TableCell colSpan={7}>
-                                                <Typography variant="body2" color="text.secondary" align="center">No posts found</Typography>
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                    {filteredPosts.map((post, i) => (
-                                        <TableRow key={post._id}>
-                                            <TableCell>{i + 1}</TableCell>
-                                            <TableCell>
-                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                    {post.featured && <StarOutlined sx={{fontSize: 16, color: "text.yellow"}}/>}
-                                                    <Typography variant="body2" sx={{maxWidth: 280}} noWrap>{post.title || "—"}</Typography>
-                                                </Stack>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                    <Avatar src={post.author?.avatar} sx={{width: 24, height: 24}}/>
-                                                    <Typography variant="body2">{post.author?.name || "—"}</Typography>
-                                                </Stack>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip label={post.tag} size="small" variant="outlined" color="secondary"/>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip label={post.status} size="small" color={statusColor(post.status)}/>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2" color="text.secondary">{post.created_at ? moment(post.created_at).format("ll") : "—"}</Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                    <Tooltip title="View Post">
-                                                        <Link to={`/blog/${post._id}`} style={{textDecoration: "none"}}>
-                                                            <VisibilityOutlined sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}/>
-                                                        </Link>
-                                                    </Tooltip>
-                                                    <Tooltip title="Edit Post">
-                                                        <Link to={`/blog/${post._id}/update`} style={{textDecoration: "none"}}>
-                                                            <EditOutlined sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.blue", color: "icon.blue", backgroundColor: "light.blue", cursor: "pointer"}}/>
-                                                        </Link>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete Post">
-                                                        <DeleteForeverOutlined onClick={() => handleDelete(post)} sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}/>
-                                                    </Tooltip>
-                                                </Stack>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Paper>
+                    )}
                 </Container>
             </Box>
         </Layout>

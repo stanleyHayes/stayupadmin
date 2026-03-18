@@ -8,7 +8,7 @@ import moment from "moment";
 const Row = ({ label, children }) => (
     <Stack spacing={0.5} sx={{ mb: 1 }}>
         <Typography variant="caption" color="text.secondary">{label}</Typography>
-        <Typography variant="body2">{children ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{children ?? "—"}</Typography>
     </Stack>
 );
 

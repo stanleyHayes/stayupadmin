@@ -10,12 +10,12 @@ const ProductQuickView = ({product, open, handleClose}) => {
         <Dialog maxWidth="md" open={open} onClose={handleClose}>
             <DialogContent>
                 <Grid container={true} spacing={4} alignItems="center">
-                    <Grid item={true} xs={12} md={3}>
+                    <Grid xs={12} md={3}>
                         <Typography variant="body2" sx={{color: "text.primary", fontWeight: 600}}>
                             Product {product.title}
                         </Typography>
                     </Grid>
-                    <Grid item={true} xs={12} md={9}>
+                    <Grid xs={12} md={9}>
                         <Box>
                             <Stack
                                 divider={
@@ -51,7 +51,7 @@ const ProductQuickView = ({product, open, handleClose}) => {
                                             fontSize: 36,
                                             borderWidth: 1,
                                             borderStyle: "solid",
-                                            borderRadius: 0,
+                                            borderRadius: 1,
                                             borderColor: "light.secondary",
                                             color: "secondary.main",
                                             backgroundColor: "light.secondary",
@@ -68,8 +68,8 @@ const ProductQuickView = ({product, open, handleClose}) => {
 
                 <Box sx={{mb: 4}}>
                     <Grid container={true} spacing={4}>
-                        <Grid item={true} xs={12} md={6}></Grid>
-                        <Grid item={true} xs={12} md={6}></Grid>
+                        <Grid xs={12} md={6}></Grid>
+                        <Grid xs={12} md={6}></Grid>
                     </Grid>
                 </Box>
 

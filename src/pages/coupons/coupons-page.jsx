@@ -26,12 +26,14 @@ import {
     Typography,
     Grid,
     Tooltip,
-    Chip
+    Chip,
+    Snackbar,
+    IconButton
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import moment from "moment";
 import { motion } from "framer-motion";
-import { Close, VisibilityOutlined, EditOutlined, DeleteForeverOutlined, LocalOfferOutlined, CheckCircleOutlined, TimerOffOutlined, TrendingUpOutlined } from "@mui/icons-material";
+import { Close, VisibilityOutlined, EditOutlined, DeleteForeverOutlined, LocalOfferOutlined, CheckCircleOutlined, TimerOffOutlined, TrendingUpOutlined, ContentCopy, Share } from "@mui/icons-material";
 import PageHeader from "../../components/shared/page-header.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import Empty from "../../components/shared/empty.jsx";
@@ -50,6 +52,7 @@ import {
 import CreateCouponDialog from "../../components/dialogs/create-coupon-dialog.jsx";
 import UpdateCouponDialog from "../../components/dialogs/update-coupon-dialog.jsx";
 import ViewCouponDialog from "../../components/dialogs/view-coupon-detail-dialog.jsx";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const CouponsPage = () => {
     const dispatch = useDispatch();
@@ -66,10 +69,26 @@ const CouponsPage = () => {
     const [openEdit, setOpenEdit] = useState(false);
     const [openView, setOpenView] = useState(false);
     const [selectedCoupon, setSelectedCoupon] = useState(null);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopyCode = (code) => {
+        navigator.clipboard.writeText(code);
+        setCopied(true);
+    };
+
+    const handleShare = (coupon) => {
+        const text = `Use coupon code: ${coupon.code}${coupon.description ? ` - ${coupon.description}` : ""}${coupon.amount ? ` (${coupon.discount_type === "percent" ? `${coupon.amount}% off` : `GH₵${coupon.amount} off`})` : ""}`;
+        if (navigator.share) {
+            navigator.share({title: `Coupon: ${coupon.code}`, text});
+        } else {
+            navigator.clipboard.writeText(text);
+            setCopied(true);
+        }
+    };
 
     // Fetch attributes on mount
     useEffect(() => {
-        //dispatch(fetchCoupons());
+        dispatch(fetchCoupons());
     }, [dispatch]);
 
     // Filtered list (client-side)
@@ -98,7 +117,7 @@ const CouponsPage = () => {
             const haystack = [
                 c.code,
                 c.description,
-                (c.included_emails || []).join(" "),
+                (c.email_restrictions || []).join(" "),
                 (c.amount != null ? String(c.amount) : "")
             ].join(" ").toLowerCase();
             return haystack.includes(q);
@@ -148,6 +167,8 @@ const CouponsPage = () => {
         if (!arr || arr.length === 0) return <Typography variant="body2" color="text.secondary">—</Typography>;
         return arr.map((e, i) => <Chip key={i} size="small" label={e} sx={{ mr: 0.5, mb: 0.5 }} />);
     };
+
+    if (couponLoading && coupons.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={8}/></Box></Layout>;
 
     return (
         <Layout>
@@ -243,7 +264,7 @@ const CouponsPage = () => {
                                                 fontSize: 36,
                                                 borderWidth: 1,
                                                 borderStyle: "solid",
-                                                borderRadius: 0,
+                                                borderRadius: 1,
                                                 borderColor: "light.secondary",
                                                 color: "secondary.main",
                                                 backgroundColor: "light.secondary",
@@ -282,32 +303,47 @@ const CouponsPage = () => {
                                         <TableRow hover key={c._id ?? c.id ?? idx}>
                                             <TableCell>{idx + 1}</TableCell>
                                             <TableCell>
-                                                <Typography variant="subtitle2">{c.code}</Typography>
-                                                <Typography variant="caption" color="text.secondary">{c.description}</Typography>
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Box>
+                                                        <Typography variant="subtitle2" sx={{fontFamily: "monospace"}}>{c.code}</Typography>
+                                                        <Typography variant="caption" color="text.secondary">{c.description}</Typography>
+                                                    </Box>
+                                                    <Tooltip title="Copy code">
+                                                        <IconButton size="small" onClick={() => handleCopyCode(c.code)} sx={{opacity: 0.5, "&:hover": {opacity: 1}}}>
+                                                            <ContentCopy sx={{fontSize: 14}}/>
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Stack>
                                             </TableCell>
                                             <TableCell>{c.amount != null ? c.amount : "—"}</TableCell>
                                             <TableCell>{c.discount_type ?? "fixed_cart"}</TableCell>
                                             <TableCell>{c.date_expires ? moment(c.date_expires).format("YYYY-MM-DD") : "—"}</TableCell>
                                             <TableCell>{c.usage_count ?? 0}</TableCell>
-                                            <TableCell>{renderEmails(c.included_emails)}</TableCell>
+                                            <TableCell>{renderEmails(c.email_restrictions)}</TableCell>
                                             <TableCell>
                                                 <Stack direction="row" spacing={1} alignItems="center">
                                                     <Tooltip title="View Coupon">
                                                         <VisibilityOutlined
                                                             onClick={() => handleOpenView(c)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Edit Coupon">
                                                         <EditOutlined
                                                             onClick={() => handleOpenEdit(c)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip title="Share Coupon">
+                                                        <Share
+                                                            onClick={() => handleShare(c)}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.blue", color: "icon.blue", backgroundColor: "light.blue", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                     <Tooltip title="Delete Coupon">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(c)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>
@@ -324,6 +360,7 @@ const CouponsPage = () => {
                 <CreateCouponDialog open={openCreate} onClose={handleCloseCreate} onCreate={handleCreate} />
                 <UpdateCouponDialog open={openEdit} coupon={selectedCoupon} onClose={handleCloseEdit} onUpdate={handleUpdate} />
                 <ViewCouponDialog open={openView} coupon={selectedCoupon} onClose={handleCloseView} />
+                <Snackbar open={copied} autoHideDuration={2000} onClose={() => setCopied(false)} anchorOrigin={{vertical: "bottom", horizontal: "center"}} message="Copied to clipboard"/>
             </Box>
         </Layout>
     );

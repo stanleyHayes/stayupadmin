@@ -83,8 +83,8 @@ const ChangePasswordPage = () => {
     const strengthLabel = strengthCount <= 1 ? "Weak" : strengthCount <= 3 ? "Fair" : strengthCount <= 4 ? "Strong" : "Excellent";
     const strengthColor = strengthCount <= 1 ? "#EF4444" : strengthCount <= 3 ? "#F59E0B" : strengthCount <= 4 ? "#3B82F6" : "#22C55E";
 
-    const initials = user?.firstName && user?.lastName
-        ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+    const initials = user?.first_name && user?.last_name
+        ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
         : "AD";
 
     return (
@@ -150,7 +150,7 @@ const ChangePasswordPage = () => {
                                                         <Stack direction="row" spacing={0.5} sx={{mb: 1}}>
                                                             {[1, 2, 3, 4, 5].map(i => (
                                                                 <Box key={i} sx={{
-                                                                    flex: 1, height: 4, borderRadius: 0,
+                                                                    flex: 1, height: 4, borderRadius: 1,
                                                                     backgroundColor: i <= strengthCount ? strengthColor : "divider",
                                                                     transition: "all 0.3s"
                                                                 }}/>
@@ -204,7 +204,7 @@ const ChangePasswordPage = () => {
                                             {initials}
                                         </Avatar>
                                         <Box>
-                                            <Typography variant="subtitle2" sx={{fontWeight: 600}}>{user?.firstName} {user?.lastName}</Typography>
+                                            <Typography variant="subtitle2" sx={{fontWeight: 600}}>{user?.display_name || (user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : user?.email || "Admin")}</Typography>
                                             <Typography variant="caption" color="text.secondary">{user?.email}</Typography>
                                         </Box>
                                     </Stack>
@@ -243,7 +243,7 @@ const ChangePasswordPage = () => {
                                         ].map((tip, i) => (
                                             <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
                                                 <Box sx={{
-                                                    width: 6, height: 6, borderRadius: 0, mt: 0.75, flexShrink: 0,
+                                                    width: 6, height: 6, borderRadius: 1, mt: 0.75, flexShrink: 0,
                                                     backgroundColor: "secondary.main"
                                                 }}/>
                                                 <Typography variant="caption" color="text.secondary">{tip}</Typography>

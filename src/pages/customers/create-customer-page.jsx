@@ -87,43 +87,43 @@ const CreateCustomerPage = () => {
                     {customerError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{customerError}</AlertTitle></Alert>}
                     <form onSubmit={formik.handleSubmit}>
                         <Grid container spacing={3}>
-                            <Grid item size={{xs: 12, md: 8}}>
+                            <Grid size={{xs: 12, md: 8}}>
                                 <Paper elevation={0} sx={{p: 3, mb: 2}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Personal Information</Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("name", "Full name")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("email", "Email address")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("username", "Username")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("phone", "Phone number")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("name", "Full name")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("email", "Email address")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("username", "Username")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("phone", "Phone number")}</Grid>
                                     </Grid>
                                 </Paper>
 
                                 <Paper elevation={0} sx={{p: 3, mb: 2}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Shipping Address</Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item size={{xs: 12}}>{field("shipping_address_line_1", "Address Line 1")}</Grid>
-                                        <Grid item size={{xs: 12}}>{field("shipping_address_line_2", "Address Line 2 (optional)")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("shipping_city", "City")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("shipping_county", "County / State")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("shipping_postal_code", "Postal Code")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("shipping_country", "Country")}</Grid>
+                                        <Grid size={{xs: 12}}>{field("shipping_address_line_1", "Address Line 1")}</Grid>
+                                        <Grid size={{xs: 12}}>{field("shipping_address_line_2", "Address Line 2 (optional)")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("shipping_city", "City")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("shipping_county", "County / State")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("shipping_postal_code", "Postal Code")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("shipping_country", "Country")}</Grid>
                                     </Grid>
                                 </Paper>
 
                                 <Paper elevation={0} sx={{p: 3}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Billing Address</Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item size={{xs: 12}}>{field("billing_address_line_1", "Address Line 1")}</Grid>
-                                        <Grid item size={{xs: 12}}>{field("billing_address_line_2", "Address Line 2 (optional)")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("billing_city", "City")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("billing_county", "County / State")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("billing_postal_code", "Postal Code")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("billing_country", "Country")}</Grid>
+                                        <Grid size={{xs: 12}}>{field("billing_address_line_1", "Address Line 1")}</Grid>
+                                        <Grid size={{xs: 12}}>{field("billing_address_line_2", "Address Line 2 (optional)")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("billing_city", "City")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("billing_county", "County / State")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("billing_postal_code", "Postal Code")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("billing_country", "Country")}</Grid>
                                     </Grid>
                                 </Paper>
                             </Grid>
 
-                            <Grid item size={{xs: 12, md: 4}}>
+                            <Grid size={{xs: 12, md: 4}}>
                                 <Paper elevation={0} sx={{p: 3, mb: 2}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Account Status</Typography>
                                     <FormControl size="small" fullWidth>

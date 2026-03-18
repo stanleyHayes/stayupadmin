@@ -19,16 +19,29 @@ const CreateCouponPage = () => {
 
     const formik = useFormik({
         initialValues: {
-            code: "", description: "", discount_type: "PERCENTAGE", coupon_amount: "",
-            allow_free_shipping: false, is_individual_use: false, exclude_sale_items: false,
-            status: "ACTIVE", published: true,
+            code: "", description: "", discount_type: "percent", amount: "",
+            free_shipping: false, individual_use: false, exclude_sale_items: false,
+            minimum_amount: "", maximum_amount: "",
+            usage_limit: "", usage_limit_per_user: "", limit_usage_to_x_items: "",
+            email_restrictions: "",
+            status: "ACTIVE",
         },
         validationSchema: Yup.object({
             code: Yup.string().required("Coupon code is required"),
-            coupon_amount: Yup.number().min(0, "Amount must be positive").required("Amount is required"),
+            amount: Yup.number().min(0, "Amount must be positive").required("Amount is required"),
         }),
         onSubmit: async (values) => {
-            const result = await dispatch(createCoupon({...values, coupon_amount: Number(values.coupon_amount)}));
+            const payload = {
+                ...values,
+                amount: Number(values.amount),
+                minimum_amount: values.minimum_amount === "" ? null : Number(values.minimum_amount),
+                maximum_amount: values.maximum_amount === "" ? null : Number(values.maximum_amount),
+                usage_limit: values.usage_limit === "" ? null : Number(values.usage_limit),
+                usage_limit_per_user: values.usage_limit_per_user === "" ? null : Number(values.usage_limit_per_user),
+                limit_usage_to_x_items: values.limit_usage_to_x_items === "" ? null : Number(values.limit_usage_to_x_items),
+                email_restrictions: values.email_restrictions ? values.email_restrictions.split(",").map(s => s.trim()).filter(Boolean) : [],
+            };
+            const result = await dispatch(createCoupon(payload));
             if (!result.error) navigate("/coupons");
         }
     });
@@ -49,54 +62,57 @@ const CreateCouponPage = () => {
                     {couponError && <Alert severity="error" sx={{mb: 2}}><AlertTitle>{couponError}</AlertTitle></Alert>}
                     <form onSubmit={formik.handleSubmit}>
                         <Grid container spacing={3}>
-                            <Grid item size={{xs: 12, md: 8}}>
+                            <Grid size={{xs: 12, md: 8}}>
                                 <Paper elevation={0} sx={{p: 3, mb: 3}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Coupon Data</Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("code", "Coupon code")}</Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>
+                                        <Grid size={{xs: 12, md: 6}}>{field("code", "Coupon code")}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>
                                             <FormControl size="small" fullWidth>
                                                 <InputLabel>Discount type</InputLabel>
                                                 <Select name="discount_type" value={formik.values.discount_type} onChange={formik.handleChange} label="Discount type">
-                                                    <MenuItem value="PERCENTAGE">Percentage</MenuItem>
-                                                    <MenuItem value="FIXED">Fixed amount</MenuItem>
-                                                    <MenuItem value="FREE_SHIPPING">Free shipping</MenuItem>
+                                                    <MenuItem value="percent">Percentage</MenuItem>
+                                                    <MenuItem value="fixed_cart">Fixed cart discount</MenuItem>
+                                                    <MenuItem value="fixed_product">Fixed product discount</MenuItem>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid item size={{xs: 12, md: 6}}>{field("coupon_amount", "Coupon amount", {type: "number"})}</Grid>
-                                        <Grid item size={{xs: 12}}>{field("description", "Description", {multiline: true, rows: 2})}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("amount", "Coupon amount", {type: "number"})}</Grid>
+                                        <Grid size={{xs: 12}}>{field("description", "Description", {multiline: true, rows: 2})}</Grid>
                                     </Grid>
                                 </Paper>
-                                <Paper elevation={0} sx={{p: 3}}>
+                                <Paper elevation={0} sx={{p: 3, mb: 3}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Usage Restrictions</Typography>
-                                    <Stack spacing={1}>
-                                        <FormControlLabel control={<Checkbox name="allow_free_shipping" checked={formik.values.allow_free_shipping} onChange={formik.handleChange}/>} label="Allow free shipping"/>
-                                        <FormControlLabel control={<Checkbox name="is_individual_use" checked={formik.values.is_individual_use} onChange={formik.handleChange}/>} label="Individual use only"/>
+                                    <Grid container spacing={2}>
+                                        <Grid size={{xs: 12, md: 6}}>{field("minimum_amount", "Minimum spend", {type: "number"})}</Grid>
+                                        <Grid size={{xs: 12, md: 6}}>{field("maximum_amount", "Maximum spend", {type: "number"})}</Grid>
+                                        <Grid size={{xs: 12}}>{field("email_restrictions", "Email restrictions (comma separated)")}</Grid>
+                                    </Grid>
+                                    <Stack spacing={1} sx={{mt: 2}}>
+                                        <FormControlLabel control={<Checkbox name="free_shipping" checked={formik.values.free_shipping} onChange={formik.handleChange}/>} label="Allow free shipping"/>
+                                        <FormControlLabel control={<Checkbox name="individual_use" checked={formik.values.individual_use} onChange={formik.handleChange}/>} label="Individual use only"/>
                                         <FormControlLabel control={<Checkbox name="exclude_sale_items" checked={formik.values.exclude_sale_items} onChange={formik.handleChange}/>} label="Exclude sale items"/>
                                     </Stack>
                                 </Paper>
+                                <Paper elevation={0} sx={{p: 3}}>
+                                    <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Usage Limits</Typography>
+                                    <Grid container spacing={2}>
+                                        <Grid size={{xs: 12, md: 4}}>{field("usage_limit", "Usage limit per coupon", {type: "number"})}</Grid>
+                                        <Grid size={{xs: 12, md: 4}}>{field("usage_limit_per_user", "Usage limit per user", {type: "number"})}</Grid>
+                                        <Grid size={{xs: 12, md: 4}}>{field("limit_usage_to_x_items", "Limit usage to X items", {type: "number"})}</Grid>
+                                    </Grid>
+                                </Paper>
                             </Grid>
-                            <Grid item size={{xs: 12, md: 4}}>
+                            <Grid size={{xs: 12, md: 4}}>
                                 <Paper elevation={0} sx={{p: 3, mb: 2}}>
                                     <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Status</Typography>
-                                    <Stack spacing={2}>
-                                        <FormControl size="small" fullWidth>
-                                            <InputLabel>Status</InputLabel>
-                                            <Select name="status" value={formik.values.status} onChange={formik.handleChange} label="Status">
-                                                <MenuItem value="ACTIVE">Active</MenuItem>
-                                                <MenuItem value="UPCOMING">Upcoming</MenuItem>
-                                                <MenuItem value="EXPIRED">Expired</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                        <FormControl size="small" fullWidth>
-                                            <InputLabel>Visibility</InputLabel>
-                                            <Select name="published" value={formik.values.published} onChange={formik.handleChange} label="Visibility">
-                                                <MenuItem value={true}>Published</MenuItem>
-                                                <MenuItem value={false}>Draft</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </Stack>
+                                    <FormControl size="small" fullWidth>
+                                        <InputLabel>Status</InputLabel>
+                                        <Select name="status" value={formik.values.status} onChange={formik.handleChange} label="Status">
+                                            <MenuItem value="ACTIVE">Active</MenuItem>
+                                            <MenuItem value="DRAFT">Draft</MenuItem>
+                                        </Select>
+                                    </FormControl>
                                 </Paper>
                                 <Paper elevation={0} sx={{p: 3}}>
                                     <Divider sx={{mb: 2}}/>

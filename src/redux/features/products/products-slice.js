@@ -1,20 +1,6 @@
-// src/redux/features/products/products-slice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { products as seedProducts } from "./products.js"; // adjust path to where you keep the seed file
-import {STAY_UP_ADMIN_CONSTANTS} from "../../../utils/constants.js";
-
-/**
- * Thunks:
- * - fetchProducts(params)
- * - fetchProduct(id)
- * - createProduct(payload)
- * - updateProduct({id, data})
- * - deleteProduct(id)
- *
- * If you don't have a backend yet, the UI will still render using the seed data
- * present in initialState.products. When you enable API, these thunks will call it.
- */
+import { STAY_UP_ADMIN_CONSTANTS } from "../../../utils/constants.js";
 
 export const fetchProducts = createAsyncThunk(
     "products/fetchProducts",
@@ -33,6 +19,7 @@ export const fetchProduct = createAsyncThunk(
     async (id, { rejectWithValue }) => {
         try {
             const { data } = await axios.get(`${STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE}/products/${id}`);
+            console.log(data);
             return data;
         } catch (err) {
             return rejectWithValue(err?.response?.data?.message || err.message || "Failed to fetch product");
@@ -79,12 +66,11 @@ export const deleteProduct = createAsyncThunk(
 const productsSlice = createSlice({
     name: "products",
     initialState: {
-        // initialize from seed so UI renders even without an API
-        products: Array.isArray(seedProducts) ? seedProducts : [],
+        products: [],
         product: null,
         productLoading: false,
         productError: null,
-        total: Array.isArray(seedProducts) ? seedProducts.length : 0
+        total: 0
     },
     reducers: {
         clearProductError(state) {
@@ -92,22 +78,6 @@ const productsSlice = createSlice({
         },
         clearProduct(state) {
             state.product = null;
-        },
-        // local-only helpers (useful for dev without API)
-        addLocalProduct(state, action) {
-            state.products.unshift(action.payload);
-            state.total = state.products.length;
-        },
-        updateLocalProduct(state, action) {
-            const updated = action.payload;
-            const id = updated.sku ?? updated._id ?? updated.id;
-            const idx = state.products.findIndex(p => (p.sku ?? p._id ?? p.id) === id);
-            if (idx !== -1) state.products[idx] = { ...state.products[idx], ...updated };
-        },
-        removeLocalProduct(state, action) {
-            const id = action.payload;
-            state.products = state.products.filter(p => (p.sku ?? p._id ?? p.id) !== id);
-            state.total = state.products.length;
         }
     },
     extraReducers: builder => {
@@ -142,7 +112,7 @@ const productsSlice = createSlice({
         });
         builder.addCase(fetchProduct.fulfilled, (state, action) => {
             state.productLoading = false;
-            state.product = action.payload;
+            state.product = action.payload.data;
         });
         builder.addCase(fetchProduct.rejected, (state, action) => {
             state.productLoading = false;
@@ -211,10 +181,7 @@ const productsSlice = createSlice({
 
 export const {
     clearProductError,
-    clearProduct,
-    addLocalProduct,
-    updateLocalProduct,
-    removeLocalProduct
+    clearProduct
 } = productsSlice.actions;
 
 export const selectProducts = state => state.products;

@@ -39,10 +39,10 @@ const AcceptInvitationPage = () => {
     const isAccepted = invitation?.status === "ACCEPTED";
 
     const formik = useFormik({
-        initialValues: {firstName: "", lastName: "", username: "", phone: "", password: "", confirmPassword: ""},
+        initialValues: {first_name: "", last_name: "", username: "", phone: "", password: "", confirmPassword: ""},
         validationSchema: yup.object({
-            firstName: yup.string().required("First name is required"),
-            lastName: yup.string().required("Last name is required"),
+            first_name: yup.string().required("First name is required"),
+            last_name: yup.string().required("Last name is required"),
             username: yup.string().required("Username is required"),
             password: yup.string().min(8, "Min 8 characters").required("Password is required"),
             confirmPassword: yup.string().oneOf([yup.ref("password")], "Passwords must match").required("Confirm your password"),
@@ -52,8 +52,8 @@ const AcceptInvitationPage = () => {
             setError(null);
             await new Promise(r => setTimeout(r, 1000));
             dispatch(login({
-                firstName: values.firstName,
-                lastName: values.lastName,
+                first_name: values.first_name,
+                last_name: values.last_name,
                 username: values.username,
                 email: invitation?.email,
                 phone: values.phone,
@@ -176,8 +176,8 @@ const AcceptInvitationPage = () => {
                                 <form onSubmit={formik.handleSubmit}>
                                     <Stack spacing={2}>
                                         <Stack direction="row" spacing={2}>
-                                            <TextField name="firstName" label="First Name" fullWidth size="small" value={formik.values.firstName} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.firstName && formik.errors.firstName)} helperText={formik.touched.firstName && formik.errors.firstName}/>
-                                            <TextField name="lastName" label="Last Name" fullWidth size="small" value={formik.values.lastName} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.lastName && formik.errors.lastName)} helperText={formik.touched.lastName && formik.errors.lastName}/>
+                                            <TextField name="first_name" label="First Name" fullWidth size="small" value={formik.values.first_name} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.first_name && formik.errors.first_name)} helperText={formik.touched.first_name && formik.errors.first_name}/>
+                                            <TextField name="last_name" label="Last Name" fullWidth size="small" value={formik.values.last_name} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.last_name && formik.errors.last_name)} helperText={formik.touched.last_name && formik.errors.last_name}/>
                                         </Stack>
                                         <TextField name="username" label="Username" fullWidth size="small" value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.username && formik.errors.username)} helperText={formik.touched.username && formik.errors.username}/>
                                         <TextField name="phone" label="Phone (optional)" fullWidth size="small" value={formik.values.phone} onChange={formik.handleChange}/>

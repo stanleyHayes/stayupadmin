@@ -52,16 +52,16 @@ const RevenuePage = () => {
     const filteredOrders = useMemo(() => {
         if (!orders) return [];
         return orders.filter(o => {
-            const d = moment(o.createdAt);
+            const d = moment(o.date_created || o.created_at || o.createdAt);
             return d.isSameOrAfter(startDate, "day") && d.isSameOrBefore(endDate, "day");
         });
     }, [orders, startDate, endDate]);
 
     // Core metrics
-    const totalRevenue = filteredOrders.reduce((s, o) => s + Number(o.total?.amount || 0), 0);
-    const completedRevenue = filteredOrders.filter(o => o.status === "completed").reduce((s, o) => s + Number(o.total?.amount || 0), 0);
-    const pendingRevenue = filteredOrders.filter(o => o.status === "pending payment" || o.status === "processing").reduce((s, o) => s + Number(o.total?.amount || 0), 0);
-    const refundedRevenue = filteredOrders.filter(o => o.status === "refunded").reduce((s, o) => s + Number(o.total?.amount || 0), 0);
+    const totalRevenue = filteredOrders.reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
+    const completedRevenue = filteredOrders.filter(o => o.status === "completed").reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
+    const pendingRevenue = filteredOrders.filter(o => o.status === "pending payment" || o.status === "processing").reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
+    const refundedRevenue = filteredOrders.filter(o => o.status === "refunded").reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
     const totalOrders = filteredOrders.length;
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
     const shippingRevenue = filteredOrders.reduce((s, o) => s + Number(o.shipping?.fee || 0), 0);
@@ -76,11 +76,11 @@ const RevenuePage = () => {
     const prevOrders = useMemo(() => {
         if (!orders) return [];
         return orders.filter(o => {
-            const d = moment(o.createdAt);
+            const d = moment(o.date_created || o.created_at || o.createdAt);
             return d.isSameOrAfter(prevStart, "day") && d.isSameOrBefore(prevEnd, "day");
         });
     }, [orders, prevStart, prevEnd]);
-    const prevRevenue = prevOrders.reduce((s, o) => s + Number(o.total?.amount || 0), 0);
+    const prevRevenue = prevOrders.reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
     const revenueTrend = prevRevenue > 0 ? (((totalRevenue - prevRevenue) / prevRevenue) * 100).toFixed(1) : null;
 
     // Time-series data
@@ -96,15 +96,15 @@ const RevenuePage = () => {
         while (cursor.isSameOrBefore(end)) {
             labels.push(cursor.format(format));
             const periodRevenue = filteredOrders
-                .filter(o => moment(o.createdAt).isSame(cursor, unit))
-                .reduce((s, o) => s + Number(o.total?.amount || 0), 0);
+                .filter(o => moment(o.date_created || o.created_at || o.createdAt).isSame(cursor, unit))
+                .reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
             currentData.push(periodRevenue);
 
             if (compareMode) {
                 const prevCursor = cursor.clone().subtract(periodDays, "days");
                 const prevPeriodRevenue = (orders || [])
-                    .filter(o => moment(o.createdAt).isSame(prevCursor, unit))
-                    .reduce((s, o) => s + Number(o.total?.amount || 0), 0);
+                    .filter(o => moment(o.date_created || o.created_at || o.createdAt).isSame(prevCursor, unit))
+                    .reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
                 previousData.push(prevPeriodRevenue);
             }
 
@@ -120,7 +120,7 @@ const RevenuePage = () => {
             const method = o.billing?.method || "Unknown";
             if (!map[method]) map[method] = {method, orders: 0, revenue: 0};
             map[method].orders += 1;
-            map[method].revenue += Number(o.total?.amount || 0);
+            map[method].revenue += Number(o.total?.amount ?? o.total ?? 0);
         });
         return Object.values(map).sort((a, b) => b.revenue - a.revenue);
     }, [filteredOrders]);
@@ -137,7 +137,7 @@ const RevenuePage = () => {
             const s = o.status || "unknown";
             if (!map[s]) map[s] = {status: s, orders: 0, revenue: 0};
             map[s].orders += 1;
-            map[s].revenue += Number(o.total?.amount || 0);
+            map[s].revenue += Number(o.total?.amount ?? o.total ?? 0);
         });
         return Object.values(map).sort((a, b) => b.revenue - a.revenue);
     }, [filteredOrders]);
@@ -146,8 +146,8 @@ const RevenuePage = () => {
     const monthlyComparison = useMemo(() => {
         const data = [];
         for (let i = 0; i < 12; i++) {
-            const monthOrders = (orders || []).filter(o => moment(o.createdAt).month() === i);
-            const rev = monthOrders.reduce((s, o) => s + Number(o.total?.amount || 0), 0);
+            const monthOrders = (orders || []).filter(o => moment(o.date_created || o.created_at || o.createdAt).month() === i);
+            const rev = monthOrders.reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0);
             const count = monthOrders.length;
             data.push({month: moment().month(i).format("MMMM"), revenue: rev, orders: count, avg: count > 0 ? rev / count : 0});
         }
@@ -279,7 +279,7 @@ const RevenuePage = () => {
                                 <Stack spacing={0.75} sx={{mt: 2}}>
                                     {paymentBreakdown.map((p, i) => (
                                         <Stack key={i} direction="row" spacing={1} alignItems="center">
-                                            <Box sx={{width: 8, height: 8, borderRadius: 0, bgcolor: paymentPieData[i]?.color, flexShrink: 0}}/>
+                                            <Box sx={{width: 8, height: 8, borderRadius: 1, bgcolor: paymentPieData[i]?.color, flexShrink: 0}}/>
                                             <Typography variant="caption" sx={{flex: 1}}>{p.method}</Typography>
                                             <Typography variant="caption" color="text.secondary">{p.orders} orders</Typography>
                                             <Typography variant="caption" sx={{fontWeight: 600}}>£{p.revenue.toLocaleString()}</Typography>
@@ -393,21 +393,21 @@ const RevenuePage = () => {
                             <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Period Comparison</Typography>
                             <Grid container spacing={3}>
                                 <Grid size={{xs: 12, sm: 4}}>
-                                    <Box sx={{p: 2, borderRadius: 0, backgroundColor: "light.secondary", textAlign: "center"}}>
+                                    <Box sx={{p: 2, borderRadius: 1, backgroundColor: "light.secondary", textAlign: "center"}}>
                                         <Typography variant="caption" color="text.secondary">Current Period</Typography>
                                         <Typography variant="h5" sx={{fontWeight: 700, color: "secondary.main"}}>£{totalRevenue.toLocaleString()}</Typography>
                                         <Typography variant="caption" color="text.secondary">{filteredOrders.length} orders</Typography>
                                     </Box>
                                 </Grid>
                                 <Grid size={{xs: 12, sm: 4}}>
-                                    <Box sx={{p: 2, borderRadius: 0, backgroundColor: "light.default", textAlign: "center"}}>
+                                    <Box sx={{p: 2, borderRadius: 1, backgroundColor: "light.default", textAlign: "center"}}>
                                         <Typography variant="caption" color="text.secondary">Previous Period</Typography>
                                         <Typography variant="h5" sx={{fontWeight: 700}}>£{prevRevenue.toLocaleString()}</Typography>
                                         <Typography variant="caption" color="text.secondary">{prevOrders.length} orders</Typography>
                                     </Box>
                                 </Grid>
                                 <Grid size={{xs: 12, sm: 4}}>
-                                    <Box sx={{p: 2, borderRadius: 0, backgroundColor: Number(revenueTrend) >= 0 ? "light.green" : "light.red", textAlign: "center"}}>
+                                    <Box sx={{p: 2, borderRadius: 1, backgroundColor: Number(revenueTrend) >= 0 ? "light.green" : "light.red", textAlign: "center"}}>
                                         <Typography variant="caption" color="text.secondary">Change</Typography>
                                         <Typography variant="h5" sx={{fontWeight: 700, color: Number(revenueTrend) >= 0 ? "text.green" : "text.red"}}>
                                             {Number(revenueTrend) >= 0 ? "+" : ""}{revenueTrend}%

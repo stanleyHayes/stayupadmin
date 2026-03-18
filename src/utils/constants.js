@@ -1,7 +1,8 @@
 const STAY_UP_ADMIN_THEME = 'STAY_UP_ADMIN_THEME';
 const STAY_UP_ADMIN_VIEW = 'STAY_UP_ADMIN_VIEW';
 const STAY_UP_ADMIN_SIDEBAR_EXPANDED = 'STAY_UP_ADMIN_SIDEBAR_EXPANDED';
-const STAY_UP_ADMIN_API_BASE = "http://localhost:4000/api";
+//const STAY_UP_ADMIN_API_BASE = "http://localhost:4000/api/v1/admin";
+const STAY_UP_ADMIN_API_BASE = "https://stayup-api.onrender.com/api/v1/admin";
 
 export const STAY_UP_ADMIN_CONSTANTS = {
     STAY_UP_ADMIN_THEME,

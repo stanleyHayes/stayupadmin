@@ -12,11 +12,12 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import {DetailSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const InfoRow = ({label, value}) => (
     <Box sx={{display: "flex", gap: 1, alignItems: "flex-start", py: 0.5}}>
         <Typography variant="caption" color="text.secondary" sx={{minWidth: 140, fontWeight: 600}}>{label}</Typography>
-        <Typography variant="body2">{value ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{value ?? "—"}</Typography>
     </Box>
 );
 
@@ -33,6 +34,8 @@ const CouponDetailPage = () => {
     const {couponID} = useParams();
     const {coupons, couponLoading, couponError} = useSelector(selectCoupons);
     const coupon = coupons?.find(c => (c._id || c.id || c.code) === couponID) || null;
+
+    if (couponLoading && !coupon) return <Layout><Box sx={{pt: 4, pb: 6}}><DetailSkeleton/></Box></Layout>;
 
     const handleDelete = async () => {
         if (!window.confirm(`Delete coupon "${coupon?.code}"? This cannot be undone.`)) return;
@@ -65,7 +68,7 @@ const CouponDetailPage = () => {
                     </Stack>
 
                     <Grid container spacing={3}>
-                        <Grid item size={{xs: 12, md: 4}}>
+                        <Grid size={{xs: 12, md: 4}}>
                             <Paper elevation={0} sx={{p: 3, textAlign: "center"}}>
                                 <LocalOfferIcon sx={{fontSize: 56, color: "secondary.main", mb: 1}}/>
                                 <Typography variant="h5" sx={{fontFamily: "monospace", mb: 0.5}}>{c.code || "—"}</Typography>
@@ -77,26 +80,27 @@ const CouponDetailPage = () => {
                             </Paper>
                         </Grid>
 
-                        <Grid item size={{xs: 12, md: 8}}>
+                        <Grid size={{xs: 12, md: 8}}>
                             <Paper elevation={0} sx={{p: 3}}>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Coupon Details</Typography>
                                 <InfoRow label="Code" value={c.code}/>
                                 <InfoRow label="Discount type" value={c.discount_type}/>
-                                <InfoRow label="Amount" value={c.coupon_amount != null ? String(c.coupon_amount) : null}/>
-                                <InfoRow label="Free shipping" value={c.allow_free_shipping ? "Yes" : "No"}/>
-                                <InfoRow label="Individual use" value={c.is_individual_use ? "Yes" : "No"}/>
+                                <InfoRow label="Amount" value={c.amount != null ? String(c.amount) : null}/>
+                                <InfoRow label="Free shipping" value={c.free_shipping ? "Yes" : "No"}/>
+                                <InfoRow label="Individual use" value={c.individual_use ? "Yes" : "No"}/>
                                 <InfoRow label="Exclude sale items" value={c.exclude_sale_items ? "Yes" : "No"}/>
                                 <Divider sx={{my: 2}}/>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Limits</Typography>
-                                <InfoRow label="Min spend" value={c.minimum_spend ? `${c.minimum_spend.amount} ${c.minimum_spend.currency}` : null}/>
-                                <InfoRow label="Max spend" value={c.maximum_spend ? `${c.maximum_spend.amount} ${c.maximum_spend.currency}` : null}/>
-                                <InfoRow label="Usage limit" value={c.usage_limit_per_coupon != null ? String(c.usage_limit_per_coupon) : null}/>
-                                <InfoRow label="Usage per person" value={c.usage_per_person != null ? String(c.usage_per_person) : null}/>
+                                <InfoRow label="Minimum amount" value={c.minimum_amount != null ? String(c.minimum_amount) : null}/>
+                                <InfoRow label="Maximum amount" value={c.maximum_amount != null ? String(c.maximum_amount) : null}/>
+                                <InfoRow label="Usage limit" value={c.usage_limit != null ? String(c.usage_limit) : null}/>
+                                <InfoRow label="Usage limit per user" value={c.usage_limit_per_user != null ? String(c.usage_limit_per_user) : null}/>
+                                <InfoRow label="Limit usage to X items" value={c.limit_usage_to_x_items != null ? String(c.limit_usage_to_x_items) : null}/>
+                                <InfoRow label="Usage count" value={c.usage_count != null ? String(c.usage_count) : null}/>
                                 <Divider sx={{my: 2}}/>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Validity</Typography>
-                                <InfoRow label="Start date" value={c.start_date ? moment(c.start_date).format("ll") : null}/>
-                                <InfoRow label="Expiry date" value={c.expiry_date ? moment(c.expiry_date).format("ll") : null}/>
-                                <InfoRow label="Created by" value={c.created_by ? `${c.created_by.first_name} ${c.created_by.last_name}` : null}/>
+                                <InfoRow label="Expiry date" value={c.date_expires ? moment(c.date_expires).format("ll") : null}/>
+                                <InfoRow label="Date created" value={c.date_created ? moment(c.date_created).format("ll") : null}/>
                             </Paper>
                         </Grid>
                     </Grid>

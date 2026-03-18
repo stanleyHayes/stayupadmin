@@ -9,7 +9,7 @@ import categoriesReducer from "./../features/categories/categories-slice";
 import tagsReducer from "./../features/tags/tags-slice.js";
 import attributesReducer from "./../features/attributes/attributes-slice.js";
 import adminsReducer from "./../features/admins/admins-slice.js";
-import usersReducer from "./../features/users/users-slice.js";
+
 import invitationsReducer from "./../features/invitations/invitations-slice.js";
 import orderNotesReducer from "./../features/order-notes/order-notes-slice.js";
 import orderRefundsReducer from "./../features/order-refunds/order-refunds-slice.js";
@@ -19,11 +19,14 @@ import taxClassesReducer from "./../features/tax-classes/tax-classes-slice.js";
 import paymentGatewaysReducer from "./../features/payment-gateways/payment-gateways-slice.js";
 import shippingClassesReducer from "./../features/shipping-classes/shipping-classes-slice.js";
 import shippingMethodsReducer from "./../features/shipping-methods/shipping-methods-slice.js";
-import webhooksReducer from "./../features/webhooks/webhooks-slice.js";
+
 import subscribersReducer from "./../features/subscribers/subscribers-slice.js";
 import messagesReducer from "./../features/messages/messages-slice.js";
 import blogReducer from "./../features/blog/blog-slice.js";
 import testimonialsReducer from "./../features/testimonials/testimonials-slice.js";
+import rolesReducer from "./../features/roles/roles-slice.js";
+import collectionsReducer from "./../features/collections/collections-slice.js";
+import couriersReducer from "./../features/couriers/couriers-slice.js";
 
 const store = configureStore({
     devTools: true,
@@ -38,7 +41,7 @@ const store = configureStore({
         tags: tagsReducer,
         attributes: attributesReducer,
         admins: adminsReducer,
-        users: usersReducer,
+
         invitations: invitationsReducer,
         orderNotes: orderNotesReducer,
         orderRefunds: orderRefundsReducer,
@@ -48,11 +51,14 @@ const store = configureStore({
         paymentGateways: paymentGatewaysReducer,
         shippingClasses: shippingClassesReducer,
         shippingMethods: shippingMethodsReducer,
-        webhooks: webhooksReducer,
+
         subscribers: subscribersReducer,
         messages: messagesReducer,
         blog: blogReducer,
         testimonials: testimonialsReducer,
+        roles: rolesReducer,
+        collections: collectionsReducer,
+        couriers: couriersReducer,
     }
 });
 

@@ -1,11 +1,12 @@
-import {Badge, Box, Chip, Divider, InputAdornment, Stack, TextField, Toolbar, Typography} from "@mui/material";
+import {Box, Divider, Stack, Toolbar, Typography} from "@mui/material";
 import {
     Close, DarkModeOutlined, GridOn, LightModeOutlined,
-    ListAlt, Menu, NotificationsOutlined, SearchOutlined
+    ListAlt, Menu
 } from "@mui/icons-material";
 import {selectUI, UI_ACTION_CREATORS} from "../../redux/features/ui/ui-slice";
 import {useDispatch, useSelector} from "react-redux";
 import ProfileDropdown from "../shared/profile-dropdown.jsx";
+import NotificationDropdown from "../shared/notification-dropdown.jsx";
 import {AnimatePresence, motion} from "framer-motion";
 import {selectAuth} from "../../redux/features/authentication/authentication-slice";
 import {useLocation} from "react-router-dom";
@@ -13,7 +14,7 @@ import {useLocation} from "react-router-dom";
 const iconBtn = (active = false) => ({
     padding: 0.75,
     fontSize: 32,
-    borderRadius: 0,
+    borderRadius: 1,
     color: active ? "secondary.main" : "text.secondary",
     backgroundColor: active ? "light.secondary" : "transparent",
     cursor: "pointer",
@@ -71,7 +72,7 @@ const DesktopHeader = () => {
                             {pageTitle}
                         </Typography>
                         <Typography variant="caption" sx={{color: "text.secondary", fontSize: 11}}>
-                            Welcome back, {user?.firstName}
+                            Welcome back, {user?.first_name || user?.display_name || "Admin"}
                         </Typography>
                     </Stack>
                 </Stack>
@@ -82,10 +83,7 @@ const DesktopHeader = () => {
 
                     <Divider flexItem variant="middle" orientation="vertical" sx={{mx: 0.5}}/>
 
-                    <Badge badgeContent={5} variant="dot" max={10} color="error"
-                        sx={{"& .MuiBadge-dot": {width: 8, height: 8, borderRadius: "50%", border: "2px solid", borderColor: "background.paper"}}}>
-                        <NotificationsOutlined sx={iconBtn()}/>
-                    </Badge>
+                    <NotificationDropdown iconSx={iconBtn()}/>
 
                     <AnimatePresence mode="wait">
                         {theme === "dark" ? (

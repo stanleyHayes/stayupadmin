@@ -59,12 +59,12 @@ const CategoriesPage = () => {
                 )}
                 <Container>
                     <Grid spacing={4} container={true} alignItems="center" justifyContent="space-between">
-                        <Grid item={true} xs={12} md="auto">
+                        <Grid xs={12} md="auto">
                             <Grid container={true} spacing={2} alignItems="center">
-                                <Grid item={true} xs={12} md="auto">
+                                <Grid xs={12} md="auto">
                                     <Typography variant="h4" sx={{color: "text.secondary"}}>Categories</Typography>
                                 </Grid>
-                                <Grid item={true} xs={12} md="auto">
+                                <Grid xs={12} md="auto">
                                     <Link
                                         to="/category/new"
                                         style={{textDecoration: "none", width: "100%", display: "block"}}>
@@ -81,9 +81,9 @@ const CategoriesPage = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid item={true} xs={12} md="auto">
+                        <Grid xs={12} md="auto">
                             <Grid container={true} spacing={2} alignItems="center">
-                                <Grid item={true} xs={12} md={8}>
+                                <Grid xs={12} md={8}>
                                     <Stack
                                         divider={
                                             <Divider
@@ -96,7 +96,7 @@ const CategoriesPage = () => {
                                         }
                                         sx={{
                                             backgroundColor: "background.paper",
-                                            borderRadius: 0,
+                                            borderRadius: 1,
                                             padding: 1,
                                             px: 2
                                         }}
@@ -120,7 +120,7 @@ const CategoriesPage = () => {
                                         />
                                     </Stack>
                                 </Grid>
-                                <Grid item={true} xs={12} md={4}>
+                                <Grid xs={12} md={4}>
                                     <Button
                                         sx={{
                                             textTransform: "capitalize",
@@ -138,7 +138,7 @@ const CategoriesPage = () => {
                     <Divider variant="fullWidth" sx={{my: 4}} light={true}/>
 
                     <Grid container={true} spacing={2} alignItems="center">
-                        <Grid item={true} xs={12} md={3}>
+                        <Grid xs={12} md={3}>
                             <DatePicker
                                 slotProps={{
                                     textField: {
@@ -152,7 +152,7 @@ const CategoriesPage = () => {
                                 label="Start Date"
                             />
                         </Grid>
-                        <Grid item={true} xs={12} md={3}>
+                        <Grid xs={12} md={3}>
                             <DatePicker
                                 slotProps={{
                                     textField: {
@@ -166,7 +166,7 @@ const CategoriesPage = () => {
                                 label="End Date"
                             />
                         </Grid>
-                        <Grid item={true} xs={12} md={3}>
+                        <Grid xs={12} md={3}>
                             <Box>
                                 <FormControl fullWidth={true} variant="outlined">
                                     <InputLabel>Status</InputLabel>
@@ -186,7 +186,7 @@ const CategoriesPage = () => {
                                 </FormControl>
                             </Box>
                         </Grid>
-                        <Grid item={true} xs={12} md={3}>
+                        <Grid xs={12} md={3}>
                             <Button
                                 sx={{
                                     textTransform: "capitalize",
@@ -227,7 +227,7 @@ const CategoriesPage = () => {
                                                 fontSize: 36,
                                                 borderWidth: 1,
                                                 borderStyle: "solid",
-                                                borderRadius: 0,
+                                                borderRadius: 1,
                                                 borderColor: "light.secondary",
                                                 color: "secondary.main",
                                                 backgroundColor: "light.secondary",

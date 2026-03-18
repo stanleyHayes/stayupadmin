@@ -1,19 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import {STAY_UP_ADMIN_CONSTANTS} from "../../../utils/constants.js";
-import {categories} from "./categories.js";
-/**
- * Update STAY_UP_ADMIN_CONSTANTS.STAY_UP_ADMIN_API_BASE to your backend endpoint or import a config.
- */
-
-/**
- * Thunks:
- * - fetchCategories(params)
- * - fetchCategory(id)
- * - createCategory(payload)
- * - updateCategory({id, data})
- * - deleteCategory(id)
- */
 export const fetchCategories = createAsyncThunk(
     "categories/fetchCategories",
     async (params = {}, { rejectWithValue }) => {
@@ -82,7 +69,7 @@ export const deleteCategory = createAsyncThunk(
 const categoriesSlice = createSlice({
     name: "categories",
     initialState: {
-        categories: [...categories],
+        categories: [],
         category: null,
         categoryLoading: false,
         categoryError: null,

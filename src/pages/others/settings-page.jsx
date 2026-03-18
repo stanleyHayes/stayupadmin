@@ -22,7 +22,7 @@ import {
 const iconBox = (color = "secondary.main", bg = "light.secondary") => ({
     width: 36,
     height: 36,
-    borderRadius: 0,
+    borderRadius: 1,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -60,7 +60,7 @@ const NavItem = ({ to, icon, label }) => (
             sx={{
                 px: 1.5,
                 py: 1,
-                borderRadius: 0,
+                borderRadius: 1,
                 cursor: "pointer",
                 "&:hover": { backgroundColor: "background.alternative" },
             }}
@@ -109,7 +109,7 @@ const SettingsPage = () => {
                                     sx={{
                                         px: 2,
                                         py: 1.5,
-                                        borderRadius: 0,
+                                        borderRadius: 1,
                                         backgroundColor: "background.alternative",
                                     }}
                                 >
@@ -169,7 +169,7 @@ const SettingsPage = () => {
                                         sx={{
                                             px: 2,
                                             py: 1.5,
-                                            borderRadius: 0,
+                                            borderRadius: 1,
                                             backgroundColor: "background.alternative",
                                         }}
                                     >
@@ -196,7 +196,7 @@ const SettingsPage = () => {
                                         sx={{
                                             px: 2,
                                             py: 1.5,
-                                            borderRadius: 0,
+                                            borderRadius: 1,
                                             backgroundColor: "background.alternative",
                                         }}
                                     >

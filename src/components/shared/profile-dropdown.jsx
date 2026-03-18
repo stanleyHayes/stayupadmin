@@ -12,7 +12,7 @@ const MenuItem = ({icon, label, path, subtitle, active, onClick}) => (
     <Box
         onClick={onClick}
         sx={{
-            borderRadius: 0, p: 1, cursor: "pointer",
+            borderRadius: 1, p: 1, cursor: "pointer",
             backgroundColor: active ? "light.secondary" : "transparent",
             transition: "all 0.15s ease",
             "&:hover": {backgroundColor: "light.secondary"}
@@ -20,7 +20,7 @@ const MenuItem = ({icon, label, path, subtitle, active, onClick}) => (
         <Link to={path} style={{textDecoration: "none", display: "block"}}>
             <Stack direction="row" spacing={1.5} alignItems="center">
                 <Box sx={{
-                    width: 34, height: 34, borderRadius: 0, display: "flex",
+                    width: 34, height: 34, borderRadius: 1, display: "flex",
                     alignItems: "center", justifyContent: "center",
                     backgroundColor: active ? "light.secondary" : "background.default",
                     color: active ? "secondary.main" : "text.secondary",
@@ -64,9 +64,10 @@ const ProfileDropdown = () => {
         setAnchorElement(event.currentTarget);
     };
 
-    const initials = user?.firstName && user?.lastName
-        ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-        : "AD";
+    const displayName = user?.display_name || (user?.first_name ? `${user.first_name} ${user?.last_name || ""}`.trim() : null) || user?.email || "Admin";
+    const initials = user?.first_name && user?.last_name
+        ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
+        : (displayName?.[0] || "A").toUpperCase();
 
     return (
         <React.Fragment>
@@ -74,12 +75,12 @@ const ProfileDropdown = () => {
                 direction="row" alignItems="center" spacing={1.5}
                 onClick={handleMenuOpen}
                 sx={{
-                    cursor: "pointer", borderRadius: 0, p: 0.75, pr: 1.5,
+                    cursor: "pointer", borderRadius: 1, p: 0.75, pr: 1.5,
                     transition: "all 0.15s ease",
                     "&:hover": {backgroundColor: "light.secondary"}
                 }}>
                 <Avatar
-                    src={user?.image}
+                    src={user?.avatar_url || user?.image}
                     sx={{
                         width: 36, height: 36, fontSize: 14, fontWeight: 700,
                         bgcolor: "secondary.main", color: "#fff"
@@ -88,7 +89,7 @@ const ProfileDropdown = () => {
                 </Avatar>
                 <Box sx={{display: {xs: "none", md: "block"}}}>
                     <Typography variant="body2" sx={{fontWeight: 600, fontSize: 13, lineHeight: 1.3, color: "text.primary"}}>
-                        {`${user?.firstName} ${user?.lastName}`}
+                        {displayName}
                     </Typography>
                     <Typography variant="caption" sx={{color: "text.secondary", fontSize: 11}}>
                         {user?.role || "Admin"}
@@ -110,7 +111,7 @@ const ProfileDropdown = () => {
                 slotProps={{
                     paper: {
                         sx: {
-                            mt: 1, borderRadius: 0, minWidth: 260, p: 1,
+                            mt: 1, borderRadius: 1, minWidth: 260, p: 1,
                             boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
                             border: "1px solid", borderColor: "divider"
                         }
@@ -120,11 +121,11 @@ const ProfileDropdown = () => {
                 {/* Profile Header */}
                 <Link to="/profile" onClick={handleMenuClose} style={{textDecoration: "none", display: "block"}}>
                     <Stack direction="row" spacing={1.5} alignItems="center" sx={{
-                        p: 1.5, borderRadius: 0, mb: 0.5,
+                        p: 1.5, borderRadius: 1, mb: 0.5,
                         transition: "all 0.15s", "&:hover": {backgroundColor: "light.secondary"}
                     }}>
                         <Avatar
-                            src={user?.image}
+                            src={user?.avatar_url || user?.image}
                             sx={{
                                 width: 44, height: 44, fontSize: 16, fontWeight: 700,
                                 bgcolor: "secondary.main", color: "#fff"
@@ -134,7 +135,7 @@ const ProfileDropdown = () => {
                         <Box sx={{flex: 1}}>
                             <Stack direction="row" spacing={0.75} alignItems="center">
                                 <Typography variant="body2" sx={{fontWeight: 600, color: "text.primary"}}>
-                                    {`${user?.firstName} ${user?.lastName}`}
+                                    {displayName}
                                 </Typography>
                                 <Chip label={user?.role || "Admin"} size="small" color="secondary" sx={{height: 18, fontSize: 9, fontWeight: 700}}/>
                             </Stack>
@@ -203,13 +204,13 @@ const ProfileDropdown = () => {
                 <Box
                     onClick={() => { handleMenuClose(); dispatch(logout()); navigate("/auth/login"); }}
                     sx={{
-                        borderRadius: 0, p: 1, cursor: "pointer",
+                        borderRadius: 1, p: 1, cursor: "pointer",
                         transition: "all 0.15s ease",
                         "&:hover": {backgroundColor: "light.red"}
                     }}>
                     <Stack direction="row" spacing={1.5} alignItems="center">
                         <Box sx={{
-                            width: 34, height: 34, borderRadius: 0, display: "flex",
+                            width: 34, height: 34, borderRadius: 1, display: "flex",
                             alignItems: "center", justifyContent: "center",
                             backgroundColor: "light.red", color: "text.red"
                         }}>

@@ -5,10 +5,10 @@ import {
     MenuItem, Select, Stack, Typography
 } from "@mui/material";
 import {Link} from "react-router-dom";
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import Empty from "../../components/shared/empty.jsx";
 import {motion} from "framer-motion";
 import {
@@ -18,7 +18,9 @@ import {
 } from "@mui/icons-material";
 import PageHeader from "../../components/shared/page-header.jsx";
 import KPIBox from "../../components/shared/kpi-box.jsx";
-import {selectProducts} from "../../redux/features/products/products-slice";
+import {fetchProducts, selectProducts} from "../../redux/features/products/products-slice";
+import {productImageUrl} from "../../utils/helpers.js";
+import {CardGridSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const stockBadge = (status) => {
     if (status === "instock") return {label: "In Stock", color: "#22C55E", bg: "#DCFCE7"};
@@ -28,11 +30,11 @@ const stockBadge = (status) => {
 
 const ProductCard = ({product, index}) => {
     const stock = stockBadge(product.stock_status);
-    const imgUrl = product.image?.secure_url || product.image?.url || "";
-    const hasDiscount = product.on_sale && product.sale_price && product.sale_price < product.price?.amount;
-    const discountPercent = hasDiscount
-        ? Math.round(((product.price.amount - product.sale_price) / product.price.amount) * 100)
-        : 0;
+    const imgUrl = productImageUrl(product);
+    const regularPrice = Number(product.regular_price ?? product.price?.amount ?? product.price ?? 0);
+    const salePrice = Number(product.sale_price || 0);
+    const hasDiscount = product.on_sale && salePrice > 0 && salePrice < regularPrice;
+    const discountPercent = hasDiscount ? Math.round(((regularPrice - salePrice) / regularPrice) * 100) : 0;
 
     return (
         <motion.div
@@ -139,16 +141,16 @@ const ProductCard = ({product, index}) => {
                     <Stack direction="row" alignItems="baseline" spacing={1} sx={{mb: 1}}>
                         {hasDiscount ? (
                             <>
-                                <Typography sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 800, fontSize: 20, color: "text.primary"}}>
-                                    £{product.sale_price}
+                                <Typography sx={{fontFamily: "'GoogleSans', sans-serif", fontWeight: 800, fontSize: 20, color: "text.primary"}}>
+                                    GH₵{salePrice.toFixed(2)}
                                 </Typography>
-                                <Typography sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 500, fontSize: 14, color: "text.secondary", textDecoration: "line-through"}}>
-                                    £{product.price?.amount}
+                                <Typography sx={{fontFamily: "'GoogleSans', sans-serif", fontWeight: 500, fontSize: 14, color: "text.secondary", textDecoration: "line-through"}}>
+                                    GH₵{regularPrice.toFixed(2)}
                                 </Typography>
                             </>
                         ) : (
-                            <Typography sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 800, fontSize: 20, color: "text.primary"}}>
-                                £{product.price?.amount}
+                            <Typography sx={{fontFamily: "'GoogleSans', sans-serif", fontWeight: 800, fontSize: 20, color: "text.primary"}}>
+                                GH₵{regularPrice.toFixed(2)}
                             </Typography>
                         )}
                     </Stack>
@@ -156,12 +158,12 @@ const ProductCard = ({product, index}) => {
                     {/* Meta row */}
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                         <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography variant="caption" color="text.secondary" sx={{fontFamily: "'Inconsolata', monospace", fontSize: 11}}>
+                            <Typography variant="caption" color="text.secondary" sx={{fontFamily: "'GoogleSans', sans-serif", fontSize: 11}}>
                                 {product.sku}
                             </Typography>
                             {product.manage_stock && (
                                 <>
-                                    <Box sx={{width: 3, height: 3, borderRadius: 0, backgroundColor: "text.secondary"}}/>
+                                    <Box sx={{width: 3, height: 3, borderRadius: 1, backgroundColor: "text.secondary"}}/>
                                     <Typography variant="caption" color="text.secondary" sx={{fontSize: 11}}>
                                         {product.stock_quantity} in stock
                                     </Typography>
@@ -190,12 +192,15 @@ const ProductCard = ({product, index}) => {
 };
 
 const ProductsPage = () => {
+    const dispatch = useDispatch();
     const [query, setQuery] = useState("");
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState("all");
 
     const {products = [], productLoading = false, productError = null} = useSelector(selectProducts);
+
+    useEffect(() => { dispatch(fetchProducts()); }, [dispatch]);
 
     const totalProducts = products?.length || 0;
     const featuredProducts = products?.filter(p => p.featured).length || 0;
@@ -220,6 +225,8 @@ const ProductsPage = () => {
             return [p.title, p.sku, p.short_description, p.description].join(" ").toLowerCase().includes(q);
         });
     }, [products, query, selectedCategory, startDate, endDate]);
+
+    if (productLoading && products.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><CardGridSkeleton/></Box></Layout>;
 
     return (
         <Layout>
@@ -312,7 +319,7 @@ const ProductsPage = () => {
                                 <Box component={motion.div} exit={{}}>
                                     <Close sx={{
                                         padding: 1, fontSize: 36, borderWidth: 1, borderStyle: "solid",
-                                        borderRadius: 0, borderColor: "light.secondary",
+                                        borderRadius: 1, borderColor: "light.secondary",
                                         color: "secondary.main", backgroundColor: "light.secondary",
                                     }}/>
                                 </Box>

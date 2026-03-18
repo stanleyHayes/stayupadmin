@@ -19,10 +19,10 @@ const RegisterPage = () => {
     const [loading, setLoading] = useState(false);
 
     const formik = useFormik({
-        initialValues: {firstName: "", lastName: "", email: "", username: "", password: "", confirmPassword: "", terms: false},
+        initialValues: {first_name: "", last_name: "", email: "", username: "", password: "", confirmPassword: "", terms: false},
         validationSchema: yup.object({
-            firstName: yup.string().required("First name is required"),
-            lastName: yup.string().required("Last name is required"),
+            first_name: yup.string().required("First name is required"),
+            last_name: yup.string().required("Last name is required"),
             email: yup.string().email("Enter a valid email").required("Email is required"),
             username: yup.string().required("Username is required"),
             password: yup.string().min(8, "Min 8 characters").required("Password is required"),
@@ -83,8 +83,8 @@ const RegisterPage = () => {
                         <form onSubmit={formik.handleSubmit}>
                             <Stack spacing={2} sx={{mt: 3}}>
                                 <Stack direction="row" spacing={2}>
-                                    <TextField name="firstName" label="First Name" fullWidth size="small" value={formik.values.firstName} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.firstName && formik.errors.firstName)} helperText={formik.touched.firstName && formik.errors.firstName}/>
-                                    <TextField name="lastName" label="Last Name" fullWidth size="small" value={formik.values.lastName} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.lastName && formik.errors.lastName)} helperText={formik.touched.lastName && formik.errors.lastName}/>
+                                    <TextField name="first_name" label="First Name" fullWidth size="small" value={formik.values.first_name} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.first_name && formik.errors.first_name)} helperText={formik.touched.first_name && formik.errors.first_name}/>
+                                    <TextField name="last_name" label="Last Name" fullWidth size="small" value={formik.values.last_name} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.last_name && formik.errors.last_name)} helperText={formik.touched.last_name && formik.errors.last_name}/>
                                 </Stack>
                                 <TextField name="email" label="Email Address" fullWidth size="small" type="email" value={formik.values.email} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.email && formik.errors.email)} helperText={formik.touched.email && formik.errors.email}/>
                                 <TextField name="username" label="Username" fullWidth size="small" value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur} error={Boolean(formik.touched.username && formik.errors.username)} helperText={formik.touched.username && formik.errors.username}/>

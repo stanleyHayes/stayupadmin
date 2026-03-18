@@ -17,7 +17,7 @@ const HelpCard = ({icon, title, description, links, color = "secondary.main", bg
             <Stack direction="row" spacing={2} alignItems="center">
                 <Box sx={{
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    width: 40, height: 40, borderRadius: 0,
+                    width: 40, height: 40, borderRadius: 1,
                     backgroundColor: bg, color: color, flexShrink: 0
                 }}>
                     {icon}

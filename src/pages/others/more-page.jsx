@@ -28,7 +28,7 @@ const MoreLink = ({icon, label, path, color = "icon.default", bg = "light.defaul
             sx={{
                 py: 1.5,
                 px: 1,
-                borderRadius: 0,
+                borderRadius: 1,
                 "&:hover": {backgroundColor: "light.secondary", transition: "all 200ms ease-out"}
             }}>
             <Stack direction="row" spacing={2} alignItems="center">
@@ -38,7 +38,7 @@ const MoreLink = ({icon, label, path, color = "icon.default", bg = "light.defaul
                     justifyContent: "center",
                     width: 36,
                     height: 36,
-                    borderRadius: 0,
+                    borderRadius: 1,
                     backgroundColor: bg,
                     color: color
                 }}>
@@ -83,7 +83,7 @@ const MorePage = () => {
                                         <Avatar src={user.image} variant="circular" sx={{width: 44, height: 44}}/>
                                         <Stack spacing={0.25}>
                                             <Typography variant="body2" sx={{color: "text.primary", fontWeight: 600}}>
-                                                {`${user.firstName} ${user.lastName}`}
+                                                {user?.display_name || (user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : user?.email || "Admin")}
                                             </Typography>
                                             <Typography variant="caption" sx={{color: "text.secondary", fontSize: 11}}>
                                                 View Profile
@@ -97,7 +97,7 @@ const MorePage = () => {
                     </Link>
 
                     {/* Account Section */}
-                    <Paper elevation={0} sx={{borderRadius: 0, overflow: "hidden"}}>
+                    <Paper elevation={0} sx={{borderRadius: 1, overflow: "hidden"}}>
                         <SectionLabel>Account</SectionLabel>
                         <Box sx={{px: 1.5, pb: 1.5}}>
                             <MoreLink
@@ -125,7 +125,7 @@ const MorePage = () => {
                     </Paper>
 
                     {/* Support Section */}
-                    <Paper elevation={0} sx={{borderRadius: 0, overflow: "hidden"}}>
+                    <Paper elevation={0} sx={{borderRadius: 1, overflow: "hidden"}}>
                         <SectionLabel>Support</SectionLabel>
                         <Box sx={{px: 1.5, pb: 1.5}}>
                             <MoreLink
@@ -153,7 +153,7 @@ const MorePage = () => {
                     </Paper>
 
                     {/* Legal Section */}
-                    <Paper elevation={0} sx={{borderRadius: 0, overflow: "hidden"}}>
+                    <Paper elevation={0} sx={{borderRadius: 1, overflow: "hidden"}}>
                         <SectionLabel>Legal</SectionLabel>
                         <Box sx={{px: 1.5, pb: 1.5}}>
                             <MoreLink
@@ -181,20 +181,20 @@ const MorePage = () => {
                     </Paper>
 
                     {/* Logout */}
-                    <Paper elevation={0} sx={{borderRadius: 0, overflow: "hidden"}}>
+                    <Paper elevation={0} sx={{borderRadius: 1, overflow: "hidden"}}>
                         <Box sx={{px: 1.5, py: 1}}>
                             <Stack
                                 direction="row"
                                 spacing={2}
                                 alignItems="center"
-                                sx={{py: 1.5, px: 1, cursor: "pointer", borderRadius: 0, "&:hover": {backgroundColor: "light.red"}}}>
+                                sx={{py: 1.5, px: 1, cursor: "pointer", borderRadius: 1, "&:hover": {backgroundColor: "light.red"}}}>
                                 <Box sx={{
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
                                     width: 36,
                                     height: 36,
-                                    borderRadius: 0,
+                                    borderRadius: 1,
                                     backgroundColor: "light.red",
                                     color: "text.red"
                                 }}>

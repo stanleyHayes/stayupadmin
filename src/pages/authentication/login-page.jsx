@@ -7,7 +7,7 @@ import {useFormik} from "formik";
 import * as yup from "yup";
 import {Link, useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
-import {login} from "../../redux/features/authentication/authentication-slice";
+import {loginUser} from "../../redux/features/authentication/authentication-slice";
 import {VisibilityOffOutlined, VisibilityOutlined, LockOutlined} from "@mui/icons-material";
 import logo from "../../assets/images/logo/logo_image.png";
 import {motion} from "framer-motion";
@@ -20,18 +20,27 @@ const LoginPage = () => {
     const [error, setError] = useState(null);
 
     const formik = useFormik({
-        initialValues: {username: "", password: ""},
+        initialValues: {email: "", password: ""},
         validationSchema: yup.object({
-            username: yup.string().required("Username is required"),
+            email: yup.string().email("Enter a valid email").required("Email is required"),
             password: yup.string().required("Password is required"),
         }),
-        onSubmit: async () => {
+        onSubmit: async (values, { setSubmitting }) => {
             setLoading(true);
             setError(null);
-            await new Promise(r => setTimeout(r, 800));
-            dispatch(login());
-            setLoading(false);
-            navigate("/");
+            try {
+                const result = await dispatch(loginUser(values));
+                if (result.error) {
+                    setError(result.payload || "Login failed");
+                } else {
+                    navigate("/");
+                }
+            } catch {
+                setError("Something went wrong. Please try again.");
+            } finally {
+                setLoading(false);
+                setSubmitting(false);
+            }
         }
     });
 
@@ -44,11 +53,11 @@ const LoginPage = () => {
                 flexDirection: "column", justifyContent: "center", alignItems: "center",
                 p: 6, position: "relative", overflow: "hidden",
             }}>
-                <Box sx={{position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: 0, backgroundColor: "rgba(255,255,255,0.06)"}}/>
-                <Box sx={{position: "absolute", bottom: -80, left: -40, width: 250, height: 250, borderRadius: 0, backgroundColor: "rgba(255,255,255,0.04)"}}/>
+                <Box sx={{position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: 1, backgroundColor: "rgba(255,255,255,0.06)"}}/>
+                <Box sx={{position: "absolute", bottom: -80, left: -40, width: 250, height: 250, borderRadius: 1, backgroundColor: "rgba(255,255,255,0.04)"}}/>
                 <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{duration: 0.6}}>
                     <Stack spacing={3} alignItems="center" sx={{position: "relative", zIndex: 1}}>
-                        <CardMedia component="img" src={logo} sx={{width: 64, height: 64, objectFit: "contain"}}/>
+                        <CardMedia component="img" src={logo} sx={{width: 120, height: 120, objectFit: "contain"}}/>
                         <Typography sx={{color: "#fff", fontSize: 32, fontWeight: 800, letterSpacing: -0.5}}>StayUp</Typography>
                         <Typography sx={{color: "rgba(255,255,255,0.7)", textAlign: "center", maxWidth: 300, fontSize: 14}}>
                             Manage your store, track orders, and grow your business — all from one place.
@@ -69,7 +78,7 @@ const LoginPage = () => {
 
                         <Box sx={{mb: 1}}>
                             <Box sx={{
-                                width: 44, height: 44, borderRadius: 0, mb: 2,
+                                width: 44, height: 44, borderRadius: 1, mb: 2,
                                 background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
                                 display: "flex", alignItems: "center", justifyContent: "center",
                             }}>
@@ -84,11 +93,12 @@ const LoginPage = () => {
                         <form onSubmit={formik.handleSubmit}>
                             <Stack spacing={2.5} sx={{mt: 3}}>
                                 <TextField
-                                    name="username" label="Username" fullWidth size="small"
-                                    value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur}
-                                    error={Boolean(formik.touched.username && formik.errors.username)}
-                                    helperText={formik.touched.username && formik.errors.username}
-                                    placeholder="Enter your username"
+                                    name="email" label="Email" fullWidth size="small"
+                                    type="email"
+                                    value={formik.values.email} onChange={formik.handleChange} onBlur={formik.handleBlur}
+                                    error={Boolean(formik.touched.email && formik.errors.email)}
+                                    helperText={formik.touched.email && formik.errors.email}
+                                    placeholder="Enter your email"
                                 />
                                 <TextField
                                     name="password" label="Password" fullWidth size="small"

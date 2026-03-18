@@ -12,6 +12,7 @@ import {VisibilityOutlined, EditOutlined, DeleteForeverOutlined, MailOutlined, C
 import PageHeader from "../../components/shared/page-header.jsx";
 import KPIBox from "../../components/shared/kpi-box.jsx";
 import moment from "moment";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const statusColor = (s) => {
     if (s === "ACCEPTED") return "success";
@@ -42,6 +43,8 @@ const InvitationsPage = () => {
         if (!window.confirm(`Delete invitation for ${inv.email}? This cannot be undone.`)) return;
         await dispatch(deleteInvitation(inv._id));
     };
+
+    if (invitationLoading && invitations.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={6}/></Box></Layout>;
 
     return (
         <Layout>
@@ -112,7 +115,7 @@ const InvitationsPage = () => {
                                                 <Chip label={inv.status} size="small" color={statusColor(inv.status)}/>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="body2" color="text.secondary">{inv.invited_by || "—"}</Typography>
+                                                <Typography variant="body2" color="text.secondary">{typeof inv.invited_by === "object" ? (inv.invited_by?.display_name || inv.invited_by?.name || (inv.invited_by?.first_name ? `${inv.invited_by.first_name} ${inv.invited_by.last_name || ""}`.trim() : inv.invited_by?.email || "—")) : (inv.invited_by || "—")}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" color="text.secondary">
@@ -124,21 +127,21 @@ const InvitationsPage = () => {
                                                     <Tooltip title="View Invitation">
                                                         <Link to={`/invitations/${inv._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Edit Invitation">
                                                         <Link to={`/invitations/${inv._id}/update`} style={{textDecoration: "none"}}>
                                                             <EditOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.secondary", color: "secondary.main", backgroundColor: "light.secondary", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Invitation">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(inv)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

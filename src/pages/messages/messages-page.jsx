@@ -16,6 +16,7 @@ import {
 import PageHeader from "../../components/shared/page-header.jsx";
 import KPIBox from "../../components/shared/kpi-box.jsx";
 import moment from "moment";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const statusColor = (s) => s === "read" ? "success" : s === "unread" ? "info" : "default";
 
@@ -56,6 +57,8 @@ const MessagesPage = () => {
     const unreadCount = messages?.filter(m => m.status === "unread").length || 0;
     const readCount = messages?.filter(m => m.status === "read").length || 0;
     const collabCount = messages?.filter(m => m.subject === "Collaboration / Partnerships").length || 0;
+
+    if (messageLoading && messages.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={6}/></Box></Layout>;
 
     return (
         <Layout>
@@ -164,14 +167,14 @@ const MessagesPage = () => {
                                                     <Tooltip title="View Message">
                                                         <Link to={`/messages/${msg._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Message">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(msg)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

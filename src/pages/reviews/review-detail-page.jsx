@@ -7,20 +7,30 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import Layout from "../../components/shared/layout.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchReview, updateReview, deleteReview, selectReviews} from "../../redux/features/reviews/reviews-slice";
+import {fetchProducts, selectProducts} from "../../redux/features/products/products-slice";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BlockIcon from "@mui/icons-material/Block";
 import moment from "moment";
+import {DetailSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const InfoRow = ({label, value}) => (
     <Box sx={{display: "flex", gap: 1, alignItems: "flex-start", py: 0.5}}>
         <Typography variant="caption" color="text.secondary" sx={{minWidth: 140, fontWeight: 600}}>{label}</Typography>
-        <Typography variant="body2">{value ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{value ?? "—"}</Typography>
     </Box>
 );
 
 const statusColor = (s) => s === "approved" ? "success" : s === "pending" ? "warning" : s === "spam" ? "error" : "default";
+
+const reviewerName = (r) => {
+    if (!r) return "—";
+    if (typeof r === "string") return r;
+    if (r.name) return r.name;
+    if (r.first_name) return `${r.first_name} ${r.last_name || ""}`.trim();
+    return r.email || "—";
+};
 
 const renderStars = (rating) => {
     const r = Number(rating) || 0;
@@ -32,9 +42,11 @@ const ReviewDetailPage = () => {
     const navigate = useNavigate();
     const {reviewID} = useParams();
     const {review, reviewLoading, reviewError} = useSelector(selectReviews);
+    const {products} = useSelector(selectProducts);
 
     useEffect(() => {
         if (reviewID) dispatch(fetchReview(reviewID));
+        dispatch(fetchProducts());
     }, [dispatch, reviewID]);
 
     const handleApprove = () => dispatch(updateReview({id: reviewID, data: {status: "approved"}}));
@@ -44,6 +56,8 @@ const ReviewDetailPage = () => {
         await dispatch(deleteReview(reviewID));
         navigate("/reviews");
     };
+
+    if (reviewLoading && !review) return <Layout><Box sx={{pt: 4, pb: 6}}><DetailSkeleton/></Box></Layout>;
 
     const rv = review || {};
 
@@ -69,13 +83,19 @@ const ReviewDetailPage = () => {
                         <Grid size={{xs: 12, md: 8}}>
                             <Paper elevation={0} sx={{p: 3}}>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Review Details</Typography>
-                                <InfoRow label="Product" value={
-                                    rv.product_id ? (
-                                        <Link to={`/products/${rv.product_id}`} style={{textDecoration: "none", color: "inherit"}}>{rv.product_name || rv.product_id}</Link>
-                                    ) : (rv.product_name || "—")
-                                }/>
-                                <InfoRow label="Reviewer" value={rv.reviewer}/>
-                                <InfoRow label="Email" value={rv.reviewer_email}/>
+                                <InfoRow label="Product" value={(() => {
+                                    const pid = rv.product_id;
+                                    const id = typeof pid === "object" ? (pid?._id || pid?.id) : pid;
+                                    let name = typeof pid === "object" ? (pid?.name || pid?.title) : null;
+                                    if (!name && id && Array.isArray(products)) {
+                                        const found = products.find(p => String(p._id) === String(id) || String(p.id) === String(id));
+                                        if (found) name = found.name || found.title;
+                                    }
+                                    name = name || rv.product_name || "—";
+                                    return id ? <Link to={`/products/${id}`} style={{textDecoration: "none", color: "inherit"}}>{name}</Link> : name;
+                                })()}/>
+                                <InfoRow label="Reviewer" value={reviewerName(rv.reviewer)}/>
+                                <InfoRow label="Email" value={typeof rv.reviewer === "object" ? rv.reviewer?.email : rv.reviewer_email}/>
                                 <InfoRow label="Rating" value={<span style={{fontFamily: "monospace", letterSpacing: 1}}>{renderStars(rv.rating)} ({rv.rating}/5)</span>}/>
                                 <InfoRow label="Created" value={rv.created_at ? moment(rv.created_at).format("LLL") : null}/>
                                 <Divider sx={{my: 2}}/>

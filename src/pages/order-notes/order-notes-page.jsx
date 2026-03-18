@@ -12,6 +12,7 @@ import {VisibilityOutlined, DeleteForeverOutlined, NotesOutlined, NoteAddOutline
 import PageHeader from "../../components/shared/page-header.jsx";
 import moment from "moment";
 import KPIBox from "../../components/shared/kpi-box.jsx";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const OrderNotesPage = () => {
     const dispatch = useDispatch();
@@ -24,15 +25,19 @@ const OrderNotesPage = () => {
         if (!Array.isArray(orderNotes)) return [];
         const q = query.trim().toLowerCase();
         if (!q) return orderNotes;
-        return orderNotes.filter(item =>
-            [item.note, item.customer_name, item.order_number].join(" ").toLowerCase().includes(q)
-        );
+        return orderNotes.filter(item => {
+            const authorStr = item.author_name || (typeof item.author === "object" ? (item.author?.name || item.author?.first_name || "") : "") || item.added_by || "";
+            const orderStr = typeof item.order_id === "object" ? (item.order_id?.number || "") : (item.order_id || "");
+            return [item.content, item.note, authorStr, orderStr].join(" ").toLowerCase().includes(q);
+        });
     }, [orderNotes, query]);
 
     const handleDelete = async (note) => {
         if (!window.confirm("Delete this order note? This cannot be undone.")) return;
         await dispatch(deleteOrderNote(note._id));
     };
+
+    if (orderNoteLoading && orderNotes.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={7}/></Box></Layout>;
 
     return (
         <Layout>
@@ -85,24 +90,30 @@ const OrderNotesPage = () => {
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {filteredNotes.map((note, i) => (
+                                    {filteredNotes.map((note, i) => {
+                                        const orderId = typeof note.order_id === "object" ? (note.order_id?._id || note.order_id?.id) : note.order_id;
+                                        const orderNum = typeof note.order_id === "object" ? (note.order_id?.number || orderId) : note.order_id;
+                                        const author = note.author_name
+                                            || (typeof note.author === "object" ? (note.author?.display_name || note.author?.name || (note.author?.first_name ? `${note.author.first_name} ${note.author.last_name || ""}`.trim() : note.author?.email || null)) : null)
+                                            || note.added_by || "—";
+                                        return (
                                         <TableRow key={note._id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>
-                                                <Link to={`/orders/${note.order_id}`} style={{textDecoration: "none"}}>
-                                                    <Typography variant="body2" color="secondary">#{note.order_id}</Typography>
+                                                <Link to={`/orders/${orderId}`} style={{textDecoration: "none"}}>
+                                                    <Typography variant="body2" color="secondary">#{orderNum}</Typography>
                                                 </Link>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" sx={{maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"}}>
-                                                    {note.content}
+                                                    {typeof note.content === "string" ? note.content : "—"}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Chip label={note.note_type || "order_note"} size="small" color={note.note_type === "customer_note" ? "info" : "default"}/>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="body2" color="text.secondary">{note.author || "—"}</Typography>
+                                                <Typography variant="body2" color="text.secondary">{author}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" color="text.secondary">{note.created_at ? moment(note.created_at).format("ll") : "—"}</Typography>
@@ -112,20 +123,20 @@ const OrderNotesPage = () => {
                                                     <Tooltip title="View Order Note">
                                                         <Link to={`/order-notes/${note._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Order Note">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(note)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    );})}
                                 </TableBody>
                             </Table>
                         </TableContainer>

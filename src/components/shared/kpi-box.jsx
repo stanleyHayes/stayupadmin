@@ -37,7 +37,7 @@ const KPIBox = ({ label, value, subtitle, trend, icon, iconColor = "secondary.ma
                         <Typography variant="caption" color="text.secondary" noWrap>
                             {label}
                         </Typography>
-                        <Typography variant="h5" sx={{ fontFamily: "'Inconsolata', monospace", fontWeight: 700 }}>
+                        <Typography variant="h5" sx={{ fontFamily: "'GoogleSans', sans-serif", fontWeight: 700 }}>
                             {value}
                         </Typography>
                         {subtitle && (
@@ -45,7 +45,7 @@ const KPIBox = ({ label, value, subtitle, trend, icon, iconColor = "secondary.ma
                                 {subtitle}
                             </Typography>
                         )}
-                        {trend != null && (
+                        {trend != null && !isNaN(trend) && isFinite(trend) && (
                             <motion.div
                                 initial={{ opacity: 0, x: -8 }}
                                 animate={inView ? { opacity: 1, x: 0 } : {}}
@@ -76,7 +76,7 @@ const KPIBox = ({ label, value, subtitle, trend, icon, iconColor = "secondary.ma
                                 sx={{
                                     width: 40,
                                     height: 40,
-                                    borderRadius: 0,
+                                    borderRadius: 1,
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",

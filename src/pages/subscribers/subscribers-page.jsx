@@ -16,6 +16,7 @@ import {
 import PageHeader from "../../components/shared/page-header.jsx";
 import KPIBox from "../../components/shared/kpi-box.jsx";
 import moment from "moment";
+import {ListSkeleton} from "../../components/shared/page-skeleton.jsx";
 
 const statusColor = (s) => s === "active" ? "success" : s === "unsubscribed" ? "warning" : s === "bounced" ? "error" : "default";
 
@@ -50,6 +51,8 @@ const SubscribersPage = () => {
     const activeCount = subscribers?.filter(s => s.status === "active").length || 0;
     const unsubCount = subscribers?.filter(s => s.status === "unsubscribed").length || 0;
     const bouncedCount = subscribers?.filter(s => s.status === "bounced").length || 0;
+
+    if (subscriberLoading && subscribers.length === 0) return <Layout><Box sx={{pt: 4, pb: 6}}><ListSkeleton cols={6}/></Box></Layout>;
 
     return (
         <Layout>
@@ -137,14 +140,14 @@ const SubscribersPage = () => {
                                                     <Tooltip title="View Subscriber">
                                                         <Link to={`/subscribers/${sub._id}`} style={{textDecoration: "none"}}>
                                                             <VisibilityOutlined
-                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
+                                                                sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.green", color: "icon.green", backgroundColor: "light.green", cursor: "pointer"}}
                                                             />
                                                         </Link>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Subscriber">
                                                         <DeleteForeverOutlined
                                                             onClick={() => handleDelete(sub)}
-                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 0, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
+                                                            sx={{padding: 0.4, fontSize: 28, borderWidth: 1, borderStyle: "solid", borderRadius: 1, borderColor: "light.red", color: "icon.red", backgroundColor: "light.red", cursor: "pointer"}}
                                                         />
                                                     </Tooltip>
                                                 </Stack>

@@ -1,7 +1,6 @@
 import {Stack, TableCell, TableRow, Tooltip, Typography} from "@mui/material";
 import React, {useState} from "react";
 import moment from "moment";
-import currencyFormatter from "currency-formatter";
 import {DeleteForeverOutlined, EditOutlined, VisibilityOutlined} from "@mui/icons-material";
 import {Link} from "react-router-dom";
 import Status from "./status.jsx";
@@ -9,10 +8,55 @@ import ConfirmDialog from "./confirm-dialog.jsx";
 import OrderQuickView from "./order-quick-view.jsx";
 import {motion} from "framer-motion";
 
-const Order = ({order, index = 0}) => {
+/**
+ * Resolve the customer name and ID from an order.
+ * The backend field is `customer_id` and can be:
+ *   - a populated object: { _id, first_name, last_name, email }
+ *   - a string ObjectId
+ *   - null/undefined
+ * Legacy seed data used `customer` (object with `name`).
+ */
+const resolveCustomer = (order) => {
+    // Try customer_id first (backend), then customer (legacy seed data)
+    const c = order.customer_id ?? order.customer;
+    if (!c) return { name: "—", id: null };
 
+    if (typeof c === "object" && c !== null) {
+        const name = c.display_name || c.name || (c.first_name ? `${c.first_name} ${c.last_name || ""}`.trim() : null) || c.email || "—";
+        return { name, email: c.email || null, id: c._id || c.id };
+    }
+
+    // String ID — no name available without a store lookup
+    return { name: String(c).slice(-8), email: null, id: c };
+};
+
+/**
+ * Resolve the order total for display.
+ * Backend sends `total` as a string like "98.97" and `currency` as "GHS".
+ * Legacy seed data used `total: { amount, currency }`.
+ */
+const resolveTotal = (order) => {
+    const t = order.total;
+    const cur = order.currency || "GBP";
+    if (t == null) return "—";
+    if (typeof t === "string" || typeof t === "number") {
+        const sym = cur === "GHS" ? "GH₵" : cur === "USD" ? "$" : cur === "EUR" ? "€" : "£";
+        return `${sym}${Number(t).toFixed(2)}`;
+    }
+    if (typeof t === "object") {
+        const amount = t.amount ?? t.subtotal ?? 0;
+        const c = t.currency || cur;
+        const sym = c === "GHS" ? "GH₵" : c === "USD" ? "$" : c === "EUR" ? "€" : "£";
+        return `${sym}${Number(amount).toFixed(2)}`;
+    }
+    return "—";
+};
+
+const Order = ({order, index = 0}) => {
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const [openQuickViewDialog, setOpenQuickViewDialog] = useState(false);
+    const customer = resolveCustomer(order);
+    const date = order.date_created || order.created_at || order.createdAt;
 
     const handleDeleteClick = () => {
         setOpenConfirmDialog(true);
@@ -33,7 +77,7 @@ const Order = ({order, index = 0}) => {
             >
                 <TableCell>
                     <Tooltip title={`Detailed view of order ${order.number}`}>
-                        <Link to={`/customers/${order.customer._id}`} style={{textDecoration: "none"}}>
+                        <Link to={`/orders/${order._id}`} style={{textDecoration: "none"}}>
                             <Typography variant="body2" component="span" sx={{color: "text.secondary"}}>
                                 {order.number}
                             </Typography>
@@ -41,25 +85,24 @@ const Order = ({order, index = 0}) => {
                     </Tooltip>
                 </TableCell>
                 <TableCell>
-                    <Tooltip title={`Quick view customer ${order.customer.name}`}>
-                        <Link to={`/customers/${order.customer._id}`} style={{textDecoration: "none"}}>
-                            <Typography
-                                sx={{color: "text.primary"}}
-                                variant="body2">
-                                {order?.customer?.name}
-                            </Typography>
+                    {customer.id ? (
+                        <Link to={`/customers/${customer.id}`} style={{textDecoration: "none"}}>
+                            <Typography variant="body2" sx={{color: "text.primary"}}>{customer.name}</Typography>
+                            {customer.email && <Typography variant="caption" color="text.secondary">{customer.email}</Typography>}
                         </Link>
-                    </Tooltip>
+                    ) : (
+                        <Typography variant="body2">{customer.name}</Typography>
+                    )}
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2" sx={{color: "text.secondary"}}>
-                        {moment(new Date(order.createdAt)).fromNow()}
+                        {date ? moment(date).fromNow() : "—"}
                     </Typography>
                 </TableCell>
 
                 <TableCell align="left">
                     <Typography variant="body2" sx={{color: "text.secondary"}}>
-                        {currencyFormatter.format(order.total.amount, {code: order.total.currency})}
+                        {resolveTotal(order)}
                     </Typography>
                 </TableCell>
                 <TableCell align="center">
@@ -75,7 +118,7 @@ const Order = ({order, index = 0}) => {
                                         fontSize: 28,
                                         borderWidth: 1,
                                         borderStyle: "solid",
-                                        borderRadius: 0,
+                                        borderRadius: 1,
                                         borderColor: "light.green",
                                         color: "icon.green",
                                         backgroundColor: "light.green",
@@ -94,7 +137,7 @@ const Order = ({order, index = 0}) => {
                                         fontSize: 28,
                                         borderWidth: 1,
                                         borderStyle: "solid",
-                                        borderRadius: 0,
+                                        borderRadius: 1,
                                         borderColor: "light.secondary",
                                         color: "secondary.main",
                                         backgroundColor: "light.secondary",
@@ -113,7 +156,7 @@ const Order = ({order, index = 0}) => {
                                     fontSize: 28,
                                     borderWidth: 1,
                                     borderStyle: "solid",
-                                    borderRadius: 0,
+                                    borderRadius: 1,
                                     borderColor: "light.red",
                                     color: "icon.red",
                                     backgroundColor: "light.red",

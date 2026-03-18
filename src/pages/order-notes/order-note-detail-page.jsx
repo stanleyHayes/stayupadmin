@@ -14,7 +14,7 @@ import moment from "moment";
 const InfoRow = ({label, value}) => (
     <Box sx={{display: "flex", gap: 1, alignItems: "flex-start", py: 0.5}}>
         <Typography variant="caption" color="text.secondary" sx={{minWidth: 140, fontWeight: 600}}>{label}</Typography>
-        <Typography variant="body2">{value ?? "—"}</Typography>
+        <Typography variant="body2" component="div">{value ?? "—"}</Typography>
     </Box>
 );
 
@@ -54,14 +54,13 @@ const OrderNoteDetailPage = () => {
                         <Grid size={{xs: 12, md: 8}}>
                             <Paper elevation={0} sx={{p: 3}}>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Note Details</Typography>
-                                <InfoRow label="Order ID" value={
-                                    n.order_id ? (
-                                        <Link to={`/orders/${n.order_id}`} style={{textDecoration: "none", color: "inherit"}}>
-                                            #{n.order_id}
-                                        </Link>
-                                    ) : "—"
-                                }/>
-                                <InfoRow label="Author" value={n.author}/>
+                                <InfoRow label="Order" value={(() => {
+                                    const oid = typeof n.order_id === "object" ? (n.order_id?._id || n.order_id?.id) : n.order_id;
+                                    const onum = typeof n.order_id === "object" ? (n.order_id?.number || oid) : n.order_id;
+                                    return oid ? <Link to={`/orders/${oid}`} style={{textDecoration: "none", color: "inherit"}}>#{onum}</Link> : "—";
+                                })()}/>
+                                <InfoRow label="Author" value={n.author_name || (typeof n.author === "object" ? (n.author?.display_name || n.author?.name || (n.author?.first_name ? `${n.author.first_name} ${n.author.last_name || ""}`.trim() : n.author?.email || null)) : null) || "—"}/>
+                                {n.added_by && <InfoRow label="Added by" value={n.added_by}/>}
                                 <InfoRow label="Created" value={n.created_at ? moment(n.created_at).format("LLL") : null}/>
                                 <Divider sx={{my: 2}}/>
                                 <Typography variant="caption" color="text.secondary" sx={{fontWeight: 600}}>Content</Typography>

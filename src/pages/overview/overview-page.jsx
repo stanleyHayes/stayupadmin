@@ -23,15 +23,17 @@ import {
 } from "@mui/icons-material";
 
 const STATUS_COLORS = {
-    completed: "#22C55E", processing: "#3B82F6", "pending payment": "#F59E0B",
-    "on-hold": "#F59E0B", refunded: "#06B6D4", cancelled: "#6B7280", failed: "#EF4444",
+    pending: "#F59E0B", processing: "#3B82F6", "on-hold": "#F59E0B",
+    shipped: "#8B5CF6", "in-transit": "#6366F1", delivered: "#10B981",
+    completed: "#22C55E", refunded: "#06B6D4", cancelled: "#6B7280", failed: "#EF4444",
+    "pending payment": "#F59E0B",
 };
 
 const statusChipColor = (s) => {
-    if (s === "completed") return "success";
-    if (s === "processing") return "info";
+    if (s === "completed" || s === "delivered") return "success";
+    if (s === "processing" || s === "shipped" || s === "in-transit") return "info";
     if (s === "failed" || s === "cancelled") return "error";
-    if (s === "on-hold" || s === "pending payment") return "warning";
+    if (s === "on-hold" || s === "pending" || s === "pending payment") return "warning";
     return "default";
 };
 
@@ -63,16 +65,16 @@ const OverviewPage = () => {
     useEffect(() => { dispatch(fetchOrders()); }, [dispatch]);
 
     // KPI calculations from real data
-    const totalRevenue = orders ? orders.reduce((s, o) => s + Number(o.total?.amount || 0), 0) : 0;
+    const totalRevenue = orders ? orders.reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0) : 0;
     const totalOrders = orders?.length || 0;
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const completedOrders = orders?.filter(o => o.status === "completed").length || 0;
-    const pendingOrders = orders?.filter(o => o.status === "pending payment" || o.status === "processing").length || 0;
+    const completedOrders = orders?.filter(o => o.status === "completed" || o.status === "delivered").length || 0;
+    const pendingOrders = orders?.filter(o => o.status === "pending" || o.status === "processing").length || 0;
     const totalCustomers = customers?.length || 0;
     const totalProducts = products?.length || 0;
     const featuredProducts = products?.filter(p => p.featured).length || 0;
     const lowStockProducts = products?.filter(p => p.stock_status === "lowstock" || p.stock_status === "outofstock").length || 0;
-    const completedRevenue = orders?.filter(o => o.status === "completed").reduce((s, o) => s + Number(o.total?.amount || 0), 0) || 0;
+    const completedRevenue = orders?.filter(o => o.status === "completed").reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0) || 0;
 
     // Revenue trend (last 14 days)
     const revenueTrend = useMemo(() => {
@@ -83,8 +85,8 @@ const OverviewPage = () => {
         for (let i = points - 1; i >= 0; i--) {
             const d = moment().subtract(i, "days");
             days.push(d.format("MM/DD"));
-            const dayOrders = (orders || []).filter(o => moment(o.createdAt).isSame(d, "day"));
-            revenue.push(dayOrders.reduce((s, o) => s + Number(o.total?.amount || 0), 0));
+            const dayOrders = (orders || []).filter(o => moment(o.date_created || o.created_at || o.createdAt).isSame(d, "day"));
+            revenue.push(dayOrders.reduce((s, o) => s + Number(o.total?.amount ?? o.total ?? 0), 0));
             orderCounts.push(dayOrders.length);
         }
         return {days, revenue, orders: orderCounts};
@@ -93,7 +95,7 @@ const OverviewPage = () => {
     // Monthly revenue
     const monthlyRevenue = useMemo(() => {
         const months = Array(12).fill(0);
-        (orders || []).forEach(o => { months[moment(o.createdAt).month()] += Number(o.total?.amount || 0); });
+        (orders || []).forEach(o => { months[moment(o.date_created || o.created_at || o.createdAt).month()] += Number(o.total?.amount ?? o.total ?? 0); });
         return months;
     }, [orders]);
     const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -105,7 +107,7 @@ const OverviewPage = () => {
             const s = o.status || "unknown";
             if (!map[s]) map[s] = {count: 0, total: 0};
             map[s].count += 1;
-            map[s].total += Number(o.total?.amount || 0);
+            map[s].total += Number(o.total?.amount ?? o.total ?? 0);
         });
         return map;
     }, [orders]);
@@ -121,7 +123,7 @@ const OverviewPage = () => {
         (orders || []).forEach(o => {
             (o.orderItems || []).forEach(item => {
                 const name = item.product?.title || "Unknown";
-                const img = typeof item.product?.image === "string" ? item.product.image : (item.product?.image?.secure_url || "");
+                const img = (() => { const p = item.product; if (!p) return ""; if (p.thumbnail) return p.thumbnail; if (Array.isArray(p.images) && p.images[0]) return p.images[0].secure_url || p.images[0].url || p.images[0].src || ""; if (typeof p.image === "string") return p.image; return p.image?.secure_url || p.image?.url || p.image?.src || ""; })();
                 if (!map[name]) map[name] = {name, img, sales: 0, revenue: 0};
                 map[name].sales += item.quantity || 1;
                 map[name].revenue += (item.product?.price?.amount || 0) * (item.quantity || 1);
@@ -152,12 +154,12 @@ const OverviewPage = () => {
                             p: {xs: 2.5, sm: 3}, mb: 3, overflow: "hidden", position: "relative",
                             background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%)",
                         }}>
-                            <Box sx={{position: "absolute", top: -30, right: -30, width: 150, height: 150, borderRadius: 0, backgroundColor: "rgba(255,255,255,0.08)"}}/>
-                            <Box sx={{position: "absolute", bottom: -40, right: 60, width: 100, height: 100, borderRadius: 0, backgroundColor: "rgba(255,255,255,0.05)"}}/>
+                            <Box sx={{position: "absolute", top: -30, right: -30, width: 150, height: 150, borderRadius: 1, backgroundColor: "rgba(255,255,255,0.08)"}}/>
+                            <Box sx={{position: "absolute", bottom: -40, right: 60, width: 100, height: 100, borderRadius: 1, backgroundColor: "rgba(255,255,255,0.05)"}}/>
                             <Stack direction={{xs: "column", sm: "row"}} spacing={2} alignItems={{xs: "flex-start", sm: "center"}} justifyContent="space-between" sx={{position: "relative", zIndex: 1}}>
                                 <Box>
                                     <Typography variant="h5" sx={{color: "#fff", fontWeight: 700, mb: 0.5}}>
-                                        {greeting}, {user?.firstName}
+                                        {greeting}, {user?.first_name || user?.display_name || "Admin"}
                                     </Typography>
                                     <Typography variant="body2" sx={{color: "rgba(255,255,255,0.75)"}}>
                                         Here's what's happening with your store today
@@ -245,9 +247,9 @@ const OverviewPage = () => {
                                 <Stack spacing={0.75} sx={{mt: 1}}>
                                     {pieData.map(d => (
                                         <Stack key={d.id} direction="row" spacing={1} alignItems="center">
-                                            <Box sx={{width: 8, height: 8, borderRadius: 0, bgcolor: d.color, flexShrink: 0}}/>
+                                            <Box sx={{width: 8, height: 8, borderRadius: 1, bgcolor: d.color, flexShrink: 0}}/>
                                             <Typography variant="caption" sx={{textTransform: "capitalize", flex: 1}}>{d.label}</Typography>
-                                            <Typography variant="caption" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 600}}>{d.value}</Typography>
+                                            <Typography variant="caption" sx={{fontFamily: "'GoogleSans', sans-serif", fontWeight: 600}}>{d.value}</Typography>
                                         </Stack>
                                     ))}
                                 </Stack>
@@ -274,7 +276,7 @@ const OverviewPage = () => {
                                     <Stack spacing={1.5}>
                                         {topProducts.map((p, i) => (
                                             <Stack key={i} direction="row" spacing={1.5} alignItems="center">
-                                                <Typography variant="caption" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 700, width: 18, color: i < 3 ? "secondary.main" : "text.secondary"}}>
+                                                <Typography variant="caption" sx={{fontFamily: "'GoogleSans', sans-serif", fontWeight: 700, width: 18, color: i < 3 ? "secondary.main" : "text.secondary"}}>
                                                     {i + 1}
                                                 </Typography>
                                                 <Avatar variant="rounded" src={p.img} sx={{width: 36, height: 36, bgcolor: "background.default"}}>
@@ -284,7 +286,7 @@ const OverviewPage = () => {
                                                     <Typography variant="body2" sx={{fontWeight: 500}} noWrap>{p.name}</Typography>
                                                     <Typography variant="caption" color="text.secondary">{p.sales} sold</Typography>
                                                 </Box>
-                                                <Typography variant="body2" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 700, color: "text.green"}}>
+                                                <Typography variant="body2" sx={{fontFamily: "'GoogleSans', sans-serif", fontWeight: 700, color: "text.green"}}>
                                                     £{p.revenue.toLocaleString()}
                                                 </Typography>
                                             </Stack>
@@ -323,10 +325,10 @@ const OverviewPage = () => {
                                                         <Typography variant="body2" color="secondary.main" sx={{fontWeight: 500}}>{order.number}</Typography>
                                                     </Link>
                                                 </TableCell>
-                                                <TableCell><Typography variant="body2">{order.customer?.name || "—"}</Typography></TableCell>
+                                                <TableCell><Typography variant="body2">{(() => { const c = order.customer_id ?? order.customer; if (!c) return "—"; if (typeof c === "object") return c.display_name || c.name || (c.first_name ? `${c.first_name} ${c.last_name || ""}`.trim() : c.email || "—"); return "—"; })()}</Typography></TableCell>
                                                 <TableCell><Chip label={order.status} size="small" color={statusChipColor(order.status)} sx={{textTransform: "capitalize", fontWeight: 500}}/></TableCell>
-                                                <TableCell align="right"><Typography variant="body2" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 600}}>£{Number(order.total?.amount || 0).toFixed(2)}</Typography></TableCell>
-                                                <TableCell><Typography variant="caption" color="text.secondary">{moment(order.createdAt).fromNow()}</Typography></TableCell>
+                                                <TableCell align="right"><Typography variant="body2" sx={{fontFamily: "'GoogleSans', sans-serif", fontWeight: 600}}>£{Number(order.total?.amount || 0).toFixed(2)}</Typography></TableCell>
+                                                <TableCell><Typography variant="caption" color="text.secondary">{moment(order.date_created || order.created_at || order.createdAt).fromNow()}</Typography></TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -346,7 +348,7 @@ const OverviewPage = () => {
                                                 <Box key={status}>
                                                     <Stack direction="row" justifyContent="space-between" sx={{mb: 0.5}}>
                                                         <Typography variant="caption" sx={{textTransform: "capitalize", fontWeight: 500}}>{status}</Typography>
-                                                        <Typography variant="caption" sx={{fontFamily: "'Inconsolata', monospace", fontWeight: 600}}>£{data.total.toLocaleString()}</Typography>
+                                                        <Typography variant="caption" sx={{fontFamily: "'GoogleSans', sans-serif", fontWeight: 600}}>£{data.total.toLocaleString()}</Typography>
                                                     </Stack>
                                                     <Box sx={{width: "100%", height: 6, borderRadius: 3, backgroundColor: "divider", overflow: "hidden"}}>
                                                         <motion.div
@@ -375,12 +377,12 @@ const OverviewPage = () => {
                                             ].map(item => (
                                                 <Link key={item.path} to={item.path} style={{textDecoration: "none"}}>
                                                     <Stack direction="row" spacing={1.5} alignItems="center" sx={{
-                                                        p: 1, borderRadius: 0, cursor: "pointer",
+                                                        p: 1, borderRadius: 1, cursor: "pointer",
                                                         transition: "all 0.2s",
                                                         "&:hover": {backgroundColor: "light.secondary"},
                                                     }}>
                                                         <Box sx={{
-                                                            width: 30, height: 30, borderRadius: 0,
+                                                            width: 30, height: 30, borderRadius: 1,
                                                             backgroundColor: "light.secondary", color: "secondary.main",
                                                             display: "flex", alignItems: "center", justifyContent: "center",
                                                         }}>

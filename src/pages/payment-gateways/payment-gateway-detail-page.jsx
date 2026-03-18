@@ -29,7 +29,7 @@ const SettingField = ({settingKey, setting, value, onChange}) => {
 
     if (setting.type === "toggle") {
         return (
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{py: 1, px: 1, borderRadius: 0, backgroundColor: "background.default"}}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{py: 1, px: 1, borderRadius: 1, backgroundColor: "background.default"}}>
                 <Box>
                     <Typography variant="body2" sx={{fontWeight: 500}}>{setting.label}</Typography>
                     {setting.placeholder && <Typography variant="caption" color="text.secondary">{setting.placeholder}</Typography>}
@@ -301,13 +301,13 @@ const PaymentGatewayDetailPage = () => {
                             <Paper elevation={0} sx={{p: 3, mb: 3, border: "1px solid", borderColor: localEnabled ? "border.green" : "divider"}}>
                                 <Typography variant="subtitle1" sx={{mb: 2, fontWeight: 600}}>Status</Typography>
                                 <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{
-                                    p: 1.5, borderRadius: 0,
+                                    p: 1.5, borderRadius: 1,
                                     backgroundColor: localEnabled ? "light.green" : "background.default"
                                 }}>
                                     <Stack direction="row" spacing={1} alignItems="center">
                                         {localEnabled
                                             ? <CheckCircleOutline sx={{fontSize: 20, color: "text.green"}}/>
-                                            : <Box sx={{width: 20, height: 20, borderRadius: 0, border: "2px solid", borderColor: "text.secondary"}}/>
+                                            : <Box sx={{width: 20, height: 20, borderRadius: 1, border: "2px solid", borderColor: "text.secondary"}}/>
                                         }
                                         <Typography variant="body2" sx={{fontWeight: 600, color: localEnabled ? "text.green" : "text.secondary"}}>
                                             {localEnabled ? "Gateway Enabled" : "Gateway Disabled"}
